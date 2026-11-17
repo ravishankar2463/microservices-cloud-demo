@@ -4,85 +4,59 @@ This reference catalog details every Java skill, architectural style, and engine
 
 ---
 
-## 1. Modern Java (Java 21+ LTS) Core Features
+## 1. CQRS (Command Query Responsibility Segregation)
 
-### A. Records (Immutable Data Carriers)
-- **Concept**: Eliminates boilerplate getters, constructors, `equals()`, `hashCode()`, and `toString()`, providing compiler-enforced shallow immutability.
-- **Where Used**:
-  - `com.ravi.common.domain.model.ApiResponse`: Standard immutable API response envelope.
-  - `com.ravi.common.domain.event.OrderCreatedEvent`: Domain events serialized across AWS SQS.
-  - DTOs and database projection records across all microservices.
-
-### B. Sealed Classes & Interfaces (Algebraic Data Types)
-- **Concept**: Restricts which classes or records may implement or extend an interface (`sealed ... permits ...`).
-- **Where Used**:
-  - `com.ravi.common.domain.event.OrderEvent`: Sealed domain event contract permitting only `OrderCreatedEvent`, `OrderPaidEvent`, and `OrderCancelledEvent`.
-  - `com.ravi.common.domain.model.Result`: Functional monad sealed to `Result.Success` and `Result.Failure`.
-- **Benefit**: Provides complete exhaustiveness guarantees during compilation.
-
-### C. Pattern Matching for `switch` and `instanceof`
-- **Concept**: Eliminates unsafe downcasting and nested `if-else` chains.
-- **Where Used**:
-  - Handling different event types in `OrderEvent.eventType()`.
-  - Event dispatcher in `notification-service` decomposing different message payloads without manual casting.
-
-```java
-public String handleEvent(OrderEvent event) {
-    return switch (event) {
-        case OrderCreatedEvent oce -> "Order created for customer: " + oce.customerId();
-        case OrderPaidEvent ope -> "Payment captured: " + ope.paymentReference();
-        case OrderCancelledEvent oce -> "Cancellation reason: " + oce.reason();
-    };
-}
-```
-
-### D. Virtual Threads (Project Loom)
-- **Concept**: Lightweight user-mode threads managed by the JVM rather than the OS kernel. Enables synchronous, blocking code to achieve the high-throughput characteristics of reactive programming without callback hell.
-- **Where Used**:
-  - Enabled globally in `application.yaml` via `spring.threads.virtual.enabled: true`.
-  - Used in `inventory-service` for handling concurrent I/O-bound requests against Redis and DynamoDB.
-  - Used in `notification-service` for parallel document generation and S3 uploads.
-
-### E. Defensive Immutability & Functional Design
-- **Concept**: Never mutate existing data structures. Return new copies with state changes.
-- **Where Used**:
-  - `Result<T, E>` monad for error handling without unchecked exceptions.
-  - Use of `List.copyOf()`, `Map.of()`, and `Stream` transformations across all services.
+- **Command Side (Write Model)**:
+  - In `order-service`, mutations are modeled as explicit immutable commands: [CreateOrderCommand.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/command/CreateOrderCommand.java) and [CancelOrderCommand.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/command/CancelOrderCommand.java).
+  - Executed by [OrderCommandHandler.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/command/OrderCommandHandler.java) within a transactional boundary.
+  - Persists domain state to relational database (`orders` table) and generates domain events stored in the `outbox_events` table in the same transaction.
+- **Query Side (Read Model)**:
+  - Query requests are handled by [OrderQueryHandler.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/query/OrderQueryHandler.java).
+  - Materialized read views ([OrderView.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/query/OrderView.java)) are cached in **Redis** with TTL. Queries never lock the write tables.
 
 ---
 
-## 2. Software Architecture & Design Patterns
+## 2. Event-Driven Architecture (EDA) with Apache Kafka & AWS SQS
 
-| Pattern | Service | Implementation Details |
-| :--- | :--- | :--- |
-| **Hexagonal Architecture** | `order-service` | Strict domain isolation. Inbound ports (`PlaceOrderUseCase`), outbound ports (`OrderRepositoryPort`, `OrderEventPublisherPort`), and external adapters. |
-| **Transactional Outbox** | `order-service` | Guarantees atomic state updates and event publishing to AWS SQS without distributed 2-Phase Commit (2PC) transactions. |
-| **Event-Driven Architecture (EDA)** | System-wide | AWS SNS/SQS event bus decouples producer services from consumer services. |
-| **Cache-Aside Pattern** | `inventory-service` | Cache read through Redis; fall back to primary storage; cache write on update. |
-| **Idempotent Consumer** | `notification-service` | Tracks event GUIDs in memory/storage to ensure messages processed multiple times from SQS produce identical outcomes without duplicate emails or charges. |
-| **Dead Letter Queue (DLQ)** | `notification-service` | Poison-pill message isolation via AWS SQS redrive policy. |
-| **Circuit Breaker & Fallback** | `inventory-service` | Resilience4j circuit breaker trips during high latency, returning cached fallback data. |
-
----
-
-## 3. Cloud & AWS Integration (Zero Sign-in Local Emulation)
-
-- **AWS SDK v2 (Java)**:
-  - Non-blocking, modern Java AWS client architecture (`software.amazon.awssdk`).
-  - Dynamic endpoint overrides configured in `common-aws` to route client traffic to the local emulator (`http://localhost:4566`).
-- **AWS SQS (Simple Queue Service)**:
-  - Asynchronous event bus for order processing.
-- **AWS SNS (Simple Notification Service)**:
-  - Pub/Sub topic with fan-out subscriptions to multiple microservice queues.
-- **AWS S3 (Simple Storage Service)**:
-  - Local bucket storage for generated PDF invoices and email archives using path-style access.
-- **AWS DynamoDB**:
-  - High-throughput NoSQL document storage for inventory state.
+- **Transactional Outbox Pattern**:
+  - Implemented in [OutboxPublisher.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/event/OutboxPublisher.java).
+  - Solves the dual-write problem by guaranteeing atomic local DB commit and subsequent asynchronous broadcast to Kafka topic `order-events` and AWS SQS queue `order-events-queue`.
+- **Event Streaming with Kafka**:
+  - Apache Kafka in KRaft mode acts as the high-throughput distributed commit log.
+  - Subscribed to by `inventory-service` for automatic stock reservation and `notification-service` for invoice generation.
+- **Idempotent Consumer Pattern**:
+  - Implemented in [IdempotentMessageStore.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/notification-service/src/main/java/com/ravi/notification/service/IdempotentMessageStore.java).
+  - Protects consumers from at-least-once message delivery duplicates.
 
 ---
 
-## 4. Testing & Quality Engineering
+## 3. High-Performance Caching & Distributed Locks with Redis
 
-- **Test-Driven Development (TDD)**: Test suites written to verify domain logic and event contracts before feature deployment.
-- **Slice & Unit Testing**: `@SpringBootTest`, Spring Boot context runners (`ApplicationContextRunner`), Mockito, and AssertJ.
-- **Integration Testing with Testcontainers**: Automated spin-up of real containerized PostgreSQL, Redis, and LocalStack instances inside JUnit 5 tests.
+- **Redis Cache-Aside Pattern**:
+  - In `order-service`, order read projections check Redis cache key `order:view:{id}` before falling back to PostgreSQL.
+- **Redis Distributed Locking**:
+  - Implemented in [RedisDistributedLock.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/inventory-service/src/main/java/com/ravi/inventory/service/RedisDistributedLock.java).
+  - Uses `SET key token NX PX timeout` to ensure that concurrent stock reservation requests for the same product across multiple service replicas execute atomically, preventing overselling.
+
+---
+
+## 4. Modern Java (Java 21+ LTS) Core Features
+
+- **Virtual Threads (Project Loom)**:
+  - Enabled via `spring.threads.virtual.enabled: true`.
+  - In `inventory-service`, demonstrated in [InventoryReservationService.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/inventory-service/src/main/java/com/ravi/inventory/service/InventoryReservationService.java) using `Executors.newVirtualThreadPerTaskExecutor()`, handling parallel stock audits without thread-pool starvation.
+- **Records as Immutable Data Carriers**:
+  - Used for commands, queries, domain events, and read views ([OrderCreatedEvent.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/event/OrderCreatedEvent.java), [OrderView.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/query/OrderView.java)).
+- **Sealed Interfaces & Pattern Matching**:
+  - Implemented in [OrderEvent.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/order-service/src/main/java/com/ravi/order/event/OrderEvent.java) for exhaustive compiler-checked event type dispatching.
+
+---
+
+## 5. API Gateway & Security Ingress
+
+- **Distributed Tracing Filter**:
+  - Implemented in [CorrelationIdFilter.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/api-gateway/src/main/java/com/ravi/gateway/filter/CorrelationIdFilter.java) to inject `X-Correlation-ID` across HTTP headers and logging MDC contexts.
+- **Token Bucket Rate Limiting**:
+  - Implemented in [RateLimiterService.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/api-gateway/src/main/java/com/ravi/gateway/ratelimit/RateLimiterService.java) to mitigate denial-of-service traffic spikes.
+- **Edge Reverse Proxy**:
+  - Implemented in [GatewayRoutingController.java](file:///c:/Users/ravis/Documents/Workspace/aws-demo/services/api-gateway/src/main/java/com/ravi/gateway/controller/GatewayRoutingController.java) forwarding client traffic to downstream microservice ports.
