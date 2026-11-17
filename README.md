@@ -91,7 +91,40 @@ aws-demo/
 
 ---
 
-## ⚡ Quickstart Guide
+## ⚡ Quickstart: Launch Everything & Open Dashboard
+
+To start the entire microservices platform, spin up all infrastructure (Kafka, PostgreSQL databases, Redis, Keycloak, LocalStack AWS Emulator), wait for health checks, and **automatically open the Control Center Dashboard** at `http://localhost:8090`:
+
+### Via Docker Compose (Recommended for local dev)
+```powershell
+# On Windows (PowerShell)
+.\start.ps1
+
+# On Linux / macOS / Git Bash
+./scripts/start-local.sh
+```
+
+### Via Kubernetes (Minikube / Docker Desktop K8s)
+```powershell
+# On Windows (PowerShell)
+.\start.ps1 -Mode k8s
+
+# On Linux / macOS / Git Bash
+./scripts/start-local.sh k8s
+```
+
+### To Stop Everything
+```powershell
+# On Windows (PowerShell)
+.\stop.ps1
+
+# On Linux / macOS / Git Bash
+./scripts/stop-local.sh
+```
+
+---
+
+## ⚡ Additional Options
 
 ### Option A: Clone & Run a Single Microservice Standalone
 Because every service is an independent entity with its own Git repo, you can cd into any service and run it in isolation:

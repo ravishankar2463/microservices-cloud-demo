@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: control-center
+  namespace: microservices-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: control-center
+  template:
+    metadata:
+      labels:
+        app: control-center
+    spec:
+      containers:
+        - name: control-center
+          image: control-center:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8090
+              name: http
+          env:
+            - name: SERVER_PORT
+              value: "8090"
+            - name: API_GATEWAY_URL
+              value: "http://api-gateway.microservices-demo.svc.cluster.local:8080"
+            - name: ORDER_SERVICE_URL
+              value: "http://order-service.microservices-demo.svc.cluster.local:8081"
+            - name: INVENTORY_SERVICE_URL
+              value: "http://inventory-service.microservices-demo.svc.cluster.local:8082"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://notification-service.microservices-demo.svc.cluster.local:8083"
+            - name: PAYMENT_SERVICE_URL
+              value: "http://payment-service.microservices-demo.svc.cluster.local:8084"
+            - name: PRODUCT_SERVICE_URL
+              value: "http://product-service.microservices-demo.svc.cluster.local:8085"
+            - name: KEYCLOAK_URL
+              value: "http://keycloak.microservices-demo.svc.cluster.local:8080"
+            - name: AWS_EMULATOR_URL
+              value: "http://aws-emulator.microservices-demo.svc.cluster.local:4566"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8090
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: control-center
+  namespace: microservices-demo
+spec:
+  type: NodePort
+  selector:
+    app: control-center
+  ports:
+    - port: 8090
+      targetPort: 8090
+      nodePort: 30090
+      name: http

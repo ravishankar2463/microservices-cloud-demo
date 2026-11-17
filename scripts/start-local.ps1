@@ -1,0 +1,219 @@
+﻿<#
+.SYNOPSIS
+    Starts the Local Java Microservices Platform via Docker Compose or Kubernetes and opens the Control Center Dashboard.
+
+.PARAMETER Mode
+    Deployment mode: "docker" (default) or "k8s" / "kubernetes".
+
+.PARAMETER SkipBuild
+    Skips the Maven packaging phase (useful if JARs are already compiled).
+
+.PARAMETER NoBrowser
+    Prevents automatically opening the dashboard in the default browser.
+
+.EXAMPLE
+    .\scripts\start-local.ps1
+    .\scripts\start-local.ps1 -Mode docker
+    .\scripts\start-local.ps1 -Mode k8s
+    .\scripts\start-local.ps1 -SkipBuild
+#>
+
+param(
+    [ValidateSet("docker", "k8s", "kubernetes")]
+    [string]$Mode = "docker",
+    [switch]$SkipBuild,
+    [switch]$NoBrowser
+)
+
+$ErrorActionPreference = "Stop"
+$ProjectRoot = (Get-Item "$PSScriptRoot\..").FullName
+Set-Location $ProjectRoot
+
+function Write-Step {
+    param([string]$Message)
+    Write-Host "`n[+] $Message" -ForegroundColor Cyan
+}
+
+function Write-Success {
+    param([string]$Message)
+    Write-Host "[✓] $Message" -ForegroundColor Green
+}
+
+function Write-Warn {
+    param([string]$Message)
+    Write-Host "[!] $Message" -ForegroundColor Yellow
+}
+
+function Write-Err {
+    param([string]$Message)
+    Write-Host "[✗] $Message" -ForegroundColor Red
+}
+
+Write-Host @"
+========================================================================
+ ⚡ Local Microservices Control Center & Platform Launcher
+ Mode: $($Mode.ToUpper()) | Root: $ProjectRoot
+========================================================================
+"@ -ForegroundColor DarkCyan
+
+# -----------------------------------------------------------------------------
+# 1. Check Prerequisites
+# -----------------------------------------------------------------------------
+Write-Step "Checking local environment prerequisites..."
+
+# Check Docker daemon
+try {
+    $dockerInfo = docker info 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Docker is not running."
+    }
+    Write-Success "Docker daemon is active and responsive."
+} catch {
+    Write-Err "Docker daemon is not running! Please start Docker Desktop and retry."
+    exit 1
+}
+
+# Check Java
+try {
+    $javaVersion = java -version 2>&1 | Out-String
+    Write-Success "Java runtime detected."
+} catch {
+    Write-Warn "Java not found on PATH; relying on local Maven wrapper / containers."
+}
+
+# -----------------------------------------------------------------------------
+# 2. Build Microservice JARs
+# -----------------------------------------------------------------------------
+if (-not $SkipBuild) {
+    Write-Step "Packaging microservice modules with Maven wrapper (skipping tests for rapid startup)..."
+    & "$ProjectRoot\mvnw.cmd" clean package -DskipTests
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "Maven packaging failed. Please resolve build errors before starting."
+        exit 1
+    }
+    Write-Success "All microservice JARs packaged successfully."
+} else {
+    Write-Warn "Skipping Maven build (-SkipBuild specified). Using existing JAR artifacts."
+}
+
+# -----------------------------------------------------------------------------
+# 3. Deploy Platform (Docker or Kubernetes)
+# -----------------------------------------------------------------------------
+$DashboardUrl = "http://localhost:8090"
+
+if ($Mode -eq "docker") {
+    Write-Step "Starting infrastructure and microservices with Docker Compose..."
+    docker compose -f "$ProjectRoot\docker\docker-compose.yml" up -d --build
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "docker compose up failed."
+        exit 1
+    }
+    Write-Success "Docker containers launched in background."
+
+} else {
+    Write-Step "Checking Kubernetes cluster connectivity..."
+    try {
+        $clusterInfo = kubectl cluster-info 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "Kubernetes cluster unreachable."
+        }
+        Write-Success "Kubernetes cluster connected."
+    } catch {
+        Write-Err "Unable to connect to a local Kubernetes cluster!
+Please ensure Kubernetes is enabled in Docker Desktop (Settings -> Kubernetes -> Enable),
+or start a local cluster via 'minikube start' or 'kind create cluster'.
+Tip: You can start immediately using Docker Compose by running:
+    .\scripts\start-local.ps1 -Mode docker"
+        exit 1
+    }
+
+    Write-Step "Building local container images for Kubernetes..."
+    $servicesToBuild = @(
+        @{ Name = "api-gateway"; Module = "services/api-gateway"; Jar = "api-gateway-0.0.1-SNAPSHOT.jar" },
+        @{ Name = "order-service"; Module = "services/order-service"; Jar = "order-service-0.0.1-SNAPSHOT.jar" },
+        @{ Name = "inventory-service"; Module = "services/inventory-service"; Jar = "inventory-service-0.0.1-SNAPSHOT.jar" },
+        @{ Name = "notification-service"; Module = "services/notification-service"; Jar = "notification-service-0.0.1-SNAPSHOT.jar" },
+        @{ Name = "payment-service"; Module = "services/payment-service"; Jar = "payment-service-0.0.1-SNAPSHOT.jar" },
+        @{ Name = "product-service"; Module = "services/product-service"; Jar = "product-service-0.0.1-SNAPSHOT.jar" },
+        @{ Name = "control-center"; Module = "services/control-center"; Jar = "control-center-0.0.1-SNAPSHOT.jar" }
+    )
+
+    foreach ($svc in $servicesToBuild) {
+        Write-Host "  -> Building image $($svc.Name):latest..." -ForegroundColor Gray
+        docker build -t "$($svc.Name):latest" -f "$ProjectRoot\docker\Dockerfile" `
+            --build-arg SERVICE_MODULE="$($svc.Module)" `
+            --build-arg APP_JAR="$($svc.Jar)" "$ProjectRoot" | Out-Null
+    }
+    Write-Success "All local service images built."
+
+    Write-Step "Applying Kubernetes manifests via Kustomize..."
+    kubectl apply -k "$ProjectRoot\k8s"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "kubectl apply failed."
+        exit 1
+    }
+
+    Write-Step "Waiting for control-center rollout..."
+    kubectl rollout status deployment/control-center -n microservices-demo --timeout=90s
+    $DashboardUrl = "http://localhost:30090"
+}
+
+# -----------------------------------------------------------------------------
+# 4. Wait for Control Center Dashboard Health
+# -----------------------------------------------------------------------------
+Write-Step "Waiting for Control Center & Dashboard to become ready at $DashboardUrl..."
+$maxAttempts = 30
+$attempt = 0
+$isHealthy = $false
+
+while ($attempt -lt $maxAttempts -and -not $isHealthy) {
+    $attempt++
+    try {
+        $response = Invoke-WebRequest -Uri "$DashboardUrl/actuator/health" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
+        if ($response.StatusCode -eq 200) {
+            $isHealthy = $true
+            break
+        }
+    } catch {
+        # Retry
+    }
+    Write-Host -NoNewline "."
+    Start-Sleep -Seconds 2
+}
+Write-Host ""
+
+if ($isHealthy) {
+    Write-Success "Control Center is HEALTHY and ready!"
+} else {
+    Write-Warn "Control Center health probe did not return 200 within timeout. Services may still be initializing."
+}
+
+# -----------------------------------------------------------------------------
+# 5. Service Directory Summary & Dashboard Launch
+# -----------------------------------------------------------------------------
+Write-Host @"
+
+========================================================================
+ 🌟 PLATFORM RUNNING - SERVICE ENDPOINTS & ACCESS
+========================================================================
+ Control Center Dashboard: $DashboardUrl
+ API Gateway:              http://localhost:8080
+ Order Service:            http://localhost:8081
+ Inventory Service:        http://localhost:8082
+ Notification Service:     http://localhost:8083
+ Payment Service:          http://localhost:8084
+ Product Service:          http://localhost:8085
+ Keycloak IAM:             http://localhost:8088  (admin / admin)
+ LocalStack AWS Emulator:  http://localhost:4566
+ Apache Kafka:             localhost:9092
+ Redis Cache:              localhost:6379
+ PostgreSQL Databases:     Order (5432), Product (5433), Payment (5434)
+========================================================================
+"@ -ForegroundColor Green
+
+if (-not $NoBrowser) {
+    Write-Step "Opening Control Center Dashboard in your default browser..."
+    Start-Process $DashboardUrl
+}
+
+Write-Success "Platform startup complete. Enjoy exploring the architecture!"
