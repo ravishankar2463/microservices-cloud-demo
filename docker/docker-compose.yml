@@ -19,6 +19,7 @@ services:
     volumes:
       - "./aws-init:/etc/localstack/init/ready.d"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      
     networks:
       - microservices-net
     healthcheck:
@@ -54,7 +55,7 @@ services:
       - microservices-net
 
   # ============================================================================
-  # Order Service Database (PostgreSQL - Decoupled DB per Service)
+  # Databases (PostgreSQL - Decoupled DB per Service)
   # ============================================================================
   order-db:
     image: postgres:16-alpine
@@ -71,6 +72,44 @@ services:
       - microservices-net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d order_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  product-db:
+    image: postgres:16-alpine
+    container_name: product-db
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d product_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payment-db:
+    image: postgres:16-alpine
+    container_name: payment-db
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5434:5432"
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d payment_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -110,9 +149,13 @@ services:
       - SERVER_PORT=8080
       - ORDER_SERVICE_URL=http://order-service:8081
       - INVENTORY_SERVICE_URL=http://inventory-service:8082
+      - PRODUCT_SERVICE_URL=http://product-service:8085
+      - PAYMENT_SERVICE_URL=http://payment-service:8084
     depends_on:
       - order-service
       - inventory-service
+      - product-service
+      - payment-service
     networks:
       - microservices-net
 
@@ -179,6 +222,51 @@ services:
     networks:
       - microservices-net
 
+  product-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE_MODULE: services/product-service
+        APP_JAR: product-service-0.0.1-SNAPSHOT.jar
+    container_name: product-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SERVER_PORT=8085
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://product-db:5432/product_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgrespassword
+    depends_on:
+      product-db:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  payment-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE_MODULE: services/payment-service
+        APP_JAR: payment-service-0.0.1-SNAPSHOT.jar
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SERVER_PORT=8084
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://payment-db:5432/payment_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgrespassword
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      payment-db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - microservices-net
+
   notification-service:
     build:
       context: ..
@@ -206,6 +294,8 @@ services:
 
 volumes:
   order-db-data:
+  product-db-data:
+  payment-db-data:
   redis-data:
 
 networks:
