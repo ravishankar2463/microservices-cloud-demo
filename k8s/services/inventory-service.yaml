@@ -4,7 +4,7 @@ metadata:
   name: inventory-service
   namespace: microservices-demo
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: inventory-service
