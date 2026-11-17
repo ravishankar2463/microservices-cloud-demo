@@ -19,7 +19,6 @@ services:
     volumes:
       - "./aws-init:/etc/localstack/init/ready.d"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      
     networks:
       - microservices-net
     healthcheck:
@@ -27,6 +26,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # ============================================================================
+  # Keycloak 25 (Centralized Identity Provider & OAuth2 / OIDC Auth Server)
+  # ============================================================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    container_name: keycloak
+    command: start-dev --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+    volumes:
+      - "./keycloak/ecommerce-realm.json:/opt/keycloak/data/import/ecommerce-realm.json:ro"
+    ports:
+      - "8088:8080"
+    networks:
+      - microservices-net
 
   # ============================================================================
   # Apache Kafka (KRaft mode - Event Streaming Backbone for EDA & CQRS)
@@ -151,11 +169,14 @@ services:
       - INVENTORY_SERVICE_URL=http://inventory-service:8082
       - PRODUCT_SERVICE_URL=http://product-service:8085
       - PAYMENT_SERVICE_URL=http://payment-service:8084
+      - KEYCLOAK_JWKS_URI=http://keycloak:8080/realms/ecommerce/protocol/openid-connect/certs
+      - SECURITY_ENABLED=true
     depends_on:
       - order-service
       - inventory-service
       - product-service
       - payment-service
+      - keycloak
     networks:
       - microservices-net
 

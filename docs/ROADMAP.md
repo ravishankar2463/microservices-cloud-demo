@@ -85,9 +85,14 @@ flowchart LR
 
 ---
 
-## Milestone 5: Centralized Security with Keycloak (Upcoming ⏳)
-- [ ] Add Keycloak 25 service in `docker-compose.yml` with pre-seeded `ecommerce` realm.
-- [ ] Configure Spring Security OAuth2 Resource Server with JWT token verification on API Gateway and downstream services.
+## Milestone 5: Centralized Security with Keycloak (Completed ✅)
+- [x] Added **Keycloak 25** container to `docker/docker-compose.yml` on port `8088:8080` with `--import-realm`.
+- [x] Authored pre-configured realm import file `docker/keycloak/ecommerce-realm.json` with `ROLE_CUSTOMER`, `ROLE_ADMIN`, and pre-seeded test users (`customer1`, `admin1`).
+- [x] Integrated Spring Security 7.x and OAuth2 Resource Server in `services/api-gateway`.
+- [x] Implemented `KeycloakJwtAuthenticationConverter` to extract Keycloak `realm_access.roles` into Spring `GrantedAuthority`.
+- [x] Implemented RBAC access rules separating public catalog browsing, customer checkout paths, and admin operations.
+- [x] Configured downstream identity propagation injecting `X-User-Id`, `X-User-Name`, and `X-User-Roles` headers into microservices.
+- [x] Authored comprehensive guide `docs/KEYCLOAK_SECURITY_GUIDE.md`.
 
 ---
 

@@ -1,0 +1,96 @@
+{
+  "id": "ecommerce",
+  "realm": "ecommerce",
+  "displayName": "E-Commerce Microservices Platform",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ROLE_CUSTOMER",
+        "description": "Standard verified customer role for placing orders and viewing order status"
+      },
+      {
+        "name": "ROLE_ADMIN",
+        "description": "Administrator role with full catalog mutation and management access"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "ecommerce-gateway",
+      "name": "E-Commerce API Gateway Client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ]
+    },
+    {
+      "clientId": "ecommerce-services",
+      "name": "Internal Microservices Resource Server",
+      "enabled": true,
+      "bearerOnly": true,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "customer1",
+      "enabled": true,
+      "email": "customer1@example.com",
+      "firstName": "Alice",
+      "lastName": "Customer",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ROLE_CUSTOMER"
+      ]
+    },
+    {
+      "username": "admin1",
+      "enabled": true,
+      "email": "admin1@example.com",
+      "firstName": "Bob",
+      "lastName": "Administrator",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ROLE_ADMIN",
+        "ROLE_CUSTOMER"
+      ]
+    }
+  ]
+}
