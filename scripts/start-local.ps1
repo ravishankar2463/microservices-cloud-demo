@@ -3,24 +3,28 @@
     Starts the Local Java Microservices Platform via Docker Compose or Kubernetes and opens the Control Center Dashboard.
 
 .PARAMETER Mode
-    Deployment mode: "docker" (default) or "k8s" / "kubernetes".
+    Deployment mode: "docker" (default) or "k8s" / "kubernetes" / "Kubernetes".
+    Supports positional argument:
+      .\start.ps1
+      .\start.ps1 docker
+      .\start.ps1 k8s
+      .\start.ps1 kubernetes
+      .\start.ps1 -Mode k8s
+      .\start.ps1 -Mode Kubernetes
 
 .PARAMETER SkipBuild
-    Skips the Maven packaging phase (useful if JARs are already compiled).
+    Skips the Maven packaging phase (uses existing target/*.jar artifacts).
 
 .PARAMETER NoBrowser
     Prevents automatically opening the dashboard in the default browser.
-
-.EXAMPLE
-    .\scripts\start-local.ps1
-    .\scripts\start-local.ps1 -Mode docker
-    .\scripts\start-local.ps1 -Mode k8s
-    .\scripts\start-local.ps1 -SkipBuild
 #>
 
 param(
-    [ValidateSet("docker", "k8s", "kubernetes")]
+    [Parameter(Position=0)]
+    [Alias("m")]
+    [ValidateSet("docker", "k8s", "kubernetes", "Kubernetes", "Docker", "K8s", IgnoreCase=$true)]
     [string]$Mode = "docker",
+
     [switch]$SkipBuild,
     [switch]$NoBrowser
 )
@@ -28,6 +32,11 @@ param(
 $ErrorActionPreference = "Stop"
 $ProjectRoot = (Get-Item "$PSScriptRoot\..").FullName
 Set-Location $ProjectRoot
+
+# Normalize mode
+$ModeLower = $Mode.ToLower()
+$IsK8s = ($ModeLower -in @("k8s", "kubernetes"))
+$TargetModeDisplay = if ($IsK8s) { "KUBERNETES" } else { "DOCKER COMPOSE" }
 
 function Write-Step {
     param([string]$Message)
@@ -52,7 +61,7 @@ function Write-Err {
 Write-Host @"
 ========================================================================
  ⚡ Local Microservices Control Center & Platform Launcher
- Mode: $($Mode.ToUpper()) | Root: $ProjectRoot
+ Mode: $TargetModeDisplay | Root: $ProjectRoot
 ========================================================================
 "@ -ForegroundColor DarkCyan
 
@@ -90,7 +99,7 @@ try {
     }
 }
 
-# Check Java
+# Check Java runtime
 try {
     $javaVersion = java -version 2>&1 | Out-String
     Write-Success "Java runtime detected."
@@ -118,7 +127,7 @@ if (-not $SkipBuild) {
 # -----------------------------------------------------------------------------
 $DashboardUrl = "http://localhost:8090"
 
-if ($Mode -eq "docker") {
+if (-not $IsK8s) {
     Write-Step "Starting infrastructure and microservices with Docker Compose..."
     docker compose -f "$ProjectRoot\docker\docker-compose.yml" up -d --build
     if ($LASTEXITCODE -ne 0) {
@@ -134,13 +143,14 @@ if ($Mode -eq "docker") {
         if ($LASTEXITCODE -ne 0) {
             throw "Kubernetes cluster unreachable."
         }
-        Write-Success "Kubernetes cluster connected."
+        $nodes = kubectl get nodes --no-headers 2>&1 | Out-String
+        Write-Success "Kubernetes cluster connected! Active nodes:`n$nodes"
     } catch {
         Write-Err "Unable to connect to a local Kubernetes cluster!
 Please ensure Kubernetes is enabled in Docker Desktop (Settings -> Kubernetes -> Enable),
 or start a local cluster via 'minikube start' or 'kind create cluster'.
 Tip: You can start immediately using Docker Compose by running:
-    .\scripts\start-local.ps1 -Mode docker"
+    .\start.ps1 -Mode docker"
         exit 1
     }
 
@@ -161,7 +171,7 @@ Tip: You can start immediately using Docker Compose by running:
             --build-arg SERVICE_MODULE="$($svc.Module)" `
             --build-arg APP_JAR="$($svc.Jar)" "$ProjectRoot" | Out-Null
     }
-    Write-Success "All local service images built."
+    Write-Success "All 7 local microservice container images built."
 
     Write-Step "Applying Kubernetes manifests via Kustomize..."
     kubectl apply -k "$ProjectRoot\k8s"
@@ -170,9 +180,20 @@ Tip: You can start immediately using Docker Compose by running:
         exit 1
     }
 
-    Write-Step "Waiting for control-center rollout..."
+    Write-Step "Waiting for control-center rollout in namespace 'microservices-demo'..."
     kubectl rollout status deployment/control-center -n microservices-demo --timeout=90s
-    $DashboardUrl = "http://localhost:30090"
+
+    Write-Step "Configuring port-forwarding for Control Center Dashboard..."
+    # Ensure any previous port-forward process is stopped
+    Get-Process -Name kubectl -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*port-forward*8090*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+    
+    # Start port-forward in background job
+    Start-Job -ScriptBlock {
+        kubectl port-forward svc/control-center 8090:8090 -n microservices-demo
+    } | Out-Null
+    
+    $DashboardUrl = "http://localhost:8090"
+    Write-Success "Kubernetes services deployed. NodePort: 30090, Direct Port: 8090."
 }
 
 # -----------------------------------------------------------------------------
@@ -211,16 +232,16 @@ if ($isHealthy) {
 Write-Host @"
 
 ========================================================================
- 🌟 PLATFORM RUNNING - SERVICE ENDPOINTS & ACCESS
+ 🌟 PLATFORM RUNNING - SERVICE ENDPOINTS & ACCESS ($TargetModeDisplay)
 ========================================================================
- Control Center Dashboard: $DashboardUrl
- API Gateway:              http://localhost:8080
+ Control Center Dashboard: $DashboardUrl (and http://localhost:30090 in K8s)
+ API Gateway:              http://localhost:8080 (NodePort: 30080 in K8s)
  Order Service:            http://localhost:8081
  Inventory Service:        http://localhost:8082
  Notification Service:     http://localhost:8083
  Payment Service:          http://localhost:8084
  Product Service:          http://localhost:8085
- Keycloak IAM:             http://localhost:8088  (admin / admin)
+ Keycloak IAM:             http://localhost:8088 (NodePort: 30088 in K8s)
  LocalStack AWS Emulator:  http://localhost:4566
  Apache Kafka:             localhost:9092
  Redis Cache:              localhost:6379

@@ -27,6 +27,12 @@ spec:
               value: "http://order-service.microservices-demo.svc.cluster.local:8081"
             - name: INVENTORY_SERVICE_URL
               value: "http://inventory-service.microservices-demo.svc.cluster.local:8082"
+            - name: PRODUCT_SERVICE_URL
+              value: "http://product-service.microservices-demo.svc.cluster.local:8085"
+            - name: PAYMENT_SERVICE_URL
+              value: "http://payment-service.microservices-demo.svc.cluster.local:8084"
+            - name: KEYCLOAK_JWKS_URI
+              value: "http://keycloak.microservices-demo.svc.cluster.local:8080/realms/ecommerce/protocol/openid-connect/certs"
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness

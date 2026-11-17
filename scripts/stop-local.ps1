@@ -4,18 +4,25 @@
 #>
 
 param(
-    [ValidateSet("docker", "k8s", "kubernetes")]
+    [Parameter(Position=0)]
+    [Alias("m")]
+    [ValidateSet("docker", "k8s", "kubernetes", "Kubernetes", "Docker", "K8s", IgnoreCase=$true)]
     [string]$Mode = "docker"
 )
 
 $ProjectRoot = (Get-Item "$PSScriptRoot\..").FullName
 Set-Location $ProjectRoot
 
-Write-Host "Stopping Microservices Platform ($($Mode.ToUpper()) mode)..." -ForegroundColor Yellow
+$ModeLower = $Mode.ToLower()
+$IsK8s = ($ModeLower -in @("k8s", "kubernetes"))
 
-if ($Mode -eq "docker") {
+Write-Host "Stopping Microservices Platform ($(if ($IsK8s) { 'KUBERNETES' } else { 'DOCKER' }) mode)..." -ForegroundColor Yellow
+
+if (-not $IsK8s) {
     docker compose -f "$ProjectRoot\docker\docker-compose.yml" down -v
 } else {
+    # Stop any background port-forward processes
+    Get-Process -Name kubectl -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*port-forward*" } | Stop-Process -Force -ErrorAction SilentlyContinue
     kubectl delete -k "$ProjectRoot\k8s" --ignore-not-found=true
 }
 

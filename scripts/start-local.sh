@@ -1,15 +1,24 @@
 #!/usr/bin/env bash
 set -e
 
-MODE="${1:-docker}"
+RAW_MODE="${1:-docker}"
+MODE_LOWER="$(echo "$RAW_MODE" | tr '[:upper:]' '[:lower:]')"
 SKIP_BUILD="${2:-false}"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cd "$PROJECT_ROOT"
 
+if [ "$MODE_LOWER" = "k8s" ] || [ "$MODE_LOWER" = "kubernetes" ]; then
+    DEPLOY_MODE="KUBERNETES"
+    IS_K8S=true
+else
+    DEPLOY_MODE="DOCKER COMPOSE"
+    IS_K8S=false
+fi
+
 echo "========================================================================"
 echo " ⚡ Local Microservices Control Center & Platform Launcher"
-echo " Mode: ${MODE^^} | Root: $PROJECT_ROOT"
+echo " Mode: $DEPLOY_MODE | Root: $PROJECT_ROOT"
 echo "========================================================================"
 
 # 1. Check Docker
@@ -28,15 +37,39 @@ fi
 
 # 3. Deploy
 DASHBOARD_URL="http://localhost:8090"
-if [ "$MODE" = "docker" ]; then
+if [ "$IS_K8S" = "false" ]; then
     echo "[+] Starting containers with Docker Compose..."
     docker compose -f docker/docker-compose.yml up -d --build
 else
+    echo "[+] Checking Kubernetes cluster..."
+    kubectl cluster-info
+    
+    echo "[+] Building local container images for Kubernetes..."
+    SERVICES=(
+        "services/api-gateway:api-gateway:api-gateway-0.0.1-SNAPSHOT.jar"
+        "services/order-service:order-service:order-service-0.0.1-SNAPSHOT.jar"
+        "services/inventory-service:inventory-service:inventory-service-0.0.1-SNAPSHOT.jar"
+        "services/notification-service:notification-service:notification-service-0.0.1-SNAPSHOT.jar"
+        "services/payment-service:payment-service:payment-service-0.0.1-SNAPSHOT.jar"
+        "services/product-service:product-service:product-service-0.0.1-SNAPSHOT.jar"
+        "services/control-center:control-center:control-center-0.0.1-SNAPSHOT.jar"
+    )
+
+    for item in "${SERVICES[@]}"; do
+        IFS=":" read -r mod name jar <<< "$item"
+        echo "  -> Building image $name:latest..."
+        docker build -t "$name:latest" -f docker/Dockerfile --build-arg SERVICE_MODULE="$mod" --build-arg APP_JAR="$jar" . >/dev/null
+    done
+
     echo "[+] Applying Kubernetes manifests via Kustomize..."
     kubectl apply -k k8s
+    
     echo "[+] Waiting for control-center deployment..."
     kubectl rollout status deployment/control-center -n microservices-demo --timeout=90s
-    DASHBOARD_URL="http://localhost:30090"
+    
+    echo "[+] Starting background port-forward for control-center..."
+    kubectl port-forward svc/control-center 8090:8090 -n microservices-demo >/dev/null 2>&1 &
+    DASHBOARD_URL="http://localhost:8090"
 fi
 
 # 4. Wait for health
