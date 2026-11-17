@@ -165,11 +165,22 @@ Tip: You can start immediately using Docker Compose by running:
         @{ Name = "control-center"; Module = "services/control-center"; Jar = "control-center-0.0.1-SNAPSHOT.jar" }
     )
 
+    $isKindCluster = (docker ps -q -f name=desktop-control-plane)
     foreach ($svc in $servicesToBuild) {
         Write-Host "  -> Building image $($svc.Name):latest..." -ForegroundColor Gray
         docker build -t "$($svc.Name):latest" -f "$ProjectRoot\docker\Dockerfile" `
             --build-arg SERVICE_MODULE="$($svc.Module)" `
             --build-arg APP_JAR="$($svc.Jar)" "$ProjectRoot" | Out-Null
+
+        if ($isKindCluster) {
+            Write-Host "     Loading image into local Kubernetes node (desktop-control-plane)..." -ForegroundColor DarkGray
+            $tarFile = "$ProjectRoot\$($svc.Name).tar"
+            docker save -o $tarFile "$($svc.Name):latest"
+            docker cp $tarFile "desktop-control-plane:/tmp/$($svc.Name).tar"
+            docker exec desktop-control-plane ctr -n k8s.io images import "/tmp/$($svc.Name).tar" | Out-Null
+            docker exec desktop-control-plane rm "/tmp/$($svc.Name).tar" | Out-Null
+            Remove-Item $tarFile -Force -ErrorAction SilentlyContinue
+        }
     }
     Write-Success "All 7 local microservice container images built."
 

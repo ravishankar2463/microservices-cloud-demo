@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Stops the Local Java Microservices Platform (Docker Compose or Kubernetes).
 #>
