@@ -41,17 +41,60 @@ foreach ($pm in $portMappings) {
     Start-Process -FilePath "kubectl" -ArgumentList "port-forward", "svc/$($pm.Service)", "$($pm.LocalPort):$($pm.SvcPort)", "-n", $Namespace -WindowStyle Hidden
 }
 
-Start-Sleep -Seconds 2
+Start-Sleep -Milliseconds 800
 
-Write-Host "`nVerifying port connectivity on localhost..." -ForegroundColor Cyan
-foreach ($pm in $portMappings) {
-    $tcp = Test-NetConnection -ComputerName "127.0.0.1" -Port $pm.LocalPort -WarningAction SilentlyContinue
-    if ($tcp.TcpTestSucceeded) {
-        Write-Host "  [✓] localhost:$($pm.LocalPort) ($($pm.Name)) is OPEN" -ForegroundColor Green
-    } else {
-        Write-Host "  [!] localhost:$($pm.LocalPort) ($($pm.Name)) still initializing" -ForegroundColor Yellow
+Write-Host "`nVerifying port connectivity on localhost (parallel async check)..." -ForegroundColor Cyan
+
+function Test-PortsParallel {
+    param([array]$mappings, [int]$timeoutMs = 600)
+    $probes = @()
+    foreach ($pm in $mappings) {
+        $client = New-Object System.Net.Sockets.TcpClient
+        $iar = $client.BeginConnect("127.0.0.1", $pm.LocalPort, $null, $null)
+        $probes += [PSCustomObject]@{
+            Client    = $client
+            IAR       = $iar
+            LocalPort = $pm.LocalPort
+            Name      = $pm.Name
+            Connected = $false
+        }
+    }
+
+    foreach ($p in $probes) {
+        $ok = $p.IAR.AsyncWaitHandle.WaitOne($timeoutMs, $false)
+        if ($ok -and $p.Client.Connected) {
+            try { $p.Client.EndConnect($p.IAR) } catch {}
+            $p.Connected = $true
+        }
+        $p.Client.Close()
+    }
+    return $probes
+}
+
+$results = Test-PortsParallel $portMappings 600
+
+# Quick retry for any still establishing
+$unconnected = $results | Where-Object { -not $_.Connected }
+if ($unconnected.Count -gt 0) {
+    Start-Sleep -Milliseconds 500
+    $retryMappings = $portMappings | Where-Object { $_.LocalPort -in $unconnected.LocalPort }
+    $retryResults = Test-PortsParallel $retryMappings 600
+    foreach ($rr in $retryResults) {
+        if ($rr.Connected) {
+            $match = $results | Where-Object { $_.LocalPort -eq $rr.LocalPort }
+            if ($match) { $match.Connected = $true }
+        }
     }
 }
+
+foreach ($r in $results) {
+    if ($r.Connected) {
+        Write-Host "  [✓] localhost:$($r.LocalPort) ($($r.Name)) is OPEN" -ForegroundColor Green
+    } else {
+        Write-Host "  [!] localhost:$($r.LocalPort) ($($r.Name)) still initializing" -ForegroundColor Yellow
+    }
+}
+
 Write-Host "`nAll local development ports configured successfully!" -ForegroundColor Green
 
 if ($KeepAlive) {

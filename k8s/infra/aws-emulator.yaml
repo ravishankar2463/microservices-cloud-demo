@@ -24,6 +24,10 @@ spec:
               value: "sqs,sns,s3,dynamodb"
             - name: AWS_DEFAULT_REGION
               value: "us-east-1"
+            - name: DISABLE_CORS_CHECKS
+              value: "1"
+            - name: EXTRA_CORS_ALLOWED_ORIGINS
+              value: "*"
           resources:
             requests:
               cpu: "250m"
