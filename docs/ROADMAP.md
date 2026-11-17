@@ -1,6 +1,6 @@
 # Implementation Roadmap & Engineering Milestones
 
-This document outlines the evolutionary roadmap for the **AWS Demo** cloud-native platform, detailing the progression from repository restructuring to production-grade distributed resilience.
+This document tracks the phased milestones for the **E-Commerce Order Management and Fulfilment Platform**, advancing from repository restructuring to production-grade distributed resilience.
 
 ---
 
@@ -8,55 +8,81 @@ This document outlines the evolutionary roadmap for the **AWS Demo** cloud-nativ
 
 ```mermaid
 flowchart LR
-    P1["Phase 1\nRepo Restructure &\nStandalone Decoupling"] --> P2["Phase 2\nHexagonal Order Svc &\nSQS Publisher"]
-    P2 --> P3["Phase 3\nVirtual Threads &\nRedis Inventory"]
-    P3 --> P4["Phase 4\nAsync SQS Consumer &\nS3 Invoice Archival"]
-    P4 --> P5["Phase 5\nDocker Compose &\nK8s Orchestration"]
+    P0["Milestone 0\nPolyrepo Restructure &\nStandalone Decoupling"] --> P1["Milestone 1\nCQRS, Kafka, Outbox,\nRedis Locks & Loom"]
+    P1 --> P2["Milestone 2\nProduct Catalog &\nSimulated Payment Svc"]
+    P2 --> P3["Milestone 3\nSaga Orchestration &\nCompensation Loop"]
+    P3 --> P4["Milestone 4\nKeycloak Security &\nOAuth2/JWT"]
+    P4 --> P5["Milestone 5\nObservability Stack\nPrometheus/Grafana/Tempo"]
 ```
 
 ---
 
-## Milestone 1: Decoupled Multi-Service Skeleton & Infrastructure (Completed ✅)
-- [x] Restructured repository from monolithic flat starter into decoupled autonomous microservices.
-- [x] Created individual Git histories for each service (`services/order-service`, `services/inventory-service`, `services/notification-service`, `services/api-gateway`).
-- [x] Provisioned standalone Maven wrappers and Dockerfiles inside each service so any service can be cloned and run in isolation.
-- [x] Wrote Docker Compose stack integrating **Local AWS Emulator** (LocalStack for SQS, SNS, S3, DynamoDB with zero sign-in), PostgreSQL, and Redis.
-- [x] Wrote and verified Kubernetes manifests (`k8s/`) with Kustomize overlay.
-- [x] Authored comprehensive documentation (`ARCHITECTURE.md`, `JAVA_SKILLS_CATALOG.md`, `LOCAL_AWS_EMULATOR_GUIDE.md`).
+## Milestone 0: Decoupled Multi-Service Skeleton & Polyrepo Infrastructure (Completed ✅)
+- [x] Transformed repository into decoupled autonomous microservices inside an umbrella orchestrator.
+- [x] Initialized standalone Git repositories and independent commit histories for each service (`services/*`).
+- [x] Provisioned standalone Maven wrappers (`mvnw`, `mvnw.cmd`, `.mvn/`) and `Dockerfile` inside every service so each can be cloned and built in total isolation.
+- [x] Wrote Docker Compose stack with **Local AWS Emulator** (LocalStack for SQS, SNS, S3, DynamoDB with zero sign-in), PostgreSQL, and Redis.
+- [x] Authored architecture documentation, Java skills catalog, and emulator guide.
 
 ---
 
-## Milestone 2: Order Service Business Logic & Hexagonal Outbox
-- [ ] Implement Hexagonal Ports and Adapters for `order-service`:
-  - `PlaceOrderUseCase` interface and validation rules.
-  - `OrderRepositoryPort` with PostgreSQL JPA adapter.
-  - `OrderEventPublisherPort` with Transactional Outbox table and SQS publisher.
-- [ ] Unit & slice tests with Mockito and AssertJ.
-- [ ] Integration test using Testcontainers for PostgreSQL and SQS.
+## Milestone 1: CQRS, Event-Driven Backbone & Concurrency (Completed ✅)
+- [x] **`order-service`**: Implemented CQRS write command handler (`CreateOrderCommand`, `CancelOrderCommand`) and read query handler (`GetOrderByIdQuery`, `OrderView`) with Redis Cache-Aside.
+- [x] **Transactional Outbox Pattern**: Implemented atomic outbox table insertion and event publisher broadcasting to Kafka topic `order-events` and AWS SQS queue `order-events-queue`.
+- [x] **`inventory-service`**: Implemented Redis distributed concurrency locking (`RedisDistributedLock` with `SET NX PX`) and Java 21 Virtual Threads (Project Loom) stock audit.
+- [x] **`notification-service`**: Implemented Idempotent Consumer filter (`IdempotentMessageStore`), Kafka listener, and AWS S3 document archival adapter.
+- [x] **`api-gateway`**: Implemented token-bucket rate limiter (`RateLimiterService`) and correlation ID tracing filter (`CorrelationIdFilter` injecting `X-Correlation-ID`).
 
 ---
 
-## Milestone 3: Inventory Service Concurrency & Virtual Threads
-- [ ] Configure Java 21 Project Loom virtual thread executor for high-concurrency reservation endpoints.
-- [ ] Implement Redis distributed locks (`SETNX` / Redisson) to prevent overselling.
-- [ ] Integrate Resilience4j:
-  - Circuit Breaker for Redis read failures.
-  - Rate Limiter for inventory probe endpoints.
-- [ ] Implement AWS DynamoDB repository adapter for item catalog storage.
+## Milestone 2: Catalog & Payment Simulation Services (Completed ✅)
+- [x] **`services/product-service`**:
+  - Standalone Git repository (`93b2ece`), dedicated Maven wrapper, Dockerfile, and README.
+  - Domain aggregate `Product`, value object `Category`, immutable Java 21 Records (`ProductDto`, `CreateProductRequest`).
+  - Spring Data JPA repository and service with category and name search.
+  - REST endpoints: `GET /api/products`, `GET /api/products/{id}`, `GET /api/products/sku/{sku}`, `POST /api/products`, `DELETE /api/products/{id}`.
+  - Standalone unit & integration tests passing 5/5.
+- [x] **`services/payment-service`**:
+  - Standalone Git repository (`374dd0e`), dedicated Maven wrapper, Dockerfile, and README.
+  - Domain aggregate `Payment`, enum `PaymentStatus`, immutable Java 21 Records (`ProcessPaymentCommand`, `PaymentResult`, `PaymentResponseDto`).
+  - Deterministic simulated payment adapter (`SimulatedPaymentProviderAdapter`):
+    - Standard amounts: `CAPTURED` with transaction reference.
+    - Amounts ending in `.99` (e.g. `$19.99`): `DECLINED` (Insufficient funds trigger for Saga compensation).
+    - Amounts ending in `.50` (e.g. `$49.50`): `FAILED` (Gateway timeout trigger for resilience testing).
+  - Idempotency guarantee preventing duplicate charges on identical `idempotency_key`.
+  - Event publishing to Kafka topic `payment-events` (`PaymentCapturedEvent`, `PaymentFailedEvent`).
+  - Standalone unit & integration tests passing 5/5.
 
 ---
 
-## Milestone 4: Notification Service & S3 Archival
-- [ ] Implement `@SqsListener` for `order-events-queue`.
-- [ ] Implement Idempotent Consumer filter using message GUIDs.
-- [ ] Render HTML/PDF invoice summaries upon receiving `OrderCreatedEvent`.
-- [ ] Upload generated invoices to `s3://order-invoices-bucket` via AWS SDK v2 `S3Client`.
-- [ ] Dead-Letter Queue (DLQ) poison pill retry and alerting.
+## Milestone 3: End-to-End Saga Orchestration & Compensation (Completed ✅)
+- [x] **Saga Orchestrator in `order-service`**:
+  - Implemented `OrderSagaOrchestrator` listening to Kafka topic `payment-events`.
+  - Confirms order upon receiving `PaymentCapturedEvent`.
+  - Executes compensating transaction upon receiving `PaymentFailedEvent`, moving order to `CANCELLED` and publishing `OrderCancelledEvent` with affected items payload.
+- [x] **Compensating Stock Release in `inventory-service`**:
+  - Added `releaseStock(productId, quantity)` using atomic Redis distributed locks.
+  - Added REST endpoint `POST /api/inventory/release`.
+  - Enhanced `OrderEventListener` to trigger automated stock release when receiving cancellation events.
+- [x] **Gateway Routing**:
+  - Updated `api-gateway` with routes to `product-service` (:8085) and `payment-service` (:8084).
+- [x] **System-Wide Verification**:
+  - All 11 modules in the Maven aggregator reactor build cleanly and pass all 31 unit & integration tests.
 
 ---
 
-## Milestone 5: API Gateway & Production Packaging
-- [ ] Configure edge routing to downstream services.
-- [ ] Implement correlation ID (`X-Correlation-ID`) generation and logging filter.
-- [ ] Build multi-arch container images using Docker buildx.
-- [ ] Deploy and verify full stack on local Kubernetes (Minikube / Docker Desktop K8s).
+## Milestone 4: Database Hardening & Schema Versioning (Upcoming ⏳)
+- [ ] Implement Flyway SQL migration scripts across all services (`V1__init.sql`).
+- [ ] Migrate PostgreSQL DDL generation from `ddl-auto: update` to version-controlled Flyway migrations.
+
+---
+
+## Milestone 5: Centralized Security with Keycloak (Upcoming ⏳)
+- [ ] Add Keycloak 25 service in `docker-compose.yml` with pre-seeded `ecommerce` realm.
+- [ ] Configure Spring Security OAuth2 Resource Server with JWT token verification on API Gateway and downstream services.
+
+---
+
+## Milestone 6: Distributed Observability & Golden Signals (Upcoming ⏳)
+- [ ] Integrate Prometheus metrics and Grafana dashboards for latency, traffic, errors, and saturation.
+- [ ] Add OpenTelemetry distributed tracing with Jaeger / Grafana Tempo.
