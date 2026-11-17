@@ -194,17 +194,11 @@ Tip: You can start immediately using Docker Compose by running:
     Write-Step "Waiting for control-center rollout in namespace 'microservices-demo'..."
     kubectl rollout status deployment/control-center -n microservices-demo --timeout=90s
 
-    Write-Step "Configuring port-forwarding for Control Center Dashboard..."
-    # Ensure any previous port-forward process is stopped
-    Get-Process -Name kubectl -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*port-forward*8090*" } | Stop-Process -Force -ErrorAction SilentlyContinue
-    
-    # Start port-forward in background job
-    Start-Job -ScriptBlock {
-        kubectl port-forward svc/control-center 8090:8090 -n microservices-demo
-    } | Out-Null
+    Write-Step "Configuring local development port-forwarding for all microservices & infrastructure..."
+    & "$ProjectRoot\scripts\open-k8s-ports.ps1" -Namespace "microservices-demo"
     
     $DashboardUrl = "http://localhost:8090"
-    Write-Success "Kubernetes services deployed. NodePort: 30090, Direct Port: 8090."
+    Write-Success "All local Kubernetes service ports mapped to localhost (Redis, Kafka, PostgreSQL, LocalStack, Keycloak, Microservices)."
 }
 
 # -----------------------------------------------------------------------------

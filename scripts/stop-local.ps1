@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Stops the Local Java Microservices Platform (Docker Compose or Kubernetes).
 #>
@@ -22,7 +22,7 @@ if (-not $IsK8s) {
     docker compose -f "$ProjectRoot\docker\docker-compose.yml" down -v
 } else {
     # Stop any background port-forward processes
-    Get-Process -Name kubectl -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*port-forward*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+    Get-CimInstance Win32_Process -Filter "Name = 'kubectl.exe'" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*port-forward*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
     kubectl delete -k "$ProjectRoot\k8s" --ignore-not-found=true
 }
 
