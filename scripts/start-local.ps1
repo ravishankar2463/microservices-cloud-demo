@@ -176,9 +176,9 @@ Tip: You can start immediately using Docker Compose by running:
             Write-Host "     Loading image into local Kubernetes node (desktop-control-plane)..." -ForegroundColor DarkGray
             $tarFile = "$ProjectRoot\$($svc.Name).tar"
             docker save -o $tarFile "$($svc.Name):latest"
-            docker cp $tarFile "desktop-control-plane:/tmp/$($svc.Name).tar"
-            docker exec desktop-control-plane ctr -n k8s.io images import "/tmp/$($svc.Name).tar" | Out-Null
-            docker exec desktop-control-plane rm "/tmp/$($svc.Name).tar" | Out-Null
+            docker cp $tarFile "desktop-control-plane:/root/$($svc.Name).tar"
+            docker exec desktop-control-plane ctr -n k8s.io images import "/root/$($svc.Name).tar" | Out-Null
+            docker exec desktop-control-plane rm "/root/$($svc.Name).tar" | Out-Null
             Remove-Item $tarFile -Force -ErrorAction SilentlyContinue
         }
     }
