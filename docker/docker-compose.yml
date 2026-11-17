@@ -313,6 +313,31 @@ services:
     networks:
       - microservices-net
 
+  control-center:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE_MODULE: services/control-center
+        APP_JAR: control-center-0.0.1-SNAPSHOT.jar
+    container_name: control-center
+    ports:
+      - "8090:8090"
+    environment:
+      - SERVER_PORT=8090
+      - API_GATEWAY_URL=http://api-gateway:8080
+      - ORDER_SERVICE_URL=http://order-service:8081
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8083
+      - PAYMENT_SERVICE_URL=http://payment-service:8084
+      - PRODUCT_SERVICE_URL=http://product-service:8085
+      - KEYCLOAK_URL=http://keycloak:8080
+      - AWS_EMULATOR_URL=http://aws-emulator:4566
+    depends_on:
+      - api-gateway
+    networks:
+      - microservices-net
+
 volumes:
   order-db-data:
   product-db-data:

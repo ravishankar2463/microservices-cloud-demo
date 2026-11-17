@@ -17,6 +17,7 @@
 		<module>api-gateway</module>
 		<module>product-service</module>
 		<module>payment-service</module>
+		<module>control-center</module>
 	</modules>
 
 </project>
