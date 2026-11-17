@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws-emulator
+  namespace: microservices-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aws-emulator
+  template:
+    metadata:
+      labels:
+        app: aws-emulator
+    spec:
+      containers:
+        - name: localstack
+          image: localstack/localstack:3.7.2
+          ports:
+            - containerPort: 4566
+              name: gateway
+          env:
+            - name: SERVICES
+              value: "sqs,sns,s3,dynamodb"
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aws-emulator
+  namespace: microservices-demo
+spec:
+  selector:
+    app: aws-emulator
+  ports:
+    - port: 4566
+      targetPort: 4566
+      name: gateway

@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: microservices-demo
+
+resources:
+  - base/namespace.yaml
+  - base/configmap.yaml
+  - base/secrets.yaml
+  - infra/aws-emulator.yaml
+  - infra/postgres.yaml
+  - infra/redis.yaml
+  - services/api-gateway.yaml
+  - services/order-service.yaml
+  - services/inventory-service.yaml
+  - services/notification-service.yaml

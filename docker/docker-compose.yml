@@ -1,0 +1,174 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # Local AWS Emulator (No sign-in, completely local and free)
+  # Emulates SQS, SNS, S3, DynamoDB
+  # ============================================================================
+  aws-emulator:
+    image: localstack/localstack:3.7.2
+    container_name: aws-emulator
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # External service port range
+    environment:
+      - SERVICES=sqs,sns,s3,dynamodb
+      - AWS_DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DEBUG=1
+    volumes:
+      - "./aws-init:/etc/localstack/init/ready.d"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Order Service Database (PostgreSQL - Decoupled DB per Service)
+  # ============================================================================
+  order-db:
+    image: postgres:16-alpine
+    container_name: order-db
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d order_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Inventory Service Cache & Distributed Locks (Redis)
+  # ============================================================================
+  inventory-redis:
+    image: redis:7-alpine
+    container_name: inventory-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Decoupled Microservice Entities
+  # ============================================================================
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE_MODULE: services/api-gateway
+        APP_JAR: api-gateway-0.0.1-SNAPSHOT.jar
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - ORDER_SERVICE_URL=http://order-service:8081
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+    depends_on:
+      - order-service
+      - inventory-service
+    networks:
+      - microservices-net
+
+  order-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE_MODULE: services/order-service
+        APP_JAR: order-service-0.0.1-SNAPSHOT.jar
+    container_name: order-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://order-db:5432/order_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgrespassword
+      - AWS_ENDPOINT_URL=http://aws-emulator:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    depends_on:
+      order-db:
+        condition: service_healthy
+      aws-emulator:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  inventory-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE_MODULE: services/inventory-service
+        APP_JAR: inventory-service-0.0.1-SNAPSHOT.jar
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVER_PORT=8082
+      - REDIS_HOST=inventory-redis
+      - REDIS_PORT=6379
+      - AWS_ENDPOINT_URL=http://aws-emulator:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    depends_on:
+      inventory-redis:
+        condition: service_healthy
+      aws-emulator:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  notification-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE_MODULE: services/notification-service
+        APP_JAR: notification-service-0.0.1-SNAPSHOT.jar
+    container_name: notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SERVER_PORT=8083
+      - AWS_ENDPOINT_URL=http://aws-emulator:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    depends_on:
+      aws-emulator:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+volumes:
+  order-db-data:
+  redis-data:
+
+networks:
+  microservices-net:
+    driver: bridge
