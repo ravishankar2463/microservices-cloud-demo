@@ -98,8 +98,17 @@ foreach ($r in $results) {
 Write-Host "`nAll local development ports configured successfully!" -ForegroundColor Green
 
 if ($KeepAlive) {
-    Write-Host "Keeping port-forward connections alive in background..." -ForegroundColor Cyan
+    Write-Host "Keeping port-forward connections alive in background with self-healing..." -ForegroundColor Cyan
     while ($true) {
-        Start-Sleep -Seconds 60
+        Start-Sleep -Seconds 10
+        $health = Test-PortsParallel $portMappings 400
+        $dropped = $health | Where-Object { -not $_.Connected }
+        foreach ($d in $dropped) {
+            $pm = $portMappings | Where-Object { $_.LocalPort -eq $d.LocalPort } | Select-Object -First 1
+            if ($pm) {
+                # Revive dropped port-forward
+                Start-Process -FilePath "kubectl" -ArgumentList "port-forward", "svc/$($pm.Service)", "$($pm.LocalPort):$($pm.SvcPort)", "-n", $Namespace -WindowStyle Hidden
+            }
+        }
     }
 }
