@@ -61,16 +61,33 @@ Write-Host @"
 # -----------------------------------------------------------------------------
 Write-Step "Checking local environment prerequisites..."
 
-# Check Docker daemon
+# Check Docker daemon & WSL health with auto-recovery
 try {
     $dockerInfo = docker info 2>&1
     if ($LASTEXITCODE -ne 0) {
-        throw "Docker is not running."
+        throw "Docker daemon not responding."
     }
     Write-Success "Docker daemon is active and responsive."
 } catch {
-    Write-Err "Docker daemon is not running! Please start Docker Desktop and retry."
-    exit 1
+    Write-Warn "Docker daemon is not responsive. Attempting automatic WSL2 recovery..."
+    try {
+        & wsl.exe --shutdown | Out-Null
+        Start-Sleep -Seconds 2
+        & wsl.exe -d docker-desktop -e echo "WSL wake" | Out-Null
+        if (Test-Path "C:\Program Files\Docker\Docker\Docker Desktop.exe") {
+            Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+            Write-Host "Waiting 15 seconds for Docker Desktop to boot..." -ForegroundColor Gray
+            Start-Sleep -Seconds 15
+        }
+        $dockerInfo = docker info 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "Docker recovery failed."
+        }
+        Write-Success "Docker daemon successfully recovered and active."
+    } catch {
+        Write-Err "Docker daemon is not running! Please start Docker Desktop and retry."
+        exit 1
+    }
 }
 
 # Check Java
