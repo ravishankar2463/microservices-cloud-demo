@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  jmx:
+    enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://localhost:8088/realms/ecommerce/protocol/openid-connect/certs}
+
+security:
+  enabled: ${SECURITY_ENABLED:true}
+
+order:
+  service:
+    url: ${ORDER_SERVICE_URL:http://localhost:8081}
+
+inventory:
+  service:
+    url: ${INVENTORY_SERVICE_URL:http://localhost:8082}
+
+product:
+  service:
+    url: ${PRODUCT_SERVICE_URL:http://localhost:8085}
+
+payment:
+  service:
+    url: ${PAYMENT_SERVICE_URL:http://localhost:8084}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

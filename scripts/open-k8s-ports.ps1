@@ -89,7 +89,7 @@ if ($unconnected.Count -gt 0) {
 
 foreach ($r in $results) {
     if ($r.Connected) {
-        Write-Host "  [✓] localhost:$($r.LocalPort) ($($r.Name)) is OPEN" -ForegroundColor Green
+        Write-Host "  [OK] localhost:$($r.LocalPort) ($($r.Name)) is OPEN" -ForegroundColor Green
     } else {
         Write-Host "  [!] localhost:$($r.LocalPort) ($($r.Name)) still initializing" -ForegroundColor Yellow
     }

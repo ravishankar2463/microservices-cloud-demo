@@ -13,7 +13,10 @@
       .\start.ps1 -Mode Kubernetes
 
 .PARAMETER SkipBuild
-    Skips the Maven packaging phase (uses existing target/*.jar artifacts).
+    Skips Maven and Docker builds completely (uses existing JARs and container images).
+
+.PARAMETER ForceBuild
+    Bypasses per-folder Git diff change detection and forces rebuilding all 7 microservices.
 
 .PARAMETER NoBrowser
     Prevents automatically opening the dashboard in the default browser.
@@ -26,7 +29,8 @@ param(
     [string]$Mode = "k8s",
 
     [switch]$SkipBuild,
+    [switch]$ForceBuild,
     [switch]$NoBrowser
 )
 
-& "$PSScriptRoot\scripts\start-local.ps1" -Mode $Mode -SkipBuild:$SkipBuild -NoBrowser:$NoBrowser
+& "$PSScriptRoot\scripts\start-local.ps1" -Mode $Mode -SkipBuild:$SkipBuild -ForceBuild:$ForceBuild -NoBrowser:$NoBrowser

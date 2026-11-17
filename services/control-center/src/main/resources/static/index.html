@@ -1,0 +1,3643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Microservices Control Center | Local Architecture & Operations</title>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-panel: #111827;
+      --bg-card: #1f2937;
+      --bg-card-hover: #374151;
+      --border-color: #374151;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar Navigation */
+    #sidebar {
+      width: 260px;
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      font-size: 24px;
+      color: var(--accent-cyan);
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 12px 8px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      margin-bottom: 4px;
+    }
+
+    .nav-item:hover {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+    }
+
+    .nav-item.active {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: var(--accent-cyan);
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .env-badge-container {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+    }
+
+    .env-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Main Content Area */
+    #main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header Bar */
+    header {
+      height: 60px;
+      background-color: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .header-title-group h1 {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn:hover {
+      background-color: var(--bg-card-hover);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+
+    /* View Content Container */
+    .view-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: none;
+    }
+
+    .view-content.active {
+      display: block;
+    }
+
+    /* Grid & Card Layouts */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Section Panels */
+    .panel {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Tables */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background-color: rgba(31, 41, 55, 0.5);
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+
+    .data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .data-table tr:hover td {
+      background-color: rgba(55, 65, 81, 0.3);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .badge-up {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-down {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-type {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--accent-cyan);
+    }
+
+    .badge-warn {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+    }
+
+    /* Architecture Visualizer SVG */
+    #architecture-canvas-container {
+      position: relative;
+      background-color: #0d121f;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      height: 600px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .topo-controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .filter-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: var(--accent-blue);
+      color: white;
+      border-color: var(--accent-blue);
+    }
+
+    /* Node Inspector Drawer */
+    #node-drawer {
+      position: absolute;
+      top: 0;
+      right: -360px;
+      width: 350px;
+      height: 100%;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border-color);
+      padding: 20px;
+      transition: right 0.25s ease-in-out;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+      z-index: 20;
+      overflow-y: auto;
+    }
+
+    #node-drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .drawer-field {
+      margin-bottom: 14px;
+    }
+
+    .drawer-field-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .drawer-field-val {
+      font-size: 13px;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      word-break: break-all;
+    }
+
+    /* Saga Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+      margin-top: 16px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      left: 9px;
+      width: 2px;
+      background: var(--border-color);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -28px;
+      top: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-panel);
+      border: 2px solid var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .timeline-dot.success { border-color: var(--accent-green); color: var(--accent-green); }
+    .timeline-dot.failed { border-color: var(--accent-red); color: var(--accent-red); }
+    .timeline-dot.compensated { border-color: var(--accent-amber); color: var(--accent-amber); }
+
+    .timeline-content {
+      background: var(--bg-card);
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .timeline-step-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .timeline-details {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Learning Mode & Saga Inspector Styles */
+    .learning-mode-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      background: rgba(139, 92, 246, 0.12);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #c4b5fd;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .learning-mode-switch:hover {
+      background: rgba(139, 92, 246, 0.2);
+    }
+    .learning-mode-switch input {
+      accent-color: #8b5cf6;
+      cursor: pointer;
+      width: 14px;
+      height: 14px;
+    }
+    .view-mode-toggle {
+      display: inline-flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .view-mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .view-mode-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+    .step-inspector-box {
+      margin-top: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .step-nav-tabs {
+      display: flex;
+      background: rgba(30, 41, 59, 0.8);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+    .step-nav-btn {
+      padding: 8px 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .step-nav-btn:hover {
+      color: #f1f5f9;
+    }
+    .step-nav-btn.active {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .step-pane-content {
+      padding: 12px 14px;
+      font-size: 12px;
+    }
+    .diff-table-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .diff-component-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .diff-comp-title {
+      font-weight: 600;
+      font-size: 11.5px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .diff-comp-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.08);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .diff-comp-row:last-child {
+      border-bottom: none;
+    }
+    .diff-comp-label {
+      color: var(--text-muted);
+    }
+    .diff-comp-val {
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+    .delta-highlight-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+    .delta-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+    .delta-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+    .delta-blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
+
+    .aop-header-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .aop-code-box {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-x: auto;
+      color: #94a3b8;
+    }
+    .aop-code-box pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .aop-log-item {
+      color: #cbd5e1;
+      padding: 1px 0;
+    }
+    .aop-log-item:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    .dossier-card {
+      background: rgba(30, 41, 59, 0.3);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .dossier-blueprint-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+      .dossier-blueprint-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .blueprint-col {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 6px;
+      padding: 10px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .blueprint-col.current {
+      border-left: 3px solid #38bdf8;
+    }
+    .blueprint-col.enterprise {
+      border-left: 3px solid #a855f7;
+    }
+
+    /* Swimlane Styles */
+    .swimlane-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 16px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .swimlane-step {
+      flex: 0 0 auto;
+      min-width: 170px;
+      max-width: 200px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .swimlane-step:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+    .swimlane-step.active {
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+    .swimlane-step.success {
+      border-top: 3px solid var(--accent-green);
+    }
+    .swimlane-step.failed {
+      border-top: 3px solid var(--accent-red);
+    }
+    .swimlane-step.compensated {
+      border-top: 3px solid var(--accent-amber);
+    }
+    .swimlane-arrow {
+      flex: 0 0 auto;
+      color: var(--text-muted);
+      font-size: 16px;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    /* Learning Center Cards */
+    .learning-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 18px;
+    }
+
+    .learning-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .learning-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .learning-category {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .learning-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .learning-problem {
+      font-size: 12px;
+      color: #e5e7eb;
+      line-height: 1.5;
+      background: rgba(0,0,0,0.2);
+      padding: 8px;
+      border-radius: 4px;
+      border-left: 3px solid var(--accent-amber);
+    }
+
+    .learning-concept {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .learning-code-ref {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: #0f172a;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #1e293b;
+    }
+
+    /* Operation Scenarios Runner */
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .scenario-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .scenario-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .scenario-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    #operation-result-panel {
+      margin-top: 20px;
+      display: none;
+    }
+
+    /* Live cURL & Request Customizer */
+    .curl-box-wrap {
+      position: relative;
+      margin: 8px 0;
+    }
+
+    .curl-box {
+      background: #080c18;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 6px;
+      padding: 8px 36px 8px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #38bdf8;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.4;
+    }
+
+    .curl-copy-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 11px;
+      padding: 3px 8px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .curl-copy-btn:hover {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .live-builder-panel {
+      background: #0b1120;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .code-editor-area {
+      width: 100%;
+      height: 110px;
+      background: #050811;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+      line-height: 1.4;
+    }
+
+    .code-editor-area:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    /* Toast notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--accent-blue);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    #toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Infrastructure Admin Styles */
+    .infra-platform-toggle {
+      display: inline-flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .infra-platform-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .infra-platform-btn.active {
+      background: var(--accent-blue);
+      color: white;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .alert-banner {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-left: 4px solid var(--accent-red);
+      color: #fca5a5;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .terminal-container {
+      background: #0b0f19;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .terminal-header {
+      background: #111827;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1f2937;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .terminal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: #93c5fd;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .terminal-body {
+      padding: 14px 16px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #d1d5db;
+      background: #090d16;
+      max-height: 480px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .terminal-line-err {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.12);
+      display: block;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    .terminal-line-warn {
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.08);
+      display: block;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    .terminal-line-info {
+      color: #60a5fa;
+    }
+
+    /* Interactive Educational Hover Tooltips */
+    .has-tip {
+      border-bottom: 1px dotted rgba(148, 163, 184, 0.55);
+      cursor: help;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .has-tip:hover {
+      color: #38bdf8 !important;
+      border-bottom-color: #38bdf8;
+    }
+    .diff-comp-row.has-tip {
+      border-bottom: none;
+      border-radius: 4px;
+      padding: 2px 4px;
+      margin: 0 -4px;
+    }
+    .diff-comp-row.has-tip:hover {
+      background: rgba(56, 189, 248, 0.08);
+      color: inherit !important;
+    }
+    .diff-comp-row.has-tip .diff-comp-label {
+      border-bottom: 1px dotted rgba(148, 163, 184, 0.55);
+    }
+    .diff-comp-row.has-tip:hover .diff-comp-label {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+    }
+    #edu-tooltip {
+      position: fixed;
+      z-index: 99999;
+      max-width: 340px;
+      padding: 10px 13px;
+      background: rgba(15, 23, 42, 0.97);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(15, 23, 42, 0.8);
+      color: #e2e8f0;
+      font-family: var(--font-sans, system-ui, sans-serif);
+      font-size: 12px;
+      line-height: 1.48;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.14s ease, transform 0.14s ease;
+      backdrop-filter: blur(8px);
+    }
+    #edu-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #edu-tooltip .edu-tip-title {
+      font-weight: 700;
+      font-size: 12px;
+      color: #38bdf8;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #edu-tooltip .edu-tip-body {
+      color: #cbd5e1;
+      font-size: 11.5px;
+    }
+    #edu-tooltip .edu-tip-why {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(148, 163, 184, 0.18);
+      color: #86efac;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">Control Center</div>
+        <div class="brand-subtitle">Microservices Ops</div>
+      </div>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-item active" onclick="switchTab('overview')">
+        <span class="nav-icon">📊</span> Overview
+      </li>
+      <li class="nav-item" onclick="switchTab('architecture')">
+        <span class="nav-icon">🌐</span> Architecture Explorer
+      </li>
+      <li class="nav-item" onclick="switchTab('infra-admin')" style="background: rgba(59, 130, 246, 0.12); border-left: 3px solid var(--accent-cyan); font-weight: 600;">
+        <span class="nav-icon">🪵</span> Logs &amp; Pod Admin
+        <span class="badge" style="background: rgba(6, 182, 212, 0.25); color: var(--accent-cyan); font-size: 10px; margin-left: auto;">LIVE</span>
+      </li>
+      <li class="nav-item" onclick="switchTab('aws-emulator')" style="background: rgba(245, 158, 11, 0.12); border-left: 3px solid var(--accent-amber); font-weight: 600;">
+        <span class="nav-icon">☁️</span> AWS LocalStack
+        <span class="badge" style="background: rgba(245, 158, 11, 0.25); color: var(--accent-amber); font-size: 10px; margin-left: auto;">EMULATOR</span>
+      </li>
+      <li class="nav-item" onclick="switchTab('services')">
+        <span class="nav-icon">📦</span> Service Registry
+      </li>
+      <li class="nav-item" onclick="switchTab('events')">
+        <span class="nav-icon">📬</span> Kafka &amp; Events
+      </li>
+      <li class="nav-item" onclick="switchTab('request-flow')">
+        <span class="nav-icon">🔀</span> Live Request Flow
+      </li>
+      <li class="nav-item" onclick="switchTab('sagas')">
+        <span class="nav-icon">🔄</span> Saga Explorer
+      </li>
+      <li class="nav-item" onclick="switchTab('learning')">
+        <span class="nav-icon">🎓</span> Learning Center
+      </li>
+      <li class="nav-item" onclick="switchTab('operations')">
+        <span class="nav-icon">🚀</span> Operations Console
+      </li>
+    </ul>
+
+    <div class="env-badge-container">
+      <div class="env-badge">
+        <span class="pulse-dot"></span>
+        <span id="env-text">LOCAL_DEV : 8090 • v1.3</span>
+      </div>
+      <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">
+        14/14 Pods • 100% UP
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Workspace -->
+  <div id="main-container">
+    <header>
+      <div class="header-title-group">
+        <h1 id="view-title">System Overview</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn" style="background: rgba(59, 130, 246, 0.2); border-color: var(--accent-blue); color: #93c5fd; font-weight: 600;" onclick="switchTab('infra-admin')">
+          <span>🪵</span> Service &amp; Pod Logs
+        </button>
+        <span id="last-refresh" style="font-size: 12px; color: var(--text-muted);">Just now</span>
+        <button class="btn" onclick="refreshDashboard()">
+          <span>🔄</span> Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- TAB 1: System Overview -->
+    <div id="view-overview" class="view-content active">
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span class="metric-label">Microservices</span>
+          <span class="metric-value" id="kpi-total-services">8</span>
+          <span class="metric-sub" id="kpi-services-sub">Across 8 Independent Ports</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Services Status</span>
+          <span class="metric-value" style="color: var(--accent-green);" id="kpi-running-services">-</span>
+          <span class="metric-sub" id="kpi-unhealthy-services">- down / unprobed</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Kafka Topics</span>
+          <span class="metric-value" style="color: var(--accent-cyan);" id="kpi-kafka-topics">4</span>
+          <span class="metric-sub">Event-Driven Backbone</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">System Health</span>
+          <span class="metric-value" id="kpi-system-health">-</span>
+          <span class="metric-sub">Actuator Virtual Probe</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🛡️ Architectural Ecosystem Summary</div>
+        </div>
+        <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+          <p style="margin-bottom: 10px;">
+            The <strong>Local Microservices Platform</strong> is designed with strict domain boundaries, independent Git histories, standalone Maven builds, and zero-cost local infrastructure.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 14px;">
+            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <div style="font-weight: 600; color: var(--accent-cyan); margin-bottom: 4px;">🚀 Core Patterns</div>
+              <div>CQRS, Transactional Outbox, Saga Orchestrator with Compensations, Redis Distributed Locks (SET NX PX), and Project Loom Virtual Threads.</div>
+            </div>
+            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer;" onclick="switchTab('aws-emulator')">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div style="font-weight: 600; color: var(--accent-green);">☁️ Zero Cloud Cost (LocalStack)</div>
+                <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); font-size: 10px;">VIEW ↗</span>
+              </div>
+              <div>LocalStack AWS Cloud Emulator on port 4566 emulating S3, SQS, SNS, DynamoDB &amp; Kinesis. Click to explore dashboard.</div>
+            </div>
+            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <div style="font-weight: 600; color: var(--accent-purple); margin-bottom: 4px;">🔐 Centralized Security</div>
+              <div>Keycloak 25 OIDC on port 8088 issuing JWT tokens validated at the Spring Cloud Gateway with header enrichment.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🚨 Active Operational Alerts</div>
+        </div>
+        <div id="overview-alerts" style="font-size: 13px;">
+          <div style="color: var(--accent-green);">No active operational alerts. System is nominal.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Architecture Explorer -->
+    <div id="view-architecture" class="view-content">
+      <div id="architecture-canvas-container">
+        <div class="topo-controls">
+          <span class="filter-chip active" onclick="filterTopo('ALL', this)">All Nodes</span>
+          <span class="filter-chip" onclick="filterTopo('SYNC_REST', this)">Sync REST</span>
+          <span class="filter-chip" onclick="filterTopo('ASYNC_KAFKA', this)">Async Kafka</span>
+          <span class="filter-chip" onclick="filterTopo('PERSISTENCE', this)">Databases</span>
+          <span class="filter-chip" onclick="filterTopo('CLOUD_INTEGRATION', this)">AWS LocalStack</span>
+        </div>
+
+        <svg id="topo-svg" width="100%" height="100%" viewBox="0 0 1100 600">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#4b5563" />
+            </marker>
+            <marker id="arrow-active" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#06b6d4" />
+            </marker>
+          </defs>
+
+          <!-- SVG Edges rendered dynamically -->
+          <g id="svg-edges"></g>
+          <!-- SVG Nodes rendered dynamically -->
+          <g id="svg-nodes"></g>
+        </svg>
+
+        <!-- Right Side Drawer for Selected Node -->
+        <div id="node-drawer">
+          <div class="drawer-header">
+            <h3 id="drawer-title" style="font-size: 15px; font-weight: 600;">Service Details</h3>
+            <button class="btn" style="padding: 4px 8px;" onclick="closeDrawer()">✕</button>
+          </div>
+          <div class="drawer-field">
+            <div class="drawer-field-label">Status</div>
+            <div id="drawer-status"></div>
+          </div>
+          <div class="drawer-field">
+            <div class="drawer-field-label">Type & Port</div>
+            <div id="drawer-type-port" class="drawer-field-val"></div>
+          </div>
+          <div class="drawer-field">
+            <div class="drawer-field-label">Base URL</div>
+            <div id="drawer-url" class="drawer-field-val"></div>
+          </div>
+          <div class="drawer-field">
+            <div class="drawer-field-label">Database Ownership</div>
+            <div id="drawer-db" class="drawer-field-val"></div>
+          </div>
+          <div class="drawer-field">
+            <div class="drawer-field-label">Kafka Topics Consumed</div>
+            <div id="drawer-consumed" class="drawer-field-val"></div>
+          </div>
+          <div class="drawer-field">
+            <div class="drawer-field-label">Kafka Topics Produced</div>
+            <div id="drawer-produced" class="drawer-field-val"></div>
+          </div>
+          <div class="drawer-field">
+            <div class="drawer-field-label">Description & Architecture Role</div>
+            <div id="drawer-desc" style="font-size: 12px; color: var(--text-muted); line-height: 1.4;"></div>
+          </div>
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <button id="drawer-btn-logs" class="btn btn-primary" style="width: 100%; justify-content: center; background: #2563eb; color: #fff;">
+              <span>🪵</span> Inspect Live Pod Logs
+            </button>
+            <button id="drawer-btn-aws" class="btn" onclick="switchTab('aws-emulator')" style="width: 100%; justify-content: center; background: rgba(245, 158, 11, 0.2); border: 1px solid var(--accent-amber); color: var(--accent-amber); display: none;">
+              <span>☁️</span> Open AWS LocalStack Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Live Request Flow -->
+    <div id="view-request-flow" class="view-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🔀 Distributed Transaction Journey (Order Placement & Saga Execution)</div>
+        </div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+          This visualizer illustrates the real-time path taken by an incoming request through API Gateway, Kafka event broker, Saga Orchestrator, Redis concurrency locks, and LocalStack cloud storage.
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-blue);">
+            <div style="font-size: 20px;">1️⃣</div>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main);">Client Request & Gateway Authentication</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Customer sends <code>POST /api/orders</code> with JWT. <strong>API Gateway (8080)</strong> checks token against <strong>Keycloak (8088)</strong>, executes Token-Bucket rate limiting, injects <code>X-Correlation-ID</code>, and proxies to Order Service.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-cyan);">
+            <div style="font-size: 20px;">2️⃣</div>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main);">ACID Write & Transactional Outbox</div>
+              <div style="font-size: 12px; color: var(--text-muted);"><strong>Order Service (8081)</strong> saves <code>Order</code> in PostgreSQL write model and simultaneously inserts <code>OutboxEvent</code> in the SAME ACID database transaction. Scheduled relay publishes <code>OrderCreatedEvent</code> to Kafka and AWS SQS.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-purple);">
+            <div style="font-size: 20px;">3️⃣</div>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main);">Inventory Reservation & Concurrency Lock</div>
+              <div style="font-size: 12px; color: var(--text-muted);"><strong>Inventory Service (8082)</strong> consumes event on Java 21 Virtual Thread, acquires Redis distributed lock <code>SET lock:stock:{sku} NX PX 5000</code>, decrements available stock, and emits inventory event.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-amber);">
+            <div style="font-size: 20px;">4️⃣</div>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main);">Payment Gateway Authorization</div>
+              <div style="font-size: 12px; color: var(--text-muted);"><strong>Payment Service (8084)</strong> executes simulated payment with idempotency key. Emits <code>PaymentCapturedEvent</code> (or <code>PaymentFailedEvent</code> if amount triggered decline rule).</div>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-green);">
+            <div style="font-size: 20px;">5️⃣</div>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main);">Saga Completion & Document Archival</div>
+              <div style="font-size: 12px; color: var(--text-muted);"><strong>OrderSagaOrchestrator</strong> receives payment confirmation, marks order <code>CONFIRMED</code>. <strong>Notification Service (8083)</strong> idempotently consumes order event, generates PDF invoice, and archives it to <strong>LocalStack S3</strong> bucket.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Services Registry -->
+    <div id="view-services" class="view-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📦 Registered Ecosystem Microservices</div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Type</th>
+              <th>Port</th>
+              <th>Base URL</th>
+              <th>Status</th>
+              <th>Response Time</th>
+              <th>Database</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="services-table-body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 5: Kafka & Events -->
+    <div id="view-events" class="view-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📬 Real-Time Kafka Event Explorer (KRaft Event Stream)</div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button id="btn-toggle-all-events" class="btn" onclick="toggleAllKafkaEventPayloads()" title="Expand or collapse all Kafka message payloads">
+              <span>📂</span> Expand All Payloads
+            </button>
+            <button class="btn" style="background: rgba(59, 130, 246, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 600;" onclick="openNodeLogsDirect('kafka')">
+              <span>🪵</span> View Live Kafka Broker Logs
+            </button>
+            <select id="event-topic-select" class="btn" onchange="loadEvents()">
+              <option value="">All Topics</option>
+              <option value="order-events">order-events</option>
+              <option value="payment-events">payment-events</option>
+              <option value="inventory-events">inventory-events</option>
+              <option value="order-events-dlq">order-events-dlq</option>
+            </select>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Event ID</th>
+              <th>Event Type</th>
+              <th>Topic</th>
+              <th>Producer ➔ Consumer</th>
+              <th>Status</th>
+              <th>Kafka Message Payload</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="events-table-body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 6: Saga Explorer -->
+    <div id="view-sagas" class="view-content">
+      <div class="panel">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div class="panel-title">🔄 Distributed Transaction & Saga Workflows</div>
+            <span class="badge badge-info has-tip" style="font-size: 11px;"
+              data-tip-title="Choreographed & Orchestrated Sagas"
+              data-tip-body="Instead of slow two-phase commit (2PC) database locks across services, each microservice commits its own local transaction and publishes a Kafka event. OrderSagaOrchestrator reacts to payment outcomes to either confirm or trigger compensating rollbacks."
+              data-tip-why="Keeps services decoupled, resilient, and independently scalable while maintaining eventual consistency.">CHOREOGRAPHED & ORCHESTRATED SAGAS</span>
+            <span style="font-size: 11px; color: var(--text-muted);">💡 Hover over underlined terms for explanations</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <!-- Learning Mode Toggle -->
+            <label class="learning-mode-switch" title="Toggle Spring AOP join point interception, real-time infrastructure snapshots, and educational dossiers">
+              <input type="checkbox" id="learning-mode-toggle" checked onchange="toggleLearningMode(this.checked)">
+              <span class="learning-mode-label">🎓 Learning Mode [DEBUG]</span>
+            </label>
+            <!-- View Mode Switcher -->
+            <div class="view-mode-toggle">
+              <button id="btn-view-timeline" class="view-mode-btn active" onclick="switchSagaView('timeline')">
+                <span>📋</span> Detailed Timeline & Diffs
+              </button>
+              <button id="btn-view-swimlane" class="view-mode-btn" onclick="switchSagaView('swimlane')">
+                <span>🗺️</span> Full User Flow Swimlane
+              </button>
+            </div>
+            <button class="btn btn-sm" onclick="loadSagas()"><span>🔄</span> Refresh Sagas</button>
+          </div>
+        </div>
+
+        <!-- Swimlane Container -->
+        <div id="sagas-swimlane-container" style="display: none; margin-bottom: 20px;">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Detailed Timeline & Diffs Container -->
+        <div id="sagas-container">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: Learning Center -->
+    <div id="view-learning" class="view-content">
+      <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 16px; margin-bottom: 6px;">Microservices Architectural Learning Center</h2>
+        <p style="font-size: 13px; color: var(--text-muted);">Explore the core architectural patterns, design motivations, code implementations, and trade-offs used across this demo project.</p>
+      </div>
+      <div class="learning-grid" id="learning-grid">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 8: Live Operations Console -->
+    <div id="view-operations" class="view-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">⚡ Live Operations &amp; Transaction Workflow Console</div>
+          <span class="badge badge-up">LIVE CLUSTER ACTIVE</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Execute live HTTP requests against running Kubernetes microservices. Every action generates the exact executable <code style="color: #38bdf8;">curl</code> command, tracks live Kafka event streaming, captures before/after state diffs (PostgreSQL, Redis, S3), and visualizes real distributed saga rollbacks with zero mock data.
+        </p>
+
+        <!-- Scenario Presets Grid -->
+        <div class="scenario-grid">
+          <!-- Preset 1: Happy Path -->
+          <div class="scenario-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div class="scenario-title">🟢 1. Happy Path E-Commerce Flow</div>
+                <span class="badge badge-up">ACID + SAGA</span>
+              </div>
+              <div class="scenario-desc">Creates order ($149.00), reserves stock with Redis mutex lock, captures payment, confirms order, and stores invoice in AWS LocalStack S3.</div>
+              <div class="curl-box-wrap">
+                <div class="curl-box" id="curl-preset-happy">curl -X POST "http://localhost:8081/api/orders" \
+  -H "Content-Type: application/json" \
+  -H "X-Correlation-ID: corr-live-happy" \
+  -d '{"customerId":"cust-live-01","items":[{"productId":"PROD-TECH-001","quantity":1,"unitPrice":149.00}]}'</div>
+                <button class="curl-copy-btn" onclick="copyCurl('curl-preset-happy')">📋 Copy</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button class="btn btn-primary" style="flex: 1;" onclick="triggerLiveFlow('happy-path')">⚡ Execute Live Flow</button>
+              <button class="btn" style="border-color: rgba(255,255,255,0.2);" onclick="openRequestEditor('happy-path')">⚙️ Edit</button>
+            </div>
+          </div>
+
+          <!-- Preset 2: Payment Decline -->
+          <div class="scenario-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div class="scenario-title">🔴 2. Payment Decline &amp; Saga Rollback</div>
+                <span class="badge badge-warn">COMPENSATION</span>
+              </div>
+              <div class="scenario-desc">Submits order ($5000.00), card exceeds limit (402), Kafka event triggers compensating transaction: order cancelled and reserved stock restored in Redis.</div>
+              <div class="curl-box-wrap">
+                <div class="curl-box" id="curl-preset-decline">curl -X POST "http://localhost:8081/api/orders" \
+  -H "Content-Type: application/json" \
+  -H "X-Correlation-ID: corr-live-decline" \
+  -d '{"customerId":"cust-decline-01","items":[{"productId":"PROD-TECH-001","quantity":1,"unitPrice":5000.00}]}'</div>
+                <button class="curl-copy-btn" onclick="copyCurl('curl-preset-decline')">📋 Copy</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button class="btn" style="flex: 1; border-color: var(--accent-amber); color: var(--accent-amber); background: rgba(245, 158, 11, 0.1);" onclick="triggerLiveFlow('payment-decline')">⚡ Execute Live Flow</button>
+              <button class="btn" style="border-color: rgba(255,255,255,0.2);" onclick="openRequestEditor('payment-decline')">⚙️ Edit</button>
+            </div>
+          </div>
+
+          <!-- Preset 3: Inventory Exhaustion -->
+          <div class="scenario-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div class="scenario-title">🟠 3. Inventory Exhaustion Test</div>
+                <span class="badge badge-down">GUARD FAIL</span>
+              </div>
+              <div class="scenario-desc">Orders 999 units of PROD-TECH-001 exceeding warehouse stock. Evaluates inventory guard and fast-fail boundary before payment invocation.</div>
+              <div class="curl-box-wrap">
+                <div class="curl-box" id="curl-preset-exhaust">curl -X POST "http://localhost:8081/api/orders" \
+  -H "Content-Type: application/json" \
+  -H "X-Correlation-ID: corr-live-exhaust" \
+  -d '{"customerId":"cust-overstock","items":[{"productId":"PROD-TECH-001","quantity":999,"unitPrice":149.00}]}'</div>
+                <button class="curl-copy-btn" onclick="copyCurl('curl-preset-exhaust')">📋 Copy</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button class="btn" style="flex: 1; border-color: var(--accent-red); color: var(--accent-red); background: rgba(239, 68, 68, 0.1);" onclick="triggerLiveFlow('inventory-exhaustion')">⚡ Execute Live Flow</button>
+              <button class="btn" style="border-color: rgba(255,255,255,0.2);" onclick="openRequestEditor('inventory-exhaustion')">⚙️ Edit</button>
+            </div>
+          </div>
+
+          <!-- Preset 4: Manual Cancellation -->
+          <div class="scenario-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div class="scenario-title">🔵 4. Customer Order Cancellation</div>
+                <span class="badge badge-type">ROLLBACK</span>
+              </div>
+              <div class="scenario-desc">Submits POST /api/orders/{id}/cancel on an existing order. Emits OrderCancelledEvent to Kafka, releasing reserved inventory stock.</div>
+              <div class="curl-box-wrap">
+                <div class="curl-box" id="curl-preset-cancel">curl -X POST "http://localhost:8081/api/orders/&lt;orderId&gt;/cancel" \
+  -H "Content-Type: application/json" \
+  -H "X-Correlation-ID: corr-live-cancel" \
+  -d '{"reason":"Customer requested cancellation from Control Center"}'</div>
+                <button class="curl-copy-btn" onclick="copyCurl('curl-preset-cancel')">📋 Copy</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button class="btn" style="flex: 1; border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1);" onclick="triggerLiveFlow('manual-cancellation')">⚡ Execute Live Flow</button>
+              <button class="btn" style="border-color: rgba(255,255,255,0.2);" onclick="openRequestEditor('manual-cancellation')">⚙️ Edit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Live Request Builder & Inspector Drawer -->
+        <div id="live-builder-drawer" class="live-builder-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 14px; color: #c4b5fd; display: flex; align-items: center; gap: 8px;">
+              <span>⚙️</span> Interactive Live HTTP Request Dispatcher
+            </div>
+            <button class="btn btn-sm" onclick="closeRequestEditor()" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">✕ Close</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
+            <div>
+              <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Target Service</label>
+              <select id="live-req-target" class="filter-chip" style="width: 100%; padding: 6px;" onchange="updateCustomCurlPreview()">
+                <option value="order-service">order-service (Port 8081)</option>
+                <option value="payment-service">payment-service (Port 8084)</option>
+                <option value="inventory-service">inventory-service (Port 8082)</option>
+                <option value="api-gateway">api-gateway (Port 8080)</option>
+                <option value="notification-service">notification-service (Port 8083)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">HTTP Method</label>
+              <select id="live-req-method" class="filter-chip" style="width: 100%; padding: 6px;" onchange="updateCustomCurlPreview()">
+                <option value="POST">POST</option>
+                <option value="GET">GET</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Endpoint Path</label>
+              <input id="live-req-path" type="text" value="/api/orders" class="filter-chip" style="width: 100%; padding: 6px; font-family: var(--font-mono); color: #fff;" oninput="updateCustomCurlPreview()" />
+            </div>
+            <div>
+              <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Correlation ID (Trace)</label>
+              <input id="live-req-corrid" type="text" value="corr-custom-01" class="filter-chip" style="width: 100%; padding: 6px; font-family: var(--font-mono); color: #38bdf8;" oninput="updateCustomCurlPreview()" />
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Request JSON Body (Editable):</label>
+            <textarea id="live-req-body" class="code-editor-area" oninput="updateCustomCurlPreview()">{
+  "customerId": "cust-custom-01",
+  "items": [
+    {
+      "productId": "PROD-TECH-001",
+      "quantity": 1,
+      "unitPrice": 149.00
+    }
+  ]
+}</textarea>
+          </div>
+
+          <div class="curl-box-wrap" style="margin-bottom: 14px;">
+            <div class="curl-box" id="curl-custom-preview">curl -X POST "http://localhost:8081/api/orders" \
+  -H "Content-Type: application/json" \
+  -H "X-Correlation-ID: corr-custom-01" \
+  -d '{"customerId":"cust-custom-01","items":[{"productId":"PROD-TECH-001","quantity":1,"unitPrice":149.00}]}'</div>
+            <button class="curl-copy-btn" onclick="copyCurl('curl-custom-preview')">📋 Copy</button>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="dispatchCustomSingleRequest()">🚀 Dispatch Single Live Request</button>
+            <button class="btn" style="border-color: rgba(255,255,255,0.2);" onclick="resetCustomRequest()">🔄 Reset Payload</button>
+            <span id="custom-req-indicator" style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);"></span>
+          </div>
+
+          <!-- Raw Live Response Box (Populated after Dispatch) -->
+          <div id="custom-response-box" style="margin-top: 14px; display: none; background: #060914; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; padding: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #93c5fd;">Live Response Telemetry:</span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span id="custom-resp-status" class="badge"></span>
+                <span id="custom-resp-duration" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);"></span>
+              </div>
+            </div>
+            <pre id="custom-resp-body" style="font-family: var(--font-mono); font-size: 11px; color: #e2e8f0; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 4px; max-height: 140px; overflow-y: auto; margin: 0;"></pre>
+            <div id="custom-resp-diff" style="margin-top: 8px; font-size: 11px; color: #a78bfa;"></div>
+          </div>
+        </div>
+
+        <!-- Result Panel -->
+        <div id="operation-result-panel" class="panel" style="background: var(--bg-card); border-color: var(--accent-blue);">
+          <div class="panel-header">
+            <div class="panel-title" id="op-result-title">Live Execution Trace</div>
+            <span id="op-result-status" class="badge"></span>
+          </div>
+          <div id="op-result-explanation" style="font-size: 13px; margin-bottom: 14px; line-height: 1.5;"></div>
+          <h4 style="font-size: 13px; margin-bottom: 8px;">Live Cluster Execution Steps:</h4>
+          <div id="op-result-steps" class="timeline"></div>
+          <div id="op-result-actions"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 9: Docker / Kubernetes Infrastructure Admin -->
+    <div id="view-infra-admin" class="view-content">
+      <!-- Toolbar / Platform Switcher -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="infra-platform-toggle">
+            <button id="btn-platform-k8s" class="infra-platform-btn active" onclick="switchInfraPlatform('k8s')">
+              <span>⎈</span> Kubernetes Pods
+            </button>
+            <button id="btn-platform-docker" class="infra-platform-btn" onclick="switchInfraPlatform('docker')">
+              <span>🐳</span> Docker Containers
+            </button>
+          </div>
+          <span id="infra-active-info" style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">Namespace: microservices-demo</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn" onclick="loadInfraNodes()">
+            <span>🔄</span> Refresh Nodes
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="metric-grid" style="margin-bottom: 20px;">
+        <div class="metric-card">
+          <span class="metric-label">Total Nodes</span>
+          <span class="metric-value" id="kpi-infra-total">-</span>
+          <span class="metric-sub" id="kpi-infra-platform-label">Kubernetes Pods</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Healthy & Running</span>
+          <span class="metric-value" style="color: var(--accent-green);" id="kpi-infra-running">-</span>
+          <span class="metric-sub">Passing Ready Probes</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Crashed / Error</span>
+          <span class="metric-value" style="color: var(--accent-red);" id="kpi-infra-crashed">-</span>
+          <span class="metric-sub" id="kpi-infra-crashed-sub">Needs Attention</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Total Restarts</span>
+          <span class="metric-value" style="color: var(--accent-amber);" id="kpi-infra-restarts">-</span>
+          <span class="metric-sub">Container Flapping</span>
+        </div>
+      </div>
+
+      <!-- Crash Alert Banner -->
+      <div id="infra-alert-banner" class="alert-banner" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 18px;">⚠️</span>
+          <div>
+            <strong id="infra-alert-title">Faults Detected:</strong>
+            <span id="infra-alert-msg" style="margin-left: 6px;"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nodes Table Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title" id="infra-table-title">⎈ Kubernetes Pod Status & Health</div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="infra-node-search" placeholder="Filter by pod/service..." class="btn" style="text-align: left; width: 220px;" oninput="filterInfraNodes()" />
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Node / Pod Name</th>
+              <th>Service</th>
+              <th>Status</th>
+              <th>Ready</th>
+              <th>Restarts</th>
+              <th>Age / Created</th>
+              <th>Failure Diagnostics</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="infra-nodes-tbody">
+            <tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--text-muted);">Loading infrastructure nodes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Terminal Log & Diagnostics Viewer -->
+      <div id="infra-terminal-section" class="terminal-container" style="display: none;">
+        <div class="terminal-header">
+          <div class="terminal-title-group">
+            <div class="terminal-dots">
+              <span class="terminal-dot" style="background: #ef4444;"></span>
+              <span class="terminal-dot" style="background: #f59e0b;"></span>
+              <span class="terminal-dot" style="background: #10b981;"></span>
+            </div>
+            <span id="terminal-node-name" style="font-weight: 600;">pod-name</span>
+            <span id="terminal-node-badge" class="badge">Running</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <select id="terminal-tail-select" class="btn" style="padding: 4px 8px; font-size: 11px;" onchange="refreshCurrentLogs()">
+              <option value="50">Last 50 lines</option>
+              <option value="100" selected>Last 100 lines</option>
+              <option value="250">Last 250 lines</option>
+              <option value="500">Last 500 lines</option>
+            </select>
+            <input type="text" id="terminal-filter-input" placeholder="Search log text..." class="btn" style="padding: 4px 8px; font-size: 11px; width: 140px;" oninput="filterTerminalLogs()" />
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="toggleAutoTail()">
+              <span id="auto-tail-icon">▶</span> <span id="auto-tail-text">Auto-Tail</span>
+            </button>
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="copyTerminalLogs()">
+              📋 Copy
+            </button>
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="viewNodeDiagnostics()">
+              🔍 Inspect / Describe
+            </button>
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="closeTerminal()">
+              ✕ Close
+            </button>
+          </div>
+        </div>
+
+        <!-- Failure Callout inside terminal if crashed -->
+        <div id="terminal-failure-callout" style="display: none; background: rgba(239, 68, 68, 0.15); border-bottom: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; font-size: 12px; color: #fca5a5;">
+          <strong>💥 Crash Reason:</strong> <span id="terminal-failure-text"></span>
+        </div>
+
+        <pre id="terminal-log-body" class="terminal-body">Select a container or pod above to stream logs...</pre>
+      </div>
+
+    </div>
+
+    <!-- TAB 10: AWS Emulator / LocalStack Dashboard -->
+    <div id="view-aws-emulator" class="view-content">
+      <!-- Toolbar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 26px;">☁️</span>
+          <div>
+            <div style="font-size: 16px; font-weight: 700;">AWS Cloud Emulator (LocalStack) Services &amp; Health</div>
+            <div style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">Endpoint: http://localhost:4566 &bull; Port-Forwarded Local Cloud Backbone</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <a href="http://localhost:4566/_localstack/health" target="_blank" class="btn">
+            <span>🔗</span> Open /_localstack/health ↗
+          </a>
+          <button class="btn btn-primary" onclick="loadAwsEmulator()">
+            <span>🔄</span> Refresh AWS Status
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Grid -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">Emulator Status</div>
+          <div id="kpi-aws-status" class="metric-value" style="color: var(--accent-green); display: flex; align-items: center; gap: 8px;">
+            <span class="pulse-dot"></span> ONLINE
+          </div>
+          <div id="kpi-aws-edition" class="metric-sub">LocalStack Community v3.7.2</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Active AWS Services</div>
+          <div id="kpi-aws-active-count" class="metric-value" style="color: var(--accent-cyan);">- / 35</div>
+          <div class="metric-sub">S3, SQS, SNS, DynamoDB, Kinesis, Streams</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Running Instances</div>
+          <div id="kpi-aws-running-count" class="metric-value" style="color: var(--accent-green);">- Active</div>
+          <div class="metric-sub">s3 storage engine online</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Architecture Role</div>
+          <div class="metric-value" style="font-size: 20px; color: var(--accent-amber);">Cloud Testing</div>
+          <div class="metric-sub">Invoices (S3) &amp; DLQ Buffering (SQS)</div>
+        </div>
+      </div>
+
+      <!-- Status Banner -->
+      <div id="aws-status-banner" style="display: flex; align-items: center; gap: 12px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 18px; border-radius: 8px; margin-bottom: 24px;">
+        <span style="font-size: 20px;">✅</span>
+        <div id="aws-status-banner-text" style="font-size: 13px; color: #a7f3d0; line-height: 1.5;">
+          LocalStack is online and actively providing mock cloud infrastructure for Notification Service S3 invoice storage and Order Service SQS event buffering.
+        </div>
+      </div>
+
+      <!-- Showcase of Active Services in Our Architecture -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚡</span> Active AWS Services in Cloud Architecture (Ready &amp; Available)
+          </div>
+        </div>
+        <div id="aws-active-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+          <!-- Dynamically populated by renderActiveAwsCards -->
+        </div>
+      </div>
+
+      <!-- Full Service Inventory (Searchable & Filterable) -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📋</span> LocalStack AWS Service Matrix (35 Services Supported)
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="aws-search-input" placeholder="Filter AWS service (e.g. s3, sqs, database)..." 
+                   oninput="filterAwsServices()" 
+                   style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; font-size: 12px; width: 260px;">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+          <span class="filter-chip active" onclick="setAwsCategoryFilter('ALL', this)">All (35)</span>
+          <span class="filter-chip" onclick="setAwsCategoryFilter('ACTIVE', this)">Active (6)</span>
+          <span class="filter-chip" onclick="setAwsCategoryFilter('Storage', this)">Storage</span>
+          <span class="filter-chip" onclick="setAwsCategoryFilter('Messaging', this)">Messaging</span>
+          <span class="filter-chip" onclick="setAwsCategoryFilter('Database', this)">Database</span>
+          <span class="filter-chip" onclick="setAwsCategoryFilter('Streaming', this)">Streaming</span>
+          <span class="filter-chip" onclick="setAwsCategoryFilter('Compute', this)">Compute</span>
+          <span class="filter-chip" onclick="setAwsCategoryFilter('Security', this)">Security</span>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 180px;">AWS Service</th>
+                <th style="width: 140px;">Category</th>
+                <th style="width: 140px;">Emulator Status</th>
+                <th>Description</th>
+                <th>Architectural Role in Cloud Ecosystem</th>
+                <th style="width: 240px;">CLI Command</th>
+              </tr>
+            </thead>
+            <tbody id="aws-services-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Developer AWS CLI Cheatsheet -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🛠️</span> Local Developer CLI Cheatsheet (Testing with LocalStack)
+          </div>
+        </div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+          You can interact with LocalStack using standard AWS CLI, AWS SDKs, or curl without real AWS credentials or charges:
+        </div>
+        <div style="background: #0d121f; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; font-family: var(--font-mono); font-size: 12px; color: #a5f3fc; line-height: 1.8;">
+          <div style="color: #6ee7b7;"># 1. Configure dummy test credentials</div>
+          <div>export AWS_ACCESS_KEY_ID=test &amp;&amp; export AWS_SECRET_ACCESS_KEY=test &amp;&amp; export AWS_DEFAULT_REGION=us-east-1</div>
+          <div style="margin-top: 8px; color: #6ee7b7;"># 2. Interact with S3 Invoices bucket</div>
+          <div>aws --endpoint-url=http://localhost:4566 s3 ls</div>
+          <div>aws --endpoint-url=http://localhost:4566 s3 mb s3://ecommerce-invoices</div>
+          <div style="margin-top: 8px; color: #6ee7b7;"># 3. Inspect SQS Saga Queues</div>
+          <div>aws --endpoint-url=http://localhost:4566 sqs list-queues</div>
+          <div style="margin-top: 8px; color: #6ee7b7;"># 4. Check DynamoDB Tables</div>
+          <div>aws --endpoint-url=http://localhost:4566 dynamodb list-tables</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <script>
+    const API_BASE = '/api/admin';
+    let currentTopology = null;
+    let selectedEdgeFilter = 'ALL';
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    let currentActiveTab = 'overview';
+
+    function switchTab(tabName) {
+      currentActiveTab = tabName;
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+
+      const navMap = {
+        'overview': 0, 'architecture': 1, 'infra-admin': 2, 'aws-emulator': 3, 'services': 4,
+        'events': 5, 'request-flow': 6, 'sagas': 7, 'learning': 8, 'operations': 9
+      };
+      const items = document.querySelectorAll('.nav-item');
+      if (items[navMap[tabName]]) items[navMap[tabName]].classList.add('active');
+
+      const viewEl = document.getElementById(`view-${tabName}`);
+      if (viewEl) viewEl.classList.add('active');
+
+      const titles = {
+        'overview': 'System Overview',
+        'architecture': 'Architecture Explorer',
+        'infra-admin': 'Docker / Kubernetes Infrastructure & Live Logs Console',
+        'aws-emulator': 'AWS Cloud Emulator (LocalStack) Services & Health Dashboard',
+        'services': 'Service Registry',
+        'events': 'Kafka & Events',
+        'request-flow': 'Live Request Flow',
+        'sagas': 'Saga Explorer',
+        'learning': 'Architecture Learning Center',
+        'operations': 'Operations Console'
+      };
+      document.getElementById('view-title').innerText = titles[tabName] || 'Control Center';
+
+      if (tabName === 'architecture') loadArchitecture();
+      if (tabName === 'services') loadServices();
+      if (tabName === 'events') loadEvents();
+      if (tabName === 'sagas') loadSagas();
+      if (tabName === 'learning') loadLearningPatterns();
+      if (tabName === 'infra-admin') loadInfraNodes();
+      if (tabName === 'aws-emulator') loadAwsEmulator();
+    }
+
+    async function refreshDashboard() {
+      showToast('Probing ecosystem microservices...');
+      await loadOverview();
+      loadServices();
+      loadArchitecture();
+      loadEvents();
+      loadSagas();
+      loadInfraNodes();
+      loadAwsEmulator();
+      document.getElementById('last-refresh').innerText = new Date().toLocaleTimeString();
+    }
+
+    async function loadOverview() {
+      try {
+        const res = await fetch(`${API_BASE}/overview`);
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById('kpi-total-services').innerText = data.totalServices;
+        document.getElementById('kpi-running-services').innerText = `${data.runningServices} UP`;
+        document.getElementById('kpi-unhealthy-services').innerText = `${data.unhealthyServices} DOWN / UNPROBED`;
+        document.getElementById('kpi-kafka-topics').innerText = data.kafkaTopicsCount;
+        
+        const healthEl = document.getElementById('kpi-system-health');
+        healthEl.innerText = data.systemHealthStatus;
+        healthEl.style.color = data.systemHealthStatus === 'HEALTHY' ? 'var(--accent-green)' : (data.systemHealthStatus === 'DEGRADED' ? 'var(--accent-amber)' : 'var(--accent-red)');
+
+        const alertContainer = document.getElementById('overview-alerts');
+        if (data.activeAlerts && data.activeAlerts.length > 0) {
+          alertContainer.innerHTML = data.activeAlerts.map(a => `<div style="color: var(--accent-amber); margin-bottom: 4px;">⚠️ ${a}</div>`).join('');
+        } else {
+          alertContainer.innerHTML = '<div style="color: var(--accent-green);">✓ All operational indicators nominal. No active alerts.</div>';
+        }
+      } catch (e) {
+        console.error('Failed to load overview', e);
+      }
+    }
+
+    async function loadServices() {
+      try {
+        const res = await fetch(`${API_BASE}/services`);
+        if (!res.ok) return;
+        const services = await res.json();
+        const tbody = document.getElementById('services-table-body');
+        tbody.innerHTML = services.map(s => `
+          <tr>
+            <td style="font-weight: 600;">${escapeHtml(s.name)}</td>
+            <td><span class="badge badge-type">${escapeHtml(s.type)}</span></td>
+            <td style="font-family: var(--font-mono);">${s.port}</td>
+            <td style="font-family: var(--font-mono); font-size: 11px;">
+              <a href="${escapeHtml(s.baseUrl)}" target="_blank" style="color: var(--accent-cyan); text-decoration: none;" title="Open endpoint in browser">
+                ${escapeHtml(s.baseUrl)} ↗
+              </a>
+            </td>
+            <td>
+              <span class="badge ${s.status === 'UP' ? 'badge-up' : 'badge-down'}">
+                ● ${escapeHtml(s.status)}
+              </span>
+            </td>
+            <td style="font-family: var(--font-mono);">${s.responseTimeMs >= 0 ? s.responseTimeMs + ' ms' : 'N/A'}</td>
+            <td style="font-size: 12px; color: var(--text-muted);">${escapeHtml(s.database || 'None')}</td>
+            <td>
+              <button class="btn" style="padding: 3px 8px; font-size: 11px; background: rgba(59, 130, 246, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan);" onclick="openNodeLogsDirect('${escapeHtml(s.name)}')">
+                🪵 Logs
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to load services', e);
+      }
+    }
+
+    async function loadArchitecture() {
+      try {
+        const res = await fetch(`${API_BASE}/architecture`);
+        if (!res.ok) return;
+        currentTopology = await res.json();
+        renderTopology();
+      } catch (e) {
+        console.error('Failed to load architecture', e);
+      }
+    }
+
+    function filterTopo(type, el) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      selectedEdgeFilter = type;
+      renderTopology();
+    }
+
+    function renderTopology() {
+      if (!currentTopology) return;
+      const svgNodes = document.getElementById('svg-nodes');
+      const svgEdges = document.getElementById('svg-edges');
+      svgNodes.innerHTML = '';
+      svgEdges.innerHTML = '';
+
+      // Node coordinate layout map
+      const nodePos = {
+        'api-gateway': { x: 300, y: 100 },
+        'keycloak': { x: 80, y: 100 },
+        'product-service': { x: 550, y: 60 },
+        'order-service': { x: 550, y: 180 },
+        'inventory-service': { x: 550, y: 300 },
+        'payment-service': { x: 550, y: 420 },
+        'notification-service': { x: 550, y: 530 },
+        'kafka': { x: 800, y: 250 },
+        'redis': { x: 800, y: 140 },
+        'order-db': { x: 980, y: 180 },
+        'product-db': { x: 980, y: 60 },
+        'payment-db': { x: 980, y: 420 },
+        'aws-emulator': { x: 800, y: 480 }
+      };
+
+      // Render edges
+      currentTopology.edges.forEach(e => {
+        if (selectedEdgeFilter !== 'ALL' && e.type !== selectedEdgeFilter) return;
+        const src = nodePos[e.source];
+        const tgt = nodePos[e.target];
+        if (!src || !tgt) return;
+
+        const isAnimated = e.animated;
+        const color = e.type === 'SYNC_REST' ? '#3b82f6' : (e.type === 'ASYNC_KAFKA' ? '#06b6d4' : (e.type === 'PERSISTENCE' ? '#8b5cf6' : '#10b981'));
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        path.setAttribute('x1', src.x);
+        path.setAttribute('y1', src.y);
+        path.setAttribute('x2', tgt.x);
+        path.setAttribute('y2', tgt.y);
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '1.5');
+        path.setAttribute('stroke-dasharray', isAnimated ? '4,4' : 'none');
+        path.setAttribute('marker-end', isAnimated ? 'url(#arrow-active)' : 'url(#arrow)');
+        svgEdges.appendChild(path);
+      });
+
+      // Render nodes
+      currentTopology.nodes.forEach(node => {
+        const pos = nodePos[node.id] || { x: 100, y: 100 };
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `translate(${pos.x - 70}, ${pos.y - 25})`);
+        g.style.cursor = 'pointer';
+        g.onclick = () => openDrawer(node);
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('width', '140');
+        rect.setAttribute('height', '50');
+        rect.setAttribute('rx', '6');
+        rect.setAttribute('fill', '#1f2937');
+        rect.setAttribute('stroke', node.status === 'UP' ? '#10b981' : '#ef4444');
+        rect.setAttribute('stroke-width', '1.5');
+
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        title.setAttribute('x', '70');
+        title.setAttribute('y', '22');
+        title.setAttribute('text-anchor', 'middle');
+        title.setAttribute('fill', '#f9fafb');
+        title.setAttribute('font-size', '11');
+        title.setAttribute('font-weight', '600');
+        title.textContent = node.name;
+
+        const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sub.setAttribute('x', '70');
+        sub.setAttribute('y', '38');
+        sub.setAttribute('text-anchor', 'middle');
+        sub.setAttribute('fill', '#9ca3af');
+        sub.setAttribute('font-size', '10');
+        sub.textContent = `:${node.port} | ${node.type}`;
+
+        g.appendChild(rect);
+        g.appendChild(title);
+        g.appendChild(sub);
+        svgNodes.appendChild(g);
+      });
+    }
+
+    function openDrawer(node) {
+      document.getElementById('drawer-title').innerText = node.name;
+      document.getElementById('drawer-status').innerHTML = `<span class="badge ${node.status === 'UP' ? 'badge-up' : 'badge-down'}">${node.status}</span>`;
+      document.getElementById('drawer-type-port').innerText = `${node.type} | Port ${node.port}`;
+      const urlEl = document.getElementById('drawer-url');
+      if (node.baseUrl && node.baseUrl.startsWith('http')) {
+        urlEl.innerHTML = `<a href="${escapeHtml(node.baseUrl)}" target="_blank" style="color: var(--accent-cyan); text-decoration: underline;" title="Open in browser">${escapeHtml(node.baseUrl)} ↗</a>`;
+      } else {
+        urlEl.innerText = node.baseUrl || 'None';
+      }
+      document.getElementById('drawer-db').innerText = node.database || 'None';
+      document.getElementById('drawer-consumed').innerText = (node.topicsConsumed && node.topicsConsumed.length) ? node.topicsConsumed.join(', ') : 'None';
+      document.getElementById('drawer-produced').innerText = (node.topicsProduced && node.topicsProduced.length) ? node.topicsProduced.join(', ') : 'None';
+      document.getElementById('drawer-desc').innerText = node.description;
+      const btnLogs = document.getElementById('drawer-btn-logs');
+      if (btnLogs) {
+        btnLogs.onclick = () => {
+          closeDrawer();
+          openNodeLogsDirect(node.id);
+        };
+      }
+      const btnAws = document.getElementById('drawer-btn-aws');
+      if (btnAws) {
+        btnAws.style.display = (node.id === 'aws-emulator') ? 'flex' : 'none';
+        btnAws.onclick = () => {
+          closeDrawer();
+          switchTab('aws-emulator');
+        };
+      }
+      document.getElementById('node-drawer').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('node-drawer').classList.remove('open');
+    }
+
+    const expandedKafkaEventIds = new Set();
+    let expandAllKafkaEvents = false;
+    let cachedKafkaEvents = [];
+
+    function formatKafkaJson(raw) {
+      if (!raw) return '{}';
+      try {
+        return JSON.stringify(JSON.parse(raw), null, 2);
+      } catch {
+        return String(raw);
+      }
+    }
+
+    function toggleKafkaEventRow(eventKey) {
+      if (expandedKafkaEventIds.has(eventKey)) {
+        expandedKafkaEventIds.delete(eventKey);
+      } else {
+        expandedKafkaEventIds.add(eventKey);
+      }
+      renderKafkaEventsTable(cachedKafkaEvents);
+    }
+
+    function toggleAllKafkaEventPayloads() {
+      expandAllKafkaEvents = !expandAllKafkaEvents;
+      expandedKafkaEventIds.clear();
+      if (expandAllKafkaEvents) {
+        cachedKafkaEvents.forEach((e, idx) => {
+          expandedKafkaEventIds.add(`${e.eventId || idx}-${e.timestamp || idx}`);
+        });
+      }
+      const btn = document.getElementById('btn-toggle-all-events');
+      if (btn) {
+        btn.innerHTML = expandAllKafkaEvents
+          ? '<span>📁</span> Collapse All Payloads'
+          : '<span>📂</span> Expand All Payloads';
+      }
+      renderKafkaEventsTable(cachedKafkaEvents);
+    }
+
+    function copyKafkaEventPayload(idx, evt) {
+      if (evt) evt.stopPropagation();
+      const item = cachedKafkaEvents[idx];
+      if (!item) return;
+      const pretty = formatKafkaJson(item.maskedPayload);
+      navigator.clipboard.writeText(pretty).then(() => {
+        showToast('Copied full Kafka message JSON to clipboard!');
+      }).catch(() => {
+        showToast('Failed to copy payload');
+      });
+    }
+
+    function renderKafkaEventsTable(events) {
+      const tbody = document.getElementById('events-table-body');
+      if (!events || events.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+          <div style="font-size: 24px; margin-bottom: 6px;">📬</div>
+          <div style="font-size: 13px; font-weight: 600; color: #cbd5e1;">No Kafka Events Recorded Yet</div>
+          <div style="font-size: 11px; margin-top: 4px;">Trigger a live flow in the <strong>🚀 Operations Console</strong> or submit orders via API to stream real Kafka events.</div>
+        </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = events.map((e, idx) => {
+        const key = `${e.eventId || idx}-${e.timestamp || idx}`;
+        const isExpanded = expandAllKafkaEvents || expandedKafkaEventIds.has(key);
+        const prettyPayload = formatKafkaJson(e.maskedPayload);
+        const keyEsc = escapeHtml(key).replace(/'/g, "\\'");
+
+        return `
+          <tr onclick="toggleKafkaEventRow('${keyEsc}')" style="cursor: pointer; ${isExpanded ? 'background: rgba(56, 189, 248, 0.06);' : ''}" title="Click to ${isExpanded ? 'collapse' : 'expand'} full Kafka message">
+            <td style="font-family: var(--font-mono); font-size: 11px;">
+              <span style="color: var(--accent-cyan); margin-right: 6px; font-size: 10px;">${isExpanded ? '▼' : '▶'}</span>${escapeHtml(e.eventId)}
+            </td>
+            <td style="font-weight: 600; color: var(--accent-cyan);">${escapeHtml(e.eventType)}</td>
+            <td><span class="badge badge-type">${escapeHtml(e.topic)}</span></td>
+            <td style="font-size: 12px;">${escapeHtml(e.producer)} ➔ ${escapeHtml(e.consumer)}</td>
+            <td><span class="badge badge-up">${escapeHtml(e.status)}</span></td>
+            <td style="font-family: var(--font-mono); font-size: 11px; max-width: 340px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; color: #cbd5e1;">${escapeHtml(e.maskedPayload)}</span>
+                <button class="btn btn-sm" style="padding: 2px 8px; font-size: 10px; flex-shrink: 0;" onclick="event.stopPropagation(); toggleKafkaEventRow('${keyEsc}')">
+                  ${isExpanded ? 'Hide' : 'View Full'}
+                </button>
+              </div>
+            </td>
+            <td style="font-size: 11px; color: var(--text-muted); white-space: nowrap;">${new Date(e.timestamp).toLocaleTimeString()}</td>
+          </tr>
+          ${isExpanded ? `
+            <tr style="background: #0b1120;">
+              <td colspan="7" style="padding: 12px 16px; border-bottom: 1px solid rgba(56, 189, 248, 0.25);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                  <div style="display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+                    <span><strong style="color: #94a3b8;">Topic:</strong> <span style="color: #38bdf8;">${escapeHtml(e.topic)}</span></span>
+                    <span><strong style="color: #94a3b8;">Correlation ID:</strong> <span style="color: #e2e8f0;">${escapeHtml(e.correlationId || 'N/A')}</span></span>
+                    <span><strong style="color: #94a3b8;">Event ID:</strong> <span style="color: #e2e8f0;">${escapeHtml(e.eventId)}</span></span>
+                    <span><strong style="color: #94a3b8;">Timestamp:</strong> <span style="color: #e2e8f0;">${escapeHtml(e.timestamp)}</span></span>
+                  </div>
+                  <button class="btn btn-sm" style="padding: 3px 10px; font-size: 11px;" onclick="copyKafkaEventPayload(${idx}, event)">
+                    📋 Copy JSON
+                  </button>
+                </div>
+                <pre style="margin: 0; padding: 12px 14px; background: #020617; border: 1px solid #1e293b; border-radius: 6px; color: #a7f3d0; font-family: var(--font-mono); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; max-height: 360px; overflow-y: auto;">${escapeHtml(prettyPayload)}</pre>
+              </td>
+            </tr>
+          ` : ''}
+        `;
+      }).join('');
+    }
+
+    async function loadEvents() {
+      try {
+        const topic = document.getElementById('event-topic-select').value;
+        const url = topic ? `${API_BASE}/events?topic=${encodeURIComponent(topic)}` : `${API_BASE}/events`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const events = await res.json();
+        cachedKafkaEvents = events || [];
+        renderKafkaEventsTable(cachedKafkaEvents);
+      } catch (e) {
+        console.error('Failed to load events', e);
+      }
+    }
+
+    let isLearningModeActive = true;
+    let currentSagaView = 'timeline';
+    let cachedSagas = [];
+
+    function toggleLearningMode(active) {
+      isLearningModeActive = active;
+      document.querySelectorAll('.step-inspector-box').forEach(el => {
+        el.style.display = active ? 'block' : 'none';
+      });
+      showToast(`Learning Mode [DEBUG] ${active ? 'Enabled' : 'Disabled'}`);
+    }
+
+    function switchSagaView(view) {
+      currentSagaView = view;
+      const btnTimeline = document.getElementById('btn-view-timeline');
+      const btnSwimlane = document.getElementById('btn-view-swimlane');
+      const timelineCont = document.getElementById('sagas-container');
+      const swimlaneCont = document.getElementById('sagas-swimlane-container');
+
+      if (btnTimeline && btnSwimlane) {
+        btnTimeline.classList.toggle('active', view === 'timeline');
+        btnSwimlane.classList.toggle('active', view === 'swimlane');
+      }
+
+      if (view === 'timeline') {
+        if (timelineCont) timelineCont.style.display = 'block';
+        if (swimlaneCont) swimlaneCont.style.display = 'none';
+      } else {
+        if (timelineCont) timelineCont.style.display = 'none';
+        if (swimlaneCont) {
+          swimlaneCont.style.display = 'block';
+          renderSwimlane(cachedSagas);
+        }
+      }
+    }
+
+    function switchStepTab(stepKey, tabName) {
+      const parent = document.getElementById(`step-inspector-${stepKey}`);
+      if (!parent) return;
+
+      parent.querySelectorAll('.step-nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+      });
+      parent.querySelectorAll('.step-pane-content').forEach(pane => {
+        pane.style.display = (pane.getAttribute('data-tab') === tabName) ? 'block' : 'none';
+      });
+    }
+
+    function tipAttrs(title, body, why = '') {
+      const esc = (s) => String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return `data-tip-title="${esc(title)}" data-tip-body="${esc(body)}"${why ? ` data-tip-why="${esc(why)}"` : ''}`;
+    }
+
+    function initEduTooltips() {
+      if (document.getElementById('edu-tooltip')) return;
+      const tipEl = document.createElement('div');
+      tipEl.id = 'edu-tooltip';
+      document.body.appendChild(tipEl);
+
+      let activeTarget = null;
+
+      function positionTooltip(target) {
+        const rect = target.getBoundingClientRect();
+        const tipRect = tipEl.getBoundingClientRect();
+        const margin = 10;
+
+        let top = rect.top - tipRect.height - margin;
+        if (top < 8) {
+          top = rect.bottom + margin;
+        }
+        let left = rect.left + (rect.width / 2) - (tipRect.width / 2);
+        if (left < 10) left = 10;
+        if (left + tipRect.width > window.innerWidth - 10) {
+          left = window.innerWidth - tipRect.width - 10;
+        }
+
+        tipEl.style.top = `${Math.round(top)}px`;
+        tipEl.style.left = `${Math.round(left)}px`;
+      }
+
+      function showFor(target) {
+        const title = target.getAttribute('data-tip-title');
+        const body = target.getAttribute('data-tip-body');
+        const why = target.getAttribute('data-tip-why');
+        if (!title && !body) return;
+
+        activeTarget = target;
+        tipEl.innerHTML = `
+          ${title ? `<div class="edu-tip-title"><span>💡</span><span>${escapeHtml(title)}</span></div>` : ''}
+          ${body ? `<div class="edu-tip-body">${escapeHtml(body)}</div>` : ''}
+          ${why ? `<div class="edu-tip-why"><strong>Why it matters:</strong> ${escapeHtml(why)}</div>` : ''}
+        `;
+        tipEl.classList.add('visible');
+        positionTooltip(target);
+      }
+
+      function hide() {
+        activeTarget = null;
+        tipEl.classList.remove('visible');
+      }
+
+      document.addEventListener('mouseover', (e) => {
+        const el = e.target.closest('[data-tip-body]');
+        if (el && el !== activeTarget) {
+          showFor(el);
+        } else if (!el && activeTarget) {
+          hide();
+        }
+      });
+
+      document.addEventListener('mouseout', (e) => {
+        if (!activeTarget) return;
+        const related = e.relatedTarget ? e.relatedTarget.closest('[data-tip-body]') : null;
+        if (related !== activeTarget) {
+          hide();
+        }
+      });
+
+      window.addEventListener('scroll', () => {
+        if (activeTarget) positionTooltip(activeTarget);
+      }, true);
+    }
+
+    function renderStepInspector(st, stepKey) {
+      const before = st.beforeState || {};
+      const after = st.afterState || {};
+      const diff = st.impactDiff || { highlights: [], deltaDetails: {} };
+      const aop = st.aopTrace || null;
+      const dossier = st.dossier || null;
+
+      const beforeDb = before.database || {};
+      const afterDb = after.database || {};
+      const beforeRedis = before.redis || {};
+      const afterRedis = after.redis || {};
+      const beforeKafka = before.kafka || {};
+      const afterKafka = after.kafka || {};
+      const beforeAws = before.aws || {};
+      const afterAws = after.aws || {};
+
+      const stockDelta = (afterRedis.stockQuantity || 0) - (beforeRedis.stockQuantity || 0);
+      const rowDelta = (afterDb.rowCount || 0) - (beforeDb.rowCount || 0);
+      const offsetDelta = (afterKafka.partitionOffset || 0) - (beforeKafka.partitionOffset || 0);
+
+      const dbName = afterDb.databaseName || 'order_db';
+      const dbHeaderTip = dbName === 'payment_db'
+        ? tipAttrs('Database-per-Service: payment_db', 'Dedicated PostgreSQL instance owned exclusively by payment-service. Stores payment authorizations, captures, declines, and idempotency keys.', 'No other microservice can query or mutate payment_db directly.')
+        : dbName === 'inventory_store'
+        ? tipAttrs('Inventory Store (Redis-Guarded)', 'Tracks available and reserved stock counts for each SKU inside inventory-service, guarded by Redis distributed mutex locks.', 'Avoids heavy relational row locks during high-concurrency checkout spikes.')
+        : dbName === 'notification_inbox'
+        ? tipAttrs('Idempotent Notification Inbox', 'Records processed Kafka event IDs in notification-service so duplicate event deliveries never generate duplicate customer invoices.', 'Guarantees safe at-least-once Kafka consumption.')
+        : tipAttrs('Database-per-Service: order_db', 'Dedicated PostgreSQL database owned exclusively by order-service, containing the orders table and transactional outbox table.', 'Enforces strict domain ownership and ACID writes for order state transitions.');
+
+      const secondRowTip = dbName === 'payment_db'
+        ? tipAttrs('Payment Transaction / Event Reference', 'Shows the payment gateway reference (e.g. TXN_SIM_...) or emitted failure event status persisted atomically alongside the payment record.', 'Provides full audit traceability between payment_db and Kafka payment-events.')
+        : dbName === 'inventory_store'
+        ? tipAttrs('Distributed Lock State', 'Indicates whether the Redis mutex lock protecting this SKU is cleanly released after the stock mutation completed.', 'Ensures other concurrent checkout requests can proceed immediately.')
+        : dbName === 'notification_inbox'
+        ? tipAttrs('Idempotency Deduplication Guard', 'Verifies the eventId has not been processed before archiving an invoice to S3.', 'Prevents duplicate emails or duplicate S3 uploads on Kafka consumer retries.')
+        : tipAttrs('Transactional Outbox Pattern', 'Order rows and Outbox events are inserted in the SAME PostgreSQL ACID transaction; OutboxPublisher polls and relays pending rows to Kafka every 1s.', 'Eliminates the dual-write bug where DB commits succeed but Kafka publishing fails.');
+
+      const lockKeyName = afterRedis.lockKey || 'lock:stock:PROD-TECH-001';
+      const skuName = lockKeyName.split(':').pop() || 'PROD-TECH-001';
+
+      return `
+        <div id="step-inspector-${stepKey}" class="step-inspector-box" style="display: ${isLearningModeActive ? 'block' : 'none'};">
+          <!-- 3 Tabs Header -->
+          <div class="step-nav-tabs">
+            <button class="step-nav-btn active" data-tab="diffs" onclick="switchStepTab('${stepKey}', 'diffs')" ${tipAttrs('Before/After Infrastructure Diffs', 'Compares live state snapshots captured before and after this Saga step across PostgreSQL, Redis, Apache Kafka, and AWS LocalStack S3.')}>
+              <span>🔍</span> Before/After Diffs
+            </button>
+            <button class="step-nav-btn" data-tab="aop" onclick="switchStepTab('${stepKey}', 'aop')" ${tipAttrs('Spring AOP Execution Telemetry', 'Inspects the Spring bean method signature, annotations (@Transactional, @KafkaListener), parameters, return values, and Java 21 execution thread.')}>
+              <span>💻</span> Spring AOP Trace
+            </button>
+            <button class="step-nav-btn" data-tab="dossier" onclick="switchStepTab('${stepKey}', 'dossier')" ${tipAttrs('Architectural Pattern Dossier', 'Deep-dive guide explaining what pattern ran here, why it was chosen, pros/cons, and how to scale it to 100k+ RPS.')}>
+              <span>🎓</span> Architectural Dossier
+            </button>
+          </div>
+
+          <!-- TAB 1: Real-Time Infrastructure Before/After Diffs -->
+          <div class="step-pane-content" data-tab="diffs" style="display: block;">
+            <div style="margin-bottom: 8px;">
+              <span style="font-weight: 600; color: #93c5fd; font-size: 11.5px;">State Delta Highlights:</span>
+              <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 3px;">
+                ${(diff.highlights && diff.highlights.length > 0)
+                  ? diff.highlights.map(h => `<div style="color: #e2e8f0;">• ${escapeHtml(h)}</div>`).join('')
+                  : '<div style="color: var(--text-muted);">State verified with no permanent schema drift.</div>'}
+              </div>
+            </div>
+
+            <div class="diff-table-grid">
+              <!-- Service Datastore Card (Database-per-Service) -->
+              <div class="diff-component-card">
+                <div class="diff-comp-title">
+                  <span class="has-tip" style="color: #60a5fa;" ${dbHeaderTip}>${
+                    dbName === 'inventory_store' ? '📦 Inventory Store' :
+                    dbName === 'notification_inbox' ? '📨 Notification Inbox' :
+                    '🐘 PostgreSQL (' + escapeHtml(dbName) + ')'
+                  }</span>
+                  <span class="delta-highlight-badge delta-blue has-tip" ${tipAttrs('Target Table / Store: ' + (afterDb.tableName || 'orders'), 'The specific table or store owned by this microservice that was inspected before and after this step.')}>${escapeHtml(afterDb.tableName || 'orders')}</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Live Record State Transition', 'Real before-and-after state read directly from this microservice API after PostgreSQL commit and CQRS cache eviction.', 'Confirms the local transaction actually persisted in the owning service.')}>
+                  <span class="diff-comp-label">Status:</span>
+                  <span class="diff-comp-val">${escapeHtml(beforeDb.latestRecordStatus || 'NONE')} ➔ <strong style="color: #4ade80;">${escapeHtml(afterDb.latestRecordStatus || 'CREATED')}</strong></span>
+                </div>
+                <div class="diff-comp-row has-tip" ${secondRowTip}>
+                  <span class="diff-comp-label">${
+                    dbName === 'payment_db' ? 'Txn / Event:' :
+                    dbName === 'inventory_store' ? 'Lock State:' :
+                    dbName === 'notification_inbox' ? 'Idempotency:' :
+                    'Outbox State:'
+                  }</span>
+                  <span class="diff-comp-val">${escapeHtml(beforeDb.outboxStatus || 'NONE')} ➔ <strong style="color: #38bdf8;">${escapeHtml(afterDb.outboxStatus || 'PUBLISHED')}</strong></span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs(dbName === 'inventory_store' ? 'Reserved Stock Delta' : 'Database Row Delta', dbName === 'inventory_store' ? 'Net change in reserved units for this SKU (+1 on reservation, -1 on Saga compensation release).' : 'Number of new records inserted (+1) or updated (+0) in ' + dbName + ' during this step.')}>
+                  <span class="diff-comp-label">${dbName === 'inventory_store' ? 'Reserved Delta:' : 'Row Delta:'}</span>
+                  <span class="diff-comp-val">${rowDelta >= 0 ? '+' : ''}${rowDelta} ${dbName === 'inventory_store' ? 'unit(s)' : 'row(s)'} in ${escapeHtml(dbName)}</span>
+                </div>
+              </div>
+
+              <!-- Redis Card -->
+              <div class="diff-component-card">
+                <div class="diff-comp-title">
+                  <span class="has-tip" style="color: #f87171;" ${tipAttrs('Redis Cache & Distributed Lock Store', 'In-memory Redis server used for sub-millisecond distributed mutex locks (inventory-service) and CQRS read-through caching (order-service).', 'Prevents race conditions and shields PostgreSQL from high-concurrency read/write spikes.')}>⚡ Redis Store</span>
+                  <span class="delta-highlight-badge ${stockDelta < 0 ? 'delta-amber' : (stockDelta > 0 ? 'delta-green' : 'delta-blue')} has-tip" ${tipAttrs('SKU Allocation Status', stockDelta < 0 ? 'Stock was decremented for this order reservation.' : (stockDelta > 0 ? 'Previously reserved stock was restored by a Saga compensating rollback.' : 'No stock mutation occurred in this specific step.'))}>
+                    ${stockDelta !== 0 ? (stockDelta > 0 ? '+' + stockDelta : stockDelta) + ' SKU Allocation' : 'In Sync'}
+                  </span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Live Available Stock Units', 'Real-time available inventory for SKU ' + skuName + ' queried from inventory-service. Decrements on ORDER_CREATED and increments back on ORDER_CANCELLED.', 'Proves atomic reservation and compensating rollback actually happened live.')}>
+                  <span class="diff-comp-label">Stock Units:</span>
+                  <span class="diff-comp-val">${beforeRedis.stockQuantity ?? 100} ➔ <strong style="color: #fbbf24;">${afterRedis.stockQuantity ?? 99}</strong> available</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Redis Distributed Mutex Lock (' + lockKeyName + ')', 'An atomic Redis key acquired via "SET ' + lockKeyName + ' <token> NX PX 5000" before mutating stock for SKU ' + skuName + '. Only one pod/thread can hold this key at a time.', 'Prevents double-allocation and overselling when multiple concurrent orders compete for the same product.')}>
+                  <span class="diff-comp-label">Mutex Lock:</span>
+                  <span class="diff-comp-val">${escapeHtml(lockKeyName)}</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Lock Lease TTL (Deadlock Safety Net)', 'Time-To-Live remaining on the Redis mutex key. Acquired with a 5,000 ms safety lease and explicitly deleted in a finally{} block once stock updates finish (0 ms = cleanly released).', 'If a pod crashes mid-reservation, Redis automatically expires the lock so inventory is never deadlocked forever.')}>
+                  <span class="diff-comp-label">Lock TTL:</span>
+                  <span class="diff-comp-val">${afterRedis.lockHeld ? '3,000 ms lease' : 'Cleanly Released (0 ms)'}</span>
+                </div>
+              </div>
+
+              <!-- Apache Kafka Card -->
+              <div class="diff-component-card">
+                <div class="diff-comp-title">
+                  <span class="has-tip" style="color: #c084fc;" ${tipAttrs('Apache Kafka (KRaft Mode)', 'Distributed event streaming backbone decoupling producers (order-service, payment-service) from consumers (inventory-service, notification-service, control-center).', 'Enables asynchronous resilience: downstream slowdowns or restarts never block checkout.')}>📬 Apache Kafka</span>
+                  <span class="delta-highlight-badge delta-green has-tip" ${tipAttrs('Committed Event Count', 'Number of domain event messages durably appended to the Kafka topic log during this step.')}>+${Math.max(1, offsetDelta)} Committed</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Kafka Topic: ' + (afterKafka.topic || 'order-events'), 'Named append-only event stream. "order-events" carries ORDER_CREATED, ORDER_CONFIRMED, and ORDER_CANCELLED; "payment-events" carries PaymentCaptured and PaymentFailed.')}>
+                  <span class="diff-comp-label">Topic:</span>
+                  <span class="diff-comp-val">${escapeHtml(afterKafka.topic || 'order-events')}</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Partition Log Offset', 'Sequential, immutable position of the message inside Partition 0. Each consumer group tracks its own offset independently, allowing replay and fault recovery.', 'Ensures at-least-once delivery without losing messages across pod restarts.')}>
+                  <span class="diff-comp-label">Offset Progression:</span>
+                  <span class="diff-comp-val">Partition 0: offset ${beforeKafka.partitionOffset ?? 0} ➔ <strong style="color: #4ade80;">${afterKafka.partitionOffset ?? 1}</strong></span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Message Partition / Correlation Key', 'The orderId is used as the Kafka partition key so all events for the same order hash to the exact same partition.', 'Guarantees strict FIFO ordering (CREATED -> CONFIRMED/CANCELLED) per order even when scaled to many partitions.')}>
+                  <span class="diff-comp-label">Correlation Key:</span>
+                  <span class="diff-comp-val">${escapeHtml(afterKafka.lastEventKey || 'N/A')}</span>
+                </div>
+              </div>
+
+              <!-- AWS LocalStack S3 Card -->
+              <div class="diff-component-card">
+                <div class="diff-comp-title">
+                  <span class="has-tip" style="color: #fbbf24;" ${tipAttrs('AWS S3 via LocalStack Emulator', 'Real S3-compatible object storage running locally at localhost:4566. notification-service uploads invoice JSON documents using the official AWS SDK v2 S3Client.', 'Offloads document archival from synchronous checkout threads to durable cloud object storage.')}>☁️ AWS LocalStack S3</span>
+                  <span class="delta-highlight-badge delta-green has-tip" ${tipAttrs("11 9's Durability (99.999999999%)", 'Amazon S3 replicates objects across multiple Availability Zones to achieve 99.999999999% annual durability — ideal for immutable financial invoices and compliance records.')}>11 9's Durability</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('S3 Bucket: ' + (afterAws.s3Bucket || 'order-invoices-bucket'), 'Top-level S3 container auto-created by notification-service in LocalStack. Inspect live objects directly at http://localhost:4566/order-invoices-bucket.')}>
+                  <span class="diff-comp-label">Bucket:</span>
+                  <span class="diff-comp-val">${escapeHtml(afterAws.s3Bucket || 'order-invoices-bucket')}</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Real S3 Object Count', 'Live count of archived invoices in LocalStack S3. Increments (+1) only during INVOICE_GENERATED after ORDER_CONFIRMED; declined orders never write an invoice.')}>
+                  <span class="diff-comp-label">Archived Count:</span>
+                  <span class="diff-comp-val">${beforeAws.objectCount ?? 0} ➔ <strong style="color: #fbbf24;">${afterAws.objectCount ?? 0}</strong> object(s)</span>
+                </div>
+                <div class="diff-comp-row has-tip" ${tipAttrs('S3 Object Key', 'Unique path of the archived invoice document inside the bucket. Once archived, it is directly downloadable at http://localhost:4566/' + (afterAws.s3Bucket || 'order-invoices-bucket') + '/' + (afterAws.invoiceKey || ''))}>
+                  <span class="diff-comp-label">Invoice Key:</span>
+                  <span class="diff-comp-val">${escapeHtml(afterAws.invoiceKey || 'invoices/pending.json')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: Spring AOP Execution Telemetry (DEBUG) -->
+          <div class="step-pane-content" data-tab="aop" style="display: none;">
+            ${aop ? `
+              <div class="aop-header-bar">
+                <span class="delta-highlight-badge delta-blue has-tip" ${tipAttrs('Spring Managed Bean', 'The Spring @Service/@Component/@RestController proxy bean whose method was intercepted during this Saga step.')}>Target Bean: ${escapeHtml(aop.targetBean)}</span>
+                <span class="delta-highlight-badge delta-green has-tip" ${tipAttrs('Java 21 Execution Thread', 'Shows whether the handler executed on a lightweight Project Loom Virtual Thread (for HTTP/Tomcat) or a dedicated Kafka listener container thread.')}>⚡ Java 21 Thread: ${escapeHtml(aop.threadName)} (VirtualThread=${aop.virtualThread})</span>
+                <span class="delta-highlight-badge delta-amber has-tip" ${tipAttrs('Method Execution Latency', 'Measured wall-clock duration of the intercepted Spring method invocation in milliseconds and nanoseconds.')}>⏱️ ${(aop.durationNanos / 1000000).toFixed(2)} ms (${aop.durationNanos.toLocaleString()} ns)</span>
+              </div>
+
+              <div style="margin-bottom: 8px;">
+                <span style="font-size: 11px; font-weight: 600; color: #94a3b8;">INTERCEPTED JOINPOINT:</span>
+                <div class="aop-code-box"><pre>${escapeHtml(aop.methodSignature)}</pre></div>
+              </div>
+
+              ${(aop.annotations && aop.annotations.length > 0) ? `
+                <div style="margin-bottom: 8px;">
+                  <span style="font-size: 11px; font-weight: 600; color: #94a3b8;">ACTIVE SPRING ANNOTATIONS:</span>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+                    ${aop.annotations.map(a => `<span class="delta-highlight-badge delta-blue" style="font-family: var(--font-mono);">${escapeHtml(a)}</span>`).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+                <div>
+                  <span style="font-size: 11px; font-weight: 600; color: #94a3b8;">BOUND PARAMETERS:</span>
+                  <div class="aop-code-box"><pre>${escapeHtml(aop.parametersJson)}</pre></div>
+                </div>
+                <div>
+                  <span style="font-size: 11px; font-weight: 600; color: #94a3b8;">RETURN VALUE:</span>
+                  <div class="aop-code-box"><pre>${escapeHtml(aop.returnValueJson)}</pre></div>
+                </div>
+              </div>
+
+              <div>
+                <span style="font-size: 11px; font-weight: 600; color: #94a3b8;">INTERCEPTED EXECUTION LOGS:</span>
+                <div class="aop-code-box" style="max-height: 120px; overflow-y: auto;">
+                  ${(aop.executionLogs && aop.executionLogs.length > 0)
+                    ? aop.executionLogs.map(l => `<div class="aop-log-item"><span style="color: #64748b;">[AOP TRACE]</span> ${escapeHtml(l)}</div>`).join('')
+                    : '<div class="aop-log-item">JoinPoint executed with no warnings or uncaught exceptions.</div>'}
+                </div>
+              </div>
+            ` : '<div style="color: var(--text-muted);">No AOP trace telemetry captured for this step.</div>'}
+          </div>
+
+          <!-- TAB 3: Masterclass Architectural Dossier -->
+          <div class="step-pane-content" data-tab="dossier" style="display: none;">
+            ${dossier ? `
+              <div class="dossier-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 14px; font-weight: 700; color: #38bdf8;">${escapeHtml(dossier.patternName)}</span>
+                  <span class="delta-highlight-badge delta-blue">${escapeHtml(dossier.category)}</span>
+                </div>
+                <div style="margin-bottom: 6px; line-height: 1.4;">
+                  <strong style="color: #93c5fd;">What It Did:</strong> ${escapeHtml(dossier.whatItDid)}
+                </div>
+                <div style="margin-bottom: 8px; line-height: 1.4;">
+                  <strong style="color: #6ee7b7;">Why It Did It:</strong> ${escapeHtml(dossier.whyItDidIt)}
+                </div>
+                <div style="padding: 10px 12px; background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3b82f6; border-radius: 4px; margin-bottom: 12px; line-height: 1.4; color: #e2e8f0;">
+                  <strong style="color: #93c5fd;">Architectural Significance:</strong> ${escapeHtml(dossier.architecturalSignificance)}
+                </div>
+
+                <!-- Pros & Cons Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                  <div style="background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 6px; padding: 10px 12px;">
+                    <div style="font-weight: 600; color: #4ade80; margin-bottom: 6px; font-size: 11.5px;">✓ Architectural Advantages (Pros):</div>
+                    <ul style="margin: 0; padding-left: 18px; color: #cbd5e1; font-size: 11.5px; line-height: 1.45;">
+                      ${dossier.pros.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+                    </ul>
+                  </div>
+                  <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(251, 191, 36, 0.2); border-radius: 6px; padding: 10px 12px;">
+                    <div style="font-weight: 600; color: #fbbf24; margin-bottom: 6px; font-size: 11.5px;">⚠️ Trade-Offs & Complexity (Cons):</div>
+                    <ul style="margin: 0; padding-left: 18px; color: #cbd5e1; font-size: 11.5px; line-height: 1.45;">
+                      ${dossier.cons.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Dual-Tier Hyperscale Blueprint -->
+                ${dossier.hyperscaleBlueprint ? `
+                  <div style="margin-top: 10px;">
+                    <span style="font-size: 12px; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px;">
+                      🚀 Enterprise Hyperscale Evolution Blueprint:
+                    </span>
+                    <div class="dossier-blueprint-grid">
+                      <!-- Current Scale Tier -->
+                      <div class="blueprint-col current">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                          <strong style="color: #38bdf8;">Current Baseline Tier</strong>
+                          <span class="delta-highlight-badge delta-blue">${escapeHtml(dossier.hyperscaleBlueprint.currentScaleTier)}</span>
+                        </div>
+                        <div style="font-size: 11.5px; margin-bottom: 6px; color: #e2e8f0;">
+                          <strong>Mechanism:</strong> ${escapeHtml(dossier.hyperscaleBlueprint.currentMechanism)}
+                        </div>
+                        <div style="font-size: 11.5px; color: #f87171;">
+                          <strong>Bottleneck at Scale:</strong> ${escapeHtml(dossier.hyperscaleBlueprint.bottleneckAtScale)}
+                        </div>
+                      </div>
+
+                      <!-- Enterprise Hyperscale Tier -->
+                      <div class="blueprint-col enterprise">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                          <strong style="color: #c084fc;">Hyperscale Enterprise Evolution</strong>
+                          <span class="delta-highlight-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">${escapeHtml(dossier.hyperscaleBlueprint.enterpriseScaleTier)}</span>
+                        </div>
+                        <div style="font-size: 11.5px; margin-bottom: 6px; color: #e2e8f0;">
+                          <strong style="color: #c084fc;">Enterprise Solution:</strong> ${escapeHtml(dossier.hyperscaleBlueprint.enterpriseSolution)}
+                        </div>
+                        <div style="font-size: 11.5px; color: #94a3b8;">
+                          <strong>Migration Path:</strong> ${escapeHtml(dossier.hyperscaleBlueprint.migrationPath)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            ` : '<div style="color: var(--text-muted);">No architectural dossier available for this step.</div>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSwimlane(sagas) {
+      const container = document.getElementById('sagas-swimlane-container');
+      if (!container) return;
+
+      if (!sagas || sagas.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 32px 20px; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 8px; color: var(--text-muted);">
+            No saga execution data to render in swimlane view. Trigger a scenario from the Operations Console first.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = sagas.map((s, sIdx) => `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div>
+              <span style="font-weight: 700; font-size: 14px;">${escapeHtml(s.sagaId)}</span>
+              <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">Order: ${escapeHtml(s.orderId)} | Amount: $${escapeHtml(s.amount)}</span>
+            </div>
+            <span class="badge ${s.status === 'CONFIRMED' ? 'badge-up' : (s.status === 'COMPENSATED' ? 'badge-warn' : 'badge-down')}">${escapeHtml(s.status)}</span>
+          </div>
+
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            🗺️ <strong>Distributed Flow Journey:</strong> Click any step node to inspect its before/after diffs, Spring AOP trace, and pattern dossier.
+          </div>
+
+          <div class="swimlane-flow">
+            <div class="swimlane-step success" style="border-top-color: #38bdf8;">
+              <div style="font-size: 10px; color: #38bdf8; font-weight: 700; text-transform: uppercase;">1. Client Origin</div>
+              <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">HTTP POST /api/orders</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">User Checkout</div>
+            </div>
+            <div class="swimlane-arrow">➔</div>
+
+            <div class="swimlane-step success" style="border-top-color: #60a5fa;">
+              <div style="font-size: 10px; color: #60a5fa; font-weight: 700; text-transform: uppercase;">2. API Gateway</div>
+              <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">Gateway Proxy (8080)</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">OAuth2 / Routing</div>
+            </div>
+            <div class="swimlane-arrow">➔</div>
+
+            ${s.steps.map((st, idx) => {
+              const statusClass = st.status === 'COMPLETED' ? 'success' : (st.status === 'FAILED' ? 'failed' : 'compensated');
+              return `
+                <div class="swimlane-step ${statusClass}" onclick="switchSagaView('timeline'); const el = document.getElementById('step-inspector-${s.sagaId}-${idx}'); if (el) { el.scrollIntoView({ behavior: 'smooth' }); }">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">${escapeHtml(st.service)}</span>
+                    <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">${st.durationMs}ms</span>
+                  </div>
+                  <div style="font-weight: 600; font-size: 12px; margin-top: 3px;">${escapeHtml(st.stepName)}</div>
+                  <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(st.details)}</div>
+                </div>
+                ${idx < s.steps.length - 1 ? '<div class="swimlane-arrow">➔</div>' : ''}
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadSagas() {
+      try {
+        const res = await fetch(`${API_BASE}/sagas`);
+        if (!res.ok) return;
+        const sagas = await res.json();
+        cachedSagas = sagas;
+        const container = document.getElementById('sagas-container');
+
+        if (!sagas || sagas.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 48px 20px; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 8px; color: var(--text-muted);">
+              <div style="font-size: 32px; margin-bottom: 8px;">🔄</div>
+              <div style="font-size: 14px; font-weight: 600; color: #cbd5e1;">No Distributed Sagas Executed Yet</div>
+              <div style="font-size: 12px; margin-top: 6px;">Trigger an end-to-end workflow from the <strong>🚀 Operations Console</strong> tab (e.g. <em>Run Happy Path</em> or <em>Run Payment Decline</em>) to view live Saga traces across the cluster.</div>
+            </div>
+          `;
+          const swimlaneCont = document.getElementById('sagas-swimlane-container');
+          if (swimlaneCont) swimlaneCont.innerHTML = '';
+          return;
+        }
+
+        container.innerHTML = sagas.map((s, sIdx) => `
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span style="font-weight: 700; font-size: 14px;">${escapeHtml(s.sagaId)}</span>
+                <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">Order: <strong>${escapeHtml(s.orderId)}</strong> | Customer: ${escapeHtml(s.customerId)} | Amount: $${escapeHtml(s.amount)}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge ${s.status === 'CONFIRMED' ? 'badge-up' : (s.status === 'COMPENSATED' ? 'badge-warn' : 'badge-down')}">${escapeHtml(s.status)}</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">${s.steps.length} Steps</span>
+              </div>
+            </div>
+
+            <div class="timeline">
+              ${s.steps.map((st, idx) => {
+                const stepKey = `${s.sagaId}-${idx}`;
+                return `
+                  <div class="timeline-item">
+                    <div class="timeline-dot ${escapeHtml(st.status.toLowerCase())}">${st.status === 'COMPLETED' ? '✓' : (st.status === 'FAILED' ? '✕' : '↺')}</div>
+                    <div class="timeline-content">
+                      <div class="timeline-header">
+                        <span class="timeline-step-name">${escapeHtml(st.stepName)} (${escapeHtml(st.service)})</span>
+                        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${st.durationMs}ms</span>
+                      </div>
+                      <div class="timeline-details">${escapeHtml(st.details)}</div>
+
+                      <!-- 3-Tab Inspector: Diffs, AOP Telemetry, and Architectural Masterclass -->
+                      ${renderStepInspector(st, stepKey)}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `).join('');
+
+        if (currentSagaView === 'swimlane') {
+          renderSwimlane(cachedSagas);
+        }
+      } catch (e) {
+        console.error('Failed to load sagas', e);
+      }
+    }
+
+    async function loadLearningPatterns() {
+      try {
+        const res = await fetch(`${API_BASE}/learning`);
+        if (!res.ok) return;
+        const patterns = await res.json();
+        const grid = document.getElementById('learning-grid');
+        grid.innerHTML = patterns.map(p => `
+          <div class="learning-card">
+            <span class="learning-category">${escapeHtml(p.category)}</span>
+            <h3 class="learning-title">${escapeHtml(p.title)}</h3>
+            <div class="learning-problem"><strong>Problem:</strong> ${escapeHtml(p.problem)}</div>
+            <div class="learning-concept"><strong>Concept:</strong> ${escapeHtml(p.concept)}</div>
+            <div style="font-size: 12px; color: var(--text-main);"><strong>Implementation:</strong> ${escapeHtml(p.implementation)}</div>
+            <div class="learning-code-ref">📄 Anchor: ${escapeHtml(p.codeAnchor)}</div>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">${escapeHtml(p.tradeOffs)}</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to load learning patterns', e);
+      }
+    }
+
+    function copyCurl(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const text = el.innerText || el.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 cURL command copied to clipboard!');
+      }).catch(err => {
+        showToast('Error copying to clipboard: ' + err);
+      });
+    }
+
+    const PRESET_CONFIGS = {
+      'happy-path': {
+        target: 'order-service',
+        method: 'POST',
+        path: '/api/orders',
+        body: JSON.stringify({
+          customerId: 'cust-live-01',
+          items: [{ productId: 'PROD-TECH-001', quantity: 1, unitPrice: 149.00 }]
+        }, null, 2),
+        corrId: 'corr-live-happy'
+      },
+      'payment-decline': {
+        target: 'order-service',
+        method: 'POST',
+        path: '/api/orders',
+        body: JSON.stringify({
+          customerId: 'cust-decline-01',
+          items: [{ productId: 'PROD-TECH-001', quantity: 1, unitPrice: 5000.00 }]
+        }, null, 2),
+        corrId: 'corr-live-decline'
+      },
+      'inventory-exhaustion': {
+        target: 'order-service',
+        method: 'POST',
+        path: '/api/orders',
+        body: JSON.stringify({
+          customerId: 'cust-overstock',
+          items: [{ productId: 'PROD-TECH-001', quantity: 999, unitPrice: 149.00 }]
+        }, null, 2),
+        corrId: 'corr-live-exhaust'
+      },
+      'manual-cancellation': {
+        target: 'order-service',
+        method: 'POST',
+        path: '/api/orders/{orderId}/cancel',
+        body: JSON.stringify({
+          reason: 'Customer requested cancellation from Control Center'
+        }, null, 2),
+        corrId: 'corr-live-cancel'
+      }
+    };
+
+    function openRequestEditor(presetId) {
+      const drawer = document.getElementById('live-builder-drawer');
+      drawer.style.display = 'block';
+
+      const cfg = PRESET_CONFIGS[presetId] || PRESET_CONFIGS['happy-path'];
+      document.getElementById('live-req-target').value = cfg.target;
+      document.getElementById('live-req-method').value = cfg.method;
+      document.getElementById('live-req-path').value = cfg.path;
+      document.getElementById('live-req-corrid').value = 'corr-edit-' + Math.random().toString(36).substring(2, 7);
+      document.getElementById('live-req-body').value = cfg.body;
+
+      updateCustomCurlPreview();
+      drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeRequestEditor() {
+      document.getElementById('live-builder-drawer').style.display = 'none';
+    }
+
+    function updateCustomCurlPreview() {
+      const target = document.getElementById('live-req-target').value;
+      const method = document.getElementById('live-req-method').value;
+      const path = document.getElementById('live-req-path').value;
+      const corrId = document.getElementById('live-req-corrid').value;
+      const body = document.getElementById('live-req-body').value.trim();
+
+      const portMap = {
+        'order-service': 8081,
+        'payment-service': 8084,
+        'inventory-service': 8082,
+        'api-gateway': 8080,
+        'notification-service': 8083
+      };
+      const port = portMap[target] || 8080;
+      const url = `http://localhost:${port}${path.startsWith('/') ? path : '/' + path}`;
+
+      const compactBody = body.replace(/\r?\n\s*/g, ' ');
+      let cmd = `curl -X ${method} "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "X-Correlation-ID: ${corrId}"`;
+      if (body && method !== 'GET') {
+        cmd += ` \\\n  -d '${compactBody}'`;
+      }
+      document.getElementById('curl-custom-preview').innerText = cmd;
+    }
+
+    function resetCustomRequest() {
+      openRequestEditor('happy-path');
+    }
+
+    async function dispatchCustomSingleRequest() {
+      const indicator = document.getElementById('custom-req-indicator');
+      indicator.innerText = 'Dispatching to live pod...';
+
+      const target = document.getElementById('live-req-target').value;
+      const method = document.getElementById('live-req-method').value;
+      const path = document.getElementById('live-req-path').value;
+      const corrId = document.getElementById('live-req-corrid').value;
+      const body = document.getElementById('live-req-body').value;
+
+      try {
+        const payload = {
+          targetService: target,
+          httpMethod: method,
+          path: path,
+          headers: { 'X-Correlation-ID': corrId },
+          bodyJson: body,
+          correlationId: corrId,
+          inspectInfrastructure: true
+        };
+
+        const res = await fetch(`${API_BASE}/live/dispatch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Dispatch request returned HTTP ' + res.status);
+        const data = await res.json();
+
+        // Render response box
+        const respBox = document.getElementById('custom-response-box');
+        respBox.style.display = 'block';
+
+        const statusEl = document.getElementById('custom-resp-status');
+        statusEl.innerText = `${data.statusCode} ${data.statusText}`;
+        statusEl.className = `badge ${data.statusCode >= 200 && data.statusCode < 300 ? 'badge-up' : (data.statusCode === 402 ? 'badge-warn' : 'badge-down')}`;
+
+        document.getElementById('custom-resp-duration').innerText = `${data.durationMs}ms roundtrip`;
+        document.getElementById('custom-resp-body').innerText = data.responseBody || '(empty body)';
+
+        const diffEl = document.getElementById('custom-resp-diff');
+        if (data.stateDiff && data.stateDiff.highlights) {
+          diffEl.innerHTML = '<strong>Live State Deltas:</strong> ' + data.stateDiff.highlights.map(h => escapeHtml(h)).join(' | ');
+        } else {
+          diffEl.innerText = 'No persistent state drift recorded.';
+        }
+
+        indicator.innerText = '✓ Dispatched at ' + new Date().toLocaleTimeString();
+        showToast(`Dispatched ${method} ${path} -> HTTP ${data.statusCode}`);
+
+        loadOverview();
+        loadSagas();
+        loadEvents();
+      } catch (err) {
+        indicator.innerText = '✕ Failed';
+        showToast('Dispatch error: ' + err.message);
+      }
+    }
+
+    async function triggerLiveFlow(presetId) {
+      showToast(`⚡ Dispatching live cluster flow: ${presetId}...`);
+      try {
+        const res = await fetch(`${API_BASE}/live/execute-flow?presetId=${encodeURIComponent(presetId)}`, { method: 'POST' });
+        if (!res.ok) throw new Error('Live flow execution failed with status: ' + res.status);
+        const data = await res.json();
+
+        // Render result in panel
+        const panel = document.getElementById('operation-result-panel');
+        panel.style.display = 'block';
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        document.getElementById('op-result-title').innerText = `${data.flowName} (Order: ${data.orderId || 'N/A'})`;
+
+        const statusEl = document.getElementById('op-result-status');
+        statusEl.innerText = data.status;
+        statusEl.className = `badge ${data.status === 'SUCCESS' ? 'badge-up' : (data.status === 'COMPENSATED' ? 'badge-warn' : 'badge-down')}`;
+
+        document.getElementById('op-result-explanation').innerText = data.summary;
+
+        const stepsEl = document.getElementById('op-result-steps');
+        stepsEl.innerHTML = data.steps.map((st, idx) => {
+          const stepStatus = st.statusCode >= 200 && st.statusCode < 300 ? 'COMPLETED' : (st.statusCode === 402 ? 'COMPENSATED' : 'FAILED');
+          return `
+            <div class="timeline-item">
+              <div class="timeline-dot ${stepStatus.toLowerCase()}">${stepStatus === 'COMPLETED' ? '✓' : (stepStatus === 'FAILED' ? '✕' : '↺')}</div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="timeline-step-name">HTTP ${st.statusCode} &bull; ${escapeHtml(st.targetUrl)}</span>
+                  <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${st.durationMs}ms</span>
+                </div>
+                <div class="timeline-details" style="font-family: var(--font-mono); font-size: 11px; color: #7dd3fc; margin-bottom: 6px;">
+                  <code>${escapeHtml(st.curlCommand)}</code>
+                </div>
+
+                ${st.stateDiff && st.stateDiff.highlights ? `
+                  <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: #d8b4fe; margin-bottom: 6px;">
+                    ${st.stateDiff.highlights.map(h => `<div>&bull; ${escapeHtml(h)}</div>`).join('')}
+                  </div>
+                ` : ''}
+
+                <div style="background: #050811; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 6px 10px; font-family: var(--font-mono); font-size: 11px; color: #94a3b8; max-height: 80px; overflow-y: auto;">
+                  Response: ${escapeHtml(st.responseBody)}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const actionsEl = document.getElementById('op-result-actions');
+        if (actionsEl) {
+          actionsEl.innerHTML = `
+            <div style="margin-top: 16px; padding: 12px 16px; background: rgba(59, 130, 246, 0.08); border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.25); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <span style="font-size: 13px; font-weight: 600; color: #93c5fd;">Live Cluster Result:</span>
+                <span style="font-family: var(--font-mono); font-size: 12px; color: #e2e8f0; margin-left: 6px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">Order ID: ${escapeHtml(data.orderId || 'N/A')}</span>
+                <span style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; margin-left: 6px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">Trace: ${escapeHtml(data.correlationId)}</span>
+                <button class="btn btn-sm" onclick="switchTab('sagas')" style="margin-left: 8px; background: rgba(139, 92, 246, 0.2); border-color: #a855f7; color: #d8b4fe;">🔄 View in Saga Explorer</button>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-sm" onclick="openNodeLogsDirect('order-service')" style="background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 600;">🪵 Order Service Logs</button>
+                <button class="btn btn-sm" onclick="openNodeLogsDirect('inventory-service')" style="background: rgba(16, 185, 129, 0.15); border-color: var(--accent-green); color: var(--accent-green); font-weight: 600;">📦 Inventory Logs</button>
+                <button class="btn btn-sm" onclick="openNodeLogsDirect('payment-service')" style="background: rgba(245, 158, 11, 0.15); border-color: var(--accent-amber); color: var(--accent-amber); font-weight: 600;">💳 Payment Logs</button>
+                <button class="btn btn-sm" onclick="openNodeLogsDirect('kafka')" style="background: rgba(139, 92, 246, 0.15); border-color: #a78bfa; color: #c4b5fd; font-weight: 600;">📬 Kafka Broker Logs</button>
+              </div>
+            </div>
+          `;
+        }
+
+        showToast(`⚡ Live Flow ${presetId} completed! Status: ${data.status}`);
+        loadOverview();
+        loadSagas();
+        loadEvents();
+      } catch (e) {
+        showToast(`Error: ${e.message}`);
+      }
+    }
+
+    // Backward compatibility alias
+    function triggerScenario(s) {
+      triggerLiveFlow(s);
+    }
+
+    // Infrastructure Admin Logic
+    let currentInfraPlatform = 'k8s';
+    let currentSelectedNode = null;
+    let cachedInfraNodes = [];
+    let currentRenderedNodes = [];
+    let cachedRawLogs = '';
+    let autoTailInterval = null;
+
+    function switchInfraPlatform(p) {
+      currentInfraPlatform = p;
+      document.getElementById('btn-platform-k8s').classList.toggle('active', p === 'k8s');
+      document.getElementById('btn-platform-docker').classList.toggle('active', p === 'docker');
+      document.getElementById('infra-active-info').innerText = p === 'k8s' ? 'Namespace: microservices-demo' : 'Docker Daemon Local Host';
+      document.getElementById('infra-table-title').innerText = p === 'k8s' ? '⎈ Kubernetes Pod Status & Health' : '🐳 Docker Container Status & Health';
+      document.getElementById('kpi-infra-platform-label').innerText = p === 'k8s' ? 'Kubernetes Pods' : 'Docker Containers';
+      closeTerminal();
+      loadInfraNodes();
+    }
+
+    async function loadInfraNodes() {
+      try {
+        const tbody = document.getElementById('infra-nodes-tbody');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--text-muted);">Fetching live node status...</td></tr>';
+
+        const res = await fetch(`${API_BASE}/infra/nodes?platform=${encodeURIComponent(currentInfraPlatform)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const nodes = await res.json();
+        cachedInfraNodes = nodes;
+
+        let total = nodes.length;
+        let running = 0;
+        let crashed = 0;
+        let totalRestarts = 0;
+        const crashedNames = [];
+
+        nodes.forEach(n => {
+          const st = (n.statusText || n.state || '').toLowerCase();
+          const fr = (n.failureReason || '').toLowerCase();
+          const isRunning = st === 'running' || (n.state === 'RUNNING' && n.readyStatus && n.readyStatus.startsWith('1/1'));
+          const isErr = !isRunning && (st.includes('crash') || st.includes('error') || st.includes('oom') || fr.includes('crash') || fr.includes('error') || (n.exitCode && n.exitCode !== 0));
+
+          if (isRunning) running++;
+          if (isErr) {
+            crashed++;
+            crashedNames.push(n.name);
+          }
+          totalRestarts += (n.restartCount || 0);
+        });
+
+        document.getElementById('kpi-infra-total').innerText = total;
+        document.getElementById('kpi-infra-running').innerText = running;
+        document.getElementById('kpi-infra-crashed').innerText = crashed;
+        document.getElementById('kpi-infra-crashed-sub').innerText = crashed > 0 ? `${crashed} failed / crash looping` : 'All healthy';
+        document.getElementById('kpi-infra-restarts').innerText = totalRestarts;
+
+        const alertBanner = document.getElementById('infra-alert-banner');
+        if (crashed > 0) {
+          alertBanner.style.display = 'flex';
+          alertBanner.className = 'alert-banner';
+          document.getElementById('infra-alert-title').innerText = `${crashed} Service(s) Down or Crashing:`;
+          document.getElementById('infra-alert-msg').innerText = `${crashedNames.slice(0, 4).join(', ')}${crashedNames.length > 4 ? '...' : ''} — Click "Logs" to diagnose failure.`;
+        } else {
+          alertBanner.style.display = 'none';
+        }
+
+        renderInfraNodes(nodes);
+      } catch (err) {
+        document.getElementById('infra-nodes-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--accent-red);">Failed to load infrastructure nodes: ${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    function renderInfraNodes(nodes) {
+      currentRenderedNodes = nodes || [];
+      const tbody = document.getElementById('infra-nodes-tbody');
+      if (!nodes || nodes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--text-muted);">No containers or pods found for platform ' + escapeHtml(currentInfraPlatform) + '.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = nodes.map((n, idx) => {
+        const st = (n.statusText || n.state || '').toLowerCase();
+        const fr = (n.failureReason || '').toLowerCase();
+        const isRunning = st === 'running' || (n.state === 'RUNNING' && n.readyStatus && n.readyStatus.startsWith('1/1'));
+        const isErr = !isRunning && (st.includes('crash') || st.includes('error') || st.includes('oom') || fr.includes('crash') || fr.includes('error') || (n.exitCode && n.exitCode !== 0));
+
+        const badgeClass = isRunning ? 'badge-up' : (isErr ? 'badge-down' : 'badge-warn');
+        const pulseDot = isRunning ? '<span class="pulse-dot" style="display:inline-block; margin-right:4px;"></span>' : (isErr ? '<span class="pulse-dot" style="background:#ef4444; box-shadow:0 0 8px #ef4444; display:inline-block; margin-right:4px;"></span>' : '');
+
+        // Extract clean service label
+        let svcLabel = n.name.replace(/-[0-9a-f]{8,10}-[a-z0-9]{5}$/, '').replace(/-[a-z0-9]{5,10}$/, '');
+
+        let failureHtml = '<span style="color: var(--text-muted); font-size: 11px;">-</span>';
+        if (!isRunning && (n.failureReason || n.failureMessage || (n.exitCode && n.exitCode !== 0))) {
+          const reasonText = n.failureReason || (n.exitCode ? `Exit Code ${n.exitCode}` : 'Failed');
+          const detail = n.failureMessage ? `: ${n.failureMessage}` : '';
+          failureHtml = `<span style="color: #f87171; font-size: 11px; font-family: var(--font-mono); font-weight:600;" title="${escapeHtml(detail)}">${escapeHtml(reasonText)} ${escapeHtml(detail ? detail.substring(0, 35) + '...' : '')}</span>`;
+        }
+
+        return `
+          <tr>
+            <td style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: #93c5fd;">
+              ${escapeHtml(n.name)}
+            </td>
+            <td><span class="badge badge-type">${escapeHtml(svcLabel)}</span></td>
+            <td><span class="badge ${badgeClass}">${pulseDot}${escapeHtml(n.statusText || n.state)}</span></td>
+            <td style="font-family: var(--font-mono); font-size: 12px;">${escapeHtml(n.readyStatus || '-')}</td>
+            <td style="font-family: var(--font-mono); font-size: 12px; ${n.restartCount > 0 ? 'color: var(--accent-amber); font-weight: bold;' : ''}">${n.restartCount || 0}</td>
+            <td style="font-size: 11px; color: var(--text-muted);">${escapeHtml(n.age || '-')}</td>
+            <td>${failureHtml}</td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn ${isErr ? 'btn-primary' : ''}" style="padding: 3px 8px; font-size: 11px; background: rgba(59, 130, 246, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight:600;" onclick="viewNodeLogsByIndex(${idx})">
+                  🪵 Logs
+                </button>
+                <button class="btn" style="padding: 3px 8px; font-size: 11px;" onclick="viewNodeDiagnosticsByIndex(${idx})">
+                  🔍 Inspect
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function viewNodeLogsByIndex(idx) {
+      const n = currentRenderedNodes[idx];
+      if (!n) return;
+      viewNodeLogs(n.name, n.statusText || n.state, n.failureReason);
+    }
+
+    function viewNodeDiagnosticsByIndex(idx) {
+      const n = currentRenderedNodes[idx];
+      if (!n) return;
+      viewNodeDiagnosticsDirect(n.name);
+    }
+
+    async function openNodeLogsDirect(keyword) {
+      switchTab('infra-admin');
+      showToast(`Locating live logs for ${keyword}...`);
+      if (!cachedInfraNodes || cachedInfraNodes.length === 0) {
+        await loadInfraNodes();
+      }
+      const lower = (keyword || '').toLowerCase().replace('-service', '');
+      let match = (cachedInfraNodes || []).find(n => n.name.toLowerCase().includes(lower));
+      if (!match) {
+        match = (cachedInfraNodes || []).find(n => n.id && n.id.toLowerCase().includes(lower));
+      }
+      if (match) {
+        await viewNodeLogs(match.name, match.statusText || match.state, match.failureReason);
+      } else {
+        showToast(`Could not find running node matching "${keyword}". Showing all pods.`);
+      }
+    }
+
+    function filterInfraNodes() {
+      const q = (document.getElementById('infra-node-search').value || '').toLowerCase();
+      const filtered = cachedInfraNodes.filter(n => 
+        (n.name && n.name.toLowerCase().includes(q)) ||
+        (n.statusText && n.statusText.toLowerCase().includes(q)) ||
+        (n.state && n.state.toLowerCase().includes(q))
+      );
+      renderInfraNodes(filtered);
+    }
+
+    async function viewNodeLogs(name, status, failureReason) {
+      currentSelectedNode = name;
+      const termSection = document.getElementById('infra-terminal-section');
+      termSection.style.display = 'block';
+      document.getElementById('terminal-node-name').innerText = `${currentInfraPlatform.toUpperCase()} : ${name}`;
+
+      const badge = document.getElementById('terminal-node-badge');
+      badge.innerText = status || 'Status';
+      const isErr = (status || '').toLowerCase().includes('crash') || (status || '').toLowerCase().includes('error');
+      badge.className = `badge ${isErr ? 'badge-down' : 'badge-up'}`;
+
+      const failCallout = document.getElementById('terminal-failure-callout');
+      if (failureReason) {
+        failCallout.style.display = 'block';
+        document.getElementById('terminal-failure-text').innerText = failureReason;
+      } else {
+        failCallout.style.display = 'none';
+      }
+
+      await fetchNodeLogs(name);
+      termSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function fetchNodeLogs(name) {
+      try {
+        const tail = document.getElementById('terminal-tail-select').value || '100';
+        document.getElementById('terminal-log-body').innerText = 'Fetching live container logs...';
+
+        const res = await fetch(`${API_BASE}/infra/logs?platform=${encodeURIComponent(currentInfraPlatform)}&name=${encodeURIComponent(name)}&tail=${tail}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        cachedRawLogs = data.logs || 'No log output returned from container.';
+        renderFormattedLogs(cachedRawLogs);
+      } catch (err) {
+        document.getElementById('terminal-log-body').innerText = `Failed to fetch logs: ${err.message}`;
+      }
+    }
+
+    function renderFormattedLogs(raw) {
+      const filter = (document.getElementById('terminal-filter-input').value || '').toLowerCase();
+      const lines = raw.split('\n');
+      const filtered = filter ? lines.filter(l => l.toLowerCase().includes(filter)) : lines;
+
+      const body = document.getElementById('terminal-log-body');
+      body.innerHTML = filtered.map(line => {
+        const lower = line.toLowerCase();
+        let cls = '';
+        if (lower.includes('error') || lower.includes('exception') || lower.includes('fatal') || lower.includes('failed') || lower.includes('crash')) {
+          cls = 'terminal-line-err';
+        } else if (lower.includes('warn')) {
+          cls = 'terminal-line-warn';
+        } else if (lower.includes('info') || lower.includes('started')) {
+          cls = 'terminal-line-info';
+        }
+        return cls ? `<span class="${cls}">${escapeHtml(line)}</span>` : escapeHtml(line);
+      }).join('\n');
+
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function filterTerminalLogs() {
+      if (cachedRawLogs) {
+        renderFormattedLogs(cachedRawLogs);
+      }
+    }
+
+    function refreshCurrentLogs() {
+      if (currentSelectedNode) {
+        fetchNodeLogs(currentSelectedNode);
+      }
+    }
+
+    function toggleAutoTail() {
+      const icon = document.getElementById('auto-tail-icon');
+      const text = document.getElementById('auto-tail-text');
+      if (autoTailInterval) {
+        clearInterval(autoTailInterval);
+        autoTailInterval = null;
+        icon.innerText = '▶';
+        text.innerText = 'Auto-Tail';
+        showToast('Auto-tail stopped.');
+      } else {
+        if (!currentSelectedNode) {
+          showToast('Select a node first.');
+          return;
+        }
+        icon.innerText = '⏸';
+        text.innerText = 'Tailing (3s)';
+        showToast('Auto-tailing logs every 3 seconds...');
+        autoTailInterval = setInterval(() => {
+          if (currentSelectedNode) fetchNodeLogs(currentSelectedNode);
+        }, 3000);
+      }
+    }
+
+    function copyTerminalLogs() {
+      if (!cachedRawLogs) {
+        showToast('No logs to copy.');
+        return;
+      }
+      navigator.clipboard.writeText(cachedRawLogs).then(() => {
+        showToast('Console logs copied to clipboard!');
+      }).catch(err => {
+        showToast('Failed to copy to clipboard.');
+      });
+    }
+
+    async function viewNodeDiagnostics() {
+      if (!currentSelectedNode) return;
+      await viewNodeDiagnosticsDirect(currentSelectedNode);
+    }
+
+    async function viewNodeDiagnosticsDirect(name) {
+      try {
+        currentSelectedNode = name;
+        const termSection = document.getElementById('infra-terminal-section');
+        termSection.style.display = 'block';
+        document.getElementById('terminal-node-name').innerText = `INSPECT : ${name}`;
+        document.getElementById('terminal-failure-callout').style.display = 'none';
+        document.getElementById('terminal-log-body').innerText = `Running ${currentInfraPlatform === 'k8s' ? 'kubectl describe pod' : 'docker inspect'} ${name}...`;
+        termSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        const res = await fetch(`${API_BASE}/infra/diagnostics?platform=${encodeURIComponent(currentInfraPlatform)}&name=${encodeURIComponent(name)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        cachedRawLogs = data.diagnostics || 'No diagnostics returned.';
+        renderFormattedLogs(cachedRawLogs);
+      } catch (err) {
+        document.getElementById('terminal-log-body').innerText = `Failed to get diagnostics: ${err.message}`;
+      }
+    }
+
+    function closeTerminal() {
+      if (autoTailInterval) {
+        clearInterval(autoTailInterval);
+        autoTailInterval = null;
+        document.getElementById('auto-tail-icon').innerText = '▶';
+        document.getElementById('auto-tail-text').innerText = 'Auto-Tail';
+      }
+      document.getElementById('infra-terminal-section').style.display = 'none';
+      currentSelectedNode = null;
+    }
+
+    // ==========================================
+    // TAB: AWS LocalStack Dashboard Logic
+    // ==========================================
+    let cachedAwsData = null;
+    let selectedAwsCategory = 'ALL';
+
+    async function loadAwsEmulator() {
+      try {
+        const res = await fetch(`${API_BASE}/aws-emulator`);
+        if (!res.ok) return;
+        cachedAwsData = await res.json();
+        renderAwsEmulatorDashboard(cachedAwsData);
+      } catch (err) {
+        console.error('Failed to load AWS emulator health', err);
+      }
+    }
+
+    function renderAwsEmulatorDashboard(data) {
+      if (!data) return;
+      const isOnline = data.status === 'ONLINE';
+      const statusEl = document.getElementById('kpi-aws-status');
+      if (statusEl) {
+        statusEl.innerHTML = isOnline 
+          ? `<span class="pulse-dot"></span> ONLINE` 
+          : `<span class="pulse-dot" style="background:#ef4444; box-shadow:0 0 8px #ef4444;"></span> OFFLINE`;
+        statusEl.style.color = isOnline ? 'var(--accent-green)' : 'var(--accent-red)';
+      }
+
+      const editionEl = document.getElementById('kpi-aws-edition');
+      if (editionEl) editionEl.innerText = `LocalStack ${data.edition || 'Community'} v${data.version || ''}`;
+
+      const activeCountEl = document.getElementById('kpi-aws-active-count');
+      if (activeCountEl) activeCountEl.innerText = `${data.availableCount} / ${data.totalServices}`;
+
+      const runningCountEl = document.getElementById('kpi-aws-running-count');
+      if (runningCountEl) runningCountEl.innerText = `${data.runningCount} Active`;
+
+      const bannerText = document.getElementById('aws-status-banner-text');
+      if (bannerText) bannerText.innerText = data.message || 'LocalStack is active.';
+
+      renderActiveAwsCards(data.activeServices || []);
+      renderAwsTable(data.allServices || []);
+    }
+
+    function renderActiveAwsCards(activeServices) {
+      const grid = document.getElementById('aws-active-cards-grid');
+      if (!grid) return;
+      if (!activeServices || activeServices.length === 0) {
+        grid.innerHTML = '<div style="color:var(--text-muted); font-size:13px;">No active AWS services detected.</div>';
+        return;
+      }
+
+      const iconMap = {
+        'Amazon S3': '🪣',
+        'Amazon SQS': '📬',
+        'Amazon SNS': '📢',
+        'Amazon DynamoDB': '⚡',
+        'DynamoDB Streams': '🔄',
+        'Amazon Kinesis': '🌊'
+      };
+
+      grid.innerHTML = activeServices.map(s => {
+        const icon = iconMap[s.name] || '☁️';
+        const isRunning = s.status === 'running';
+        const badgeClass = isRunning ? 'badge-up' : 'badge-type';
+        const statusLabel = isRunning ? '● RUNNING' : '○ AVAILABLE';
+
+        return `
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 10px; border-left: 4px solid ${isRunning ? 'var(--accent-green)' : 'var(--accent-cyan)'};">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px;">
+                <span style="font-size: 20px;">${icon}</span>
+                <span>${escapeHtml(s.name)}</span>
+              </div>
+              <span class="badge ${badgeClass}">${statusLabel}</span>
+            </div>
+            <div style="font-size: 12px; color: var(--accent-cyan); font-weight: 600;">Category: ${escapeHtml(s.category)}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(s.description)}</div>
+            <div style="background: rgba(17, 24, 39, 0.7); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-size: 12px;">
+              <div style="color: #94a3b8; font-size: 11px; margin-bottom: 4px;">⚡ Architectural Ecosystem Role:</div>
+              <div style="color: #f1f5f9; line-height: 1.4;">${escapeHtml(s.architectureUsage || s.demoUsage)}</div>
+            </div>
+            <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; background: #0b0f19; border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 10px; gap: 8px;">
+              <code style="font-family: var(--font-mono); font-size: 11px; color: #a5f3fc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${escapeHtml(s.cliCommand)}</code>
+              <button class="btn" style="padding: 2px 8px; font-size: 10px; flex-shrink: 0;" onclick="copyToClipboard('${escapeHtml(s.cliCommand)}')">Copy</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAwsTable(services) {
+      const tbody = document.getElementById('aws-services-tbody');
+      if (!tbody) return;
+
+      const q = (document.getElementById('aws-search-input')?.value || '').toLowerCase();
+      const filtered = (services || []).filter(s => {
+        const matchesQuery = !q || s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q) || s.description.toLowerCase().includes(q);
+        if (!matchesQuery) return false;
+        if (selectedAwsCategory === 'ALL') return true;
+        if (selectedAwsCategory === 'ACTIVE') return s.active;
+        return s.category.toLowerCase().includes(selectedAwsCategory.toLowerCase());
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">No AWS services matching filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(s => {
+        const isRunning = s.status === 'running';
+        const isAvail = s.status === 'available';
+        const badgeClass = isRunning ? 'badge-up' : (isAvail ? 'badge-warn' : 'badge-down');
+        const badgeText = isRunning ? '● RUNNING' : (isAvail ? '○ AVAILABLE' : '✕ DISABLED');
+
+        return `
+          <tr>
+            <td style="font-weight: 600; font-family: var(--font-mono); font-size: 13px;">${escapeHtml(s.name)}</td>
+            <td><span class="badge badge-type">${escapeHtml(s.category)}</span></td>
+            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+            <td style="font-size: 12px; color: var(--text-muted);">${escapeHtml(s.description)}</td>
+            <td style="font-size: 12px; ${s.active ? 'color: var(--accent-green); font-weight: 500;' : 'color: var(--text-muted);'}">${escapeHtml(s.architectureUsage || s.demoUsage)}</td>
+            <td>
+              <code style="font-family: var(--font-mono); font-size: 11px; color: #a5f3fc;">${escapeHtml(s.cliCommand)}</code>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setAwsCategoryFilter(cat, el) {
+      selectedAwsCategory = cat;
+      document.querySelectorAll('#view-aws-emulator .filter-chip').forEach(c => c.classList.remove('active'));
+      if (el) el.classList.add('active');
+      if (cachedAwsData) renderAwsTable(cachedAwsData.allServices || []);
+    }
+
+    function filterAwsServices() {
+      if (cachedAwsData) renderAwsTable(cachedAwsData.allServices || []);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+        showToast('CLI command copied to clipboard!');
+      } else {
+        showToast('Command: ' + text);
+      }
+    }
+
+    // Initial boot
+    document.addEventListener('DOMContentLoaded', () => {
+      initEduTooltips();
+      loadOverview();
+      loadServices();
+      loadArchitecture();
+      loadInfraNodes();
+      loadAwsEmulator();
+
+      // Continuous 12s live state synchronization
+      setInterval(() => {
+        loadOverview();
+        if (currentActiveTab === 'architecture') loadArchitecture();
+        else if (currentActiveTab === 'infra-admin') loadInfraNodes();
+        else if (currentActiveTab === 'aws-emulator') loadAwsEmulator();
+        else if (currentActiveTab === 'services') loadServices();
+        const refreshEl = document.getElementById('last-refresh');
+        if (refreshEl) refreshEl.innerText = new Date().toLocaleTimeString();
+      }, 12000);
+    });
+  </script>
+</body>
+</html>

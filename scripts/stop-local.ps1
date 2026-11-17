@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Stops the Local Java Microservices Platform (Docker Compose or Kubernetes).
 #>
@@ -7,7 +7,9 @@ param(
     [Parameter(Position=0)]
     [Alias("m")]
     [ValidateSet("docker", "k8s", "kubernetes", "Kubernetes", "Docker", "K8s", IgnoreCase=$true)]
-    [string]$Mode = "k8s"
+    [string]$Mode = "k8s",
+
+    [switch]$PruneAll
 )
 
 $ProjectRoot = (Get-Item "$PSScriptRoot\..").FullName
@@ -26,4 +28,11 @@ if (-not $IsK8s) {
     kubectl delete -k "$ProjectRoot\k8s" --ignore-not-found=true
 }
 
-Write-Host "[✓] Platform stopped." -ForegroundColor Green
+Write-Host "Cleaning up dangling Docker images..." -ForegroundColor Cyan
+docker image prune -f | Out-Null
+if ($PruneAll) {
+    Write-Host "Pruning Docker build cache (-PruneAll specified)..." -ForegroundColor Cyan
+    docker builder prune -f | Out-Null
+}
+
+Write-Host "[OK] Platform stopped and Docker artifacts cleaned." -ForegroundColor Green

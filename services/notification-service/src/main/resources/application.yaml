@@ -1,0 +1,30 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: notification-service
+  jmx:
+    enabled: false
+  threads:
+    virtual:
+      enabled: true
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+
+notification:
+  kafka:
+    listener:
+      auto-startup: ${NOTIFICATION_KAFKA_AUTO_STARTUP:true}
+  sqs:
+    queue-name: order-events-queue
+  s3:
+    bucket-name: order-invoices-bucket
+
+aws:
+  endpoint: ${AWS_ENDPOINT_URL:http://localhost:4566}
+  region: ${AWS_REGION:us-east-1}
+  emulator-mode: true

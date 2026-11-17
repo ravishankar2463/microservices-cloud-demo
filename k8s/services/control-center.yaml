@@ -15,14 +15,18 @@ spec:
     spec:
       containers:
         - name: control-center
-          image: control-center:v7
-          imagePullPolicy: IfNotPresent
+          image: control-center:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8090
               name: http
           env:
             - name: SERVER_PORT
               value: "8090"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka.microservices-demo.svc.cluster.local:9092"
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka.microservices-demo.svc.cluster.local:9092"
             - name: API_GATEWAY_URL
               value: "http://api-gateway.microservices-demo.svc.cluster.local:8080"
             - name: ORDER_SERVICE_URL
@@ -39,24 +43,30 @@ spec:
               value: "http://keycloak.microservices-demo.svc.cluster.local:8080"
             - name: AWS_EMULATOR_URL
               value: "http://aws-emulator.microservices-demo.svc.cluster.local:4566"
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8090
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8090
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            initialDelaySeconds: 2
+            periodSeconds: 3
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8090
-            initialDelaySeconds: 15
-            periodSeconds: 15
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             requests:
               cpu: "150m"
               memory: "256Mi"
             limits:
-              cpu: "500m"
               memory: "512Mi"
 ---
 apiVersion: v1

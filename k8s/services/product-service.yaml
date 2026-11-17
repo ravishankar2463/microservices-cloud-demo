@@ -16,7 +16,7 @@ spec:
       containers:
         - name: product-service
           image: product-service:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 8085
               name: http
@@ -35,24 +35,30 @@ spec:
                 secretKeyRef:
                   name: microservices-secrets
                   key: PRODUCT_DB_PASSWORD
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8085
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8085
-            initialDelaySeconds: 15
-            periodSeconds: 10
+            initialDelaySeconds: 2
+            periodSeconds: 3
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8085
-            initialDelaySeconds: 20
-            periodSeconds: 15
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             requests:
               cpu: "150m"
               memory: "256Mi"
             limits:
-              cpu: "500m"
               memory: "512Mi"
 ---
 apiVersion: v1
