@@ -71,9 +71,17 @@ flowchart LR
 
 ---
 
-## Milestone 4: Database Hardening & Schema Versioning (Upcoming ⏳)
-- [ ] Implement Flyway SQL migration scripts across all services (`V1__init.sql`).
-- [ ] Migrate PostgreSQL DDL generation from `ddl-auto: update` to version-controlled Flyway migrations.
+## Milestone 4: Database Hardening & Flyway Schema Migrations (Completed ✅)
+- [x] Standardized version-controlled schema migrations with **Flyway 12.4.0** across all relational database microservices.
+- [x] **`services/order-service`**:
+  - Authored `V1__init_order_schema.sql` defining `orders`, `order_items`, and `outbox_events` tables with foreign key cascades and composite indexes.
+  - Configured PostgreSQL DDL validation (`ddl-auto: validate`) and automatic Flyway baseline-on-migrate.
+- [x] **`services/product-service`**:
+  - Authored `V1__init_product_schema.sql` defining `products` table and performance indexes on `sku` and `category`.
+  - Authored `V2__seed_products.sql` seeding initial electronic, accessory, and home catalog items.
+- [x] **`services/payment-service`**:
+  - Authored `V1__init_payment_schema.sql` defining `payments` table with unique constraint on `idempotency_key` and index on `order_id`.
+- [x] Maintained test profile isolation with in-memory H2 database fallback for ultra-fast unit testing.
 
 ---
 
