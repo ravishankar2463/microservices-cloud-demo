@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: control-center
-          image: control-center:v5
+          image: control-center:v6
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8090
