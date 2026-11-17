@@ -33,6 +33,16 @@ spec:
                 configMapKeyRef:
                   name: microservices-config
                   key: REDIS_PORT
+            - name: SPRING_DATA_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_DATA_REDIS_HOST
+            - name: SPRING_DATA_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_DATA_REDIS_PORT
             - name: AWS_ENDPOINT_URL
               valueFrom:
                 configMapKeyRef:

@@ -9,6 +9,8 @@ data:
   SPRING_PROFILES_ACTIVE: "k8s"
   REDIS_HOST: "inventory-redis.microservices-demo.svc.cluster.local"
   REDIS_PORT: "6379"
+  SPRING_DATA_REDIS_HOST: "inventory-redis.microservices-demo.svc.cluster.local"
+  SPRING_DATA_REDIS_PORT: "6379"
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka.microservices-demo.svc.cluster.local:9092"
   ORDER_DB_HOST: "order-db.microservices-demo.svc.cluster.local"
   ORDER_DB_PORT: "5432"

@@ -25,6 +25,16 @@ spec:
               value: "8081"
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://order-db.microservices-demo.svc.cluster.local:5432/order_db"
+            - name: SPRING_DATA_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_DATA_REDIS_HOST
+            - name: SPRING_DATA_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: microservices-config
+                  key: SPRING_DATA_REDIS_PORT
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
