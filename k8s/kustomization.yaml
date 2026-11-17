@@ -8,6 +8,7 @@ resources:
   - base/configmap.yaml
   - base/secrets.yaml
   - infra/aws-emulator.yaml
+  - infra/kafka.yaml
   - infra/postgres.yaml
   - infra/redis.yaml
   - services/api-gateway.yaml
