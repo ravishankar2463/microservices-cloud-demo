@@ -5,7 +5,8 @@
 #>
 
 param(
-    [string]$Namespace = "microservices-demo"
+    [string]$Namespace = "microservices-demo",
+    [switch]$KeepAlive
 )
 
 $ErrorActionPreference = "Continue"
@@ -52,3 +53,10 @@ foreach ($pm in $portMappings) {
     }
 }
 Write-Host "`nAll local development ports configured successfully!" -ForegroundColor Green
+
+if ($KeepAlive) {
+    Write-Host "Keeping port-forward connections alive in background..." -ForegroundColor Cyan
+    while ($true) {
+        Start-Sleep -Seconds 60
+    }
+}
