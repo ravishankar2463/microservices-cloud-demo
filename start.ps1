@@ -3,7 +3,7 @@
     Starts the Local Java Microservices Platform via Docker Compose or Kubernetes and opens the Control Center Dashboard.
 
 .PARAMETER Mode
-    Deployment mode: "docker" (default) or "k8s" / "kubernetes" / "Kubernetes".
+    Deployment mode: "k8s" (default) or "docker".
     Supports positional argument:
       .\start.ps1
       .\start.ps1 docker
@@ -23,7 +23,7 @@ param(
     [Parameter(Position=0)]
     [Alias("m")]
     [ValidateSet("docker", "k8s", "kubernetes", "Kubernetes", "Docker", "K8s", IgnoreCase=$true)]
-    [string]$Mode = "docker",
+    [string]$Mode = "k8s",
 
     [switch]$SkipBuild,
     [switch]$NoBrowser

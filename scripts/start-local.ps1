@@ -3,7 +3,7 @@
     Starts the Local Java Microservices Platform via Docker Compose or Kubernetes and opens the Control Center Dashboard.
 
 .PARAMETER Mode
-    Deployment mode: "docker" (default) or "k8s" / "kubernetes" / "Kubernetes".
+    Deployment mode: "k8s" (default) or "docker".
     Supports positional argument:
       .\start.ps1
       .\start.ps1 docker
@@ -23,7 +23,7 @@ param(
     [Parameter(Position=0)]
     [Alias("m")]
     [ValidateSet("docker", "k8s", "kubernetes", "Kubernetes", "Docker", "K8s", IgnoreCase=$true)]
-    [string]$Mode = "docker",
+    [string]$Mode = "k8s",
 
     [switch]$SkipBuild,
     [switch]$NoBrowser
@@ -149,7 +149,7 @@ if (-not $IsK8s) {
         Write-Err "Unable to connect to a local Kubernetes cluster!
 Please ensure Kubernetes is enabled in Docker Desktop (Settings -> Kubernetes -> Enable),
 or start a local cluster via 'minikube start' or 'kind create cluster'.
-Tip: You can start immediately using Docker Compose by running:
+To use Docker Compose instead, run:
     .\start.ps1 -Mode docker"
         exit 1
     }

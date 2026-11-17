@@ -7,7 +7,7 @@ param(
     [Parameter(Position=0)]
     [Alias("m")]
     [ValidateSet("docker", "k8s", "kubernetes", "Kubernetes", "Docker", "K8s", IgnoreCase=$true)]
-    [string]$Mode = "docker"
+    [string]$Mode = "k8s"
 )
 
 $ProjectRoot = (Get-Item "$PSScriptRoot\..").FullName

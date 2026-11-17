@@ -95,7 +95,7 @@ aws-demo/
 
 To start the entire microservices platform, spin up all infrastructure (Kafka, PostgreSQL databases, Redis, Keycloak, LocalStack AWS Emulator), wait for health checks, and **automatically open the Control Center Dashboard** at `http://localhost:8090`:
 
-### Via Docker Compose (Recommended for local dev)
+### Via Kubernetes (Recommended)
 ```powershell
 # On Windows (PowerShell)
 .\start.ps1
@@ -104,13 +104,13 @@ To start the entire microservices platform, spin up all infrastructure (Kafka, P
 ./scripts/start-local.sh
 ```
 
-### Via Kubernetes (Minikube / Docker Desktop K8s)
+### Via Docker Compose
 ```powershell
 # On Windows (PowerShell)
-.\start.ps1 -Mode k8s
+.\start.ps1 -Mode docker
 
 # On Linux / macOS / Git Bash
-./scripts/start-local.sh k8s
+./scripts/start-local.sh docker
 ```
 
 ### To Stop Everything

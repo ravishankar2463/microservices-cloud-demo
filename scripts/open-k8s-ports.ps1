@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Opens and maintains all local development ports from Kubernetes to localhost.
     Allows host access to Redis, Kafka, PostgreSQL, LocalStack, Keycloak, and Microservices.

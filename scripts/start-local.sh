@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-RAW_MODE="${1:-docker}"
+RAW_MODE="${1:-k8s}"
 MODE_LOWER="$(echo "$RAW_MODE" | tr '[:upper:]' '[:lower:]')"
 SKIP_BUILD="${2:-false}"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
