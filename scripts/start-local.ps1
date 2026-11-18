@@ -316,6 +316,36 @@ if ($SkipBuild) {
 # -----------------------------------------------------------------------------
 if (-not $SkipBuild) {
     if ($dirtyMavenServices.Count -gt 0) {
+        $javaCandidates = @()
+        if ($env:JAVA_HOME) {
+            $javaCandidates += Join-Path $env:JAVA_HOME "bin\java.exe"
+        }
+        $pathJava = Get-Command java -ErrorAction SilentlyContinue
+        if ($pathJava) {
+            $javaCandidates += $pathJava.Source
+        }
+
+        $selectedJava = $null
+        foreach ($candidate in ($javaCandidates | Select-Object -Unique)) {
+            if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) { continue }
+            $javaVersionOutput = (& $candidate -version 2>&1 | Out-String)
+            if ($javaVersionOutput -match 'version "(\d+)' -and [int]$matches[1] -ge 25) {
+                $selectedJava = $candidate
+                break
+            }
+        }
+        if (-not $selectedJava) {
+            Write-Err "A Java 25 or newer JDK is required to build the services."
+            exit 1
+        }
+
+        $selectedJavaHome = Split-Path -Parent (Split-Path -Parent $selectedJava)
+        if (-not (Test-Path -LiteralPath (Join-Path $selectedJavaHome "bin\javac.exe") -PathType Leaf)) {
+            Write-Err "The selected Java runtime does not include javac; install a Java 25 or newer JDK."
+            exit 1
+        }
+        $env:JAVA_HOME = $selectedJavaHome
+
         $moduleList = ($dirtyMavenServices | ForEach-Object { $_.Module }) -join ","
         Write-Step "Packaging $($dirtyMavenServices.Count) changed module(s) in parallel (-T 1C -pl $moduleList -am)..."
         & "$ProjectRoot\mvnw.cmd" -T 1C package -DskipTests -pl $moduleList -am

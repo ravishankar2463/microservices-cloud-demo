@@ -1,10 +1,10 @@
 # ==============================================================================
 # Multi-Stage Layered Dockerfile for Decoupled Java Microservices
 # Stage 1: Extract Spring Boot layered layout (eliminates nested ZIP overhead)
-# Stage 2: Minimal Alpine Temurin JRE 21 Runtime with Cached Dependency Layers
+# Stage 2: Minimal Alpine Temurin JRE 25 Runtime with Cached Dependency Layers
 # ==============================================================================
 
-FROM eclipse-temurin:21-jre-alpine AS extractor
+FROM eclipse-temurin:25-jre-alpine AS extractor
 WORKDIR /extract
 
 ARG SERVICE_MODULE
@@ -14,7 +14,7 @@ COPY ${SERVICE_MODULE}/target/${APP_JAR} app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --application-filename application.jar --destination extracted \
     && mkdir -p extracted/dependencies extracted/spring-boot-loader extracted/snapshot-dependencies extracted/application
 
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre-alpine AS runtime
 
 # Run as non-root user for security best practice
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

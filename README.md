@@ -1,6 +1,6 @@
 # AWS Demo: Cloud-Native Decoupled Java Microservices
 
-A production-grade, enterprise-scale demo platform showcasing **advanced Java 21+ engineering**, **Hexagonal Architecture**, **Event-Driven Architecture (EDA)**, **Docker**, **Kubernetes**, and **100% Local AWS Cloud Emulation (Zero Sign-in required)**.
+A production-grade, enterprise-scale demo platform running on the **Java 25 LTS runtime** and showcasing **advanced Java 21+ engineering**, **Hexagonal Architecture**, **Event-Driven Architecture (EDA)**, **Docker**, **Kubernetes**, and **100% Local AWS Cloud Emulation (Zero Sign-in required)**.
 
 Every microservice in this repository is designed as an **autonomous, decoupled entity** with its own folder, standalone Git history, independent Maven wrapper, and self-contained build/runtime lifecycle. You can clone and run any service by itself, or run the entire ecosystem as a cohesive distributed platform.
 
@@ -12,7 +12,7 @@ Every microservice in this repository is designed as an **autonomous, decoupled 
 flowchart TD
     Client(["🌐 Client / Web / Mobile / cURL"]) -->|HTTP / REST| Gateway["api-gateway (:8080)\n• Edge Routing\n• Rate Limiter\n• Correlation ID Filter"]
 
-    subgraph "Decoupled Autonomous Microservices (Java 21+ / Spring Boot 4.x)"
+    subgraph "Decoupled Autonomous Microservices (Java 25 LTS / Spring Boot 4.x)"
         Gateway -->|Reverse Proxy| OrderSvc["order-service (:8081)\n• Hexagonal Architecture (Ports & Adapters)\n• Transactional Outbox Pattern\n• Java 21 Records & Pattern Matching"]
         Gateway -->|Reverse Proxy| InvSvc["inventory-service (:8082)\n• Java 21 Virtual Threads (Project Loom)\n• Redis Cache-Aside & Distributed Locks\n• Resilience4j Circuit Breakers"]
 

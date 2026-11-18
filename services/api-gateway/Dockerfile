@@ -1,5 +1,5 @@
 # Multi-stage standalone Dockerfile for api-gateway
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM eclipse-temurin:25-jdk-alpine AS builder
 WORKDIR /build
 
 COPY .mvn/ .mvn/
@@ -9,7 +9,7 @@ RUN ./mvnw dependency:go-offline -B || true
 COPY src/ src/
 RUN ./mvnw clean package -DskipTests
 
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre-alpine AS runtime
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 WORKDIR /app

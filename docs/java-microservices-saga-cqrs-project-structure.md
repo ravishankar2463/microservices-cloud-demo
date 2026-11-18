@@ -573,7 +573,7 @@ across the Spring ecosystem.
   -----------------------------------------------------------------------
   Area                                Recommended options
   ----------------------------------- -----------------------------------
-  Language                            Java 21 or Java 25 LTS, subject to
+  Language                            Java 25 LTS, subject to
                                       framework compatibility
 
   Framework                           Supported Spring Boot release
