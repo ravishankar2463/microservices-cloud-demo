@@ -1,0 +1,1418 @@
+{
+  "common/common-aws/pom.xml": {
+    "mtime": 1794906640.584844,
+    "seen": 1795446504.956047,
+    "ast_hash": "e94cf939ef3de0fb09abbec7e88dbe9e",
+    "semantic_hash": ""
+  },
+  "common/common-aws/src/main/java/com/ravi/common/aws/config/AwsClientConfiguration.java": {
+    "mtime": 1794906737.2601812,
+    "seen": 1795446504.956073,
+    "ast_hash": "09dfbcfe116cfc966406ebc55a614e46",
+    "semantic_hash": ""
+  },
+  "common/common-aws/src/main/java/com/ravi/common/aws/config/AwsEmulatorProperties.java": {
+    "mtime": 1794906728.1638386,
+    "seen": 1795446504.9560785,
+    "ast_hash": "920daa350a2a446ce1e519f30ad9e677",
+    "semantic_hash": ""
+  },
+  "common/common-aws/src/test/java/com/ravi/common/aws/config/AwsClientConfigurationTest.java": {
+    "mtime": 1794906749.5804346,
+    "seen": 1795446504.9560833,
+    "ast_hash": "3876dbf2c02e6649b23ccaf2f413081b",
+    "semantic_hash": ""
+  },
+  "common/common-domain/pom.xml": {
+    "mtime": 1794906632.329105,
+    "seen": 1795446504.9560885,
+    "ast_hash": "55cb5bd7a764a26fc5076c17d71ccc36",
+    "semantic_hash": ""
+  },
+  "common/common-domain/src/main/java/com/ravi/common/domain/event/OrderCancelledEvent.java": {
+    "mtime": 1794906713.8308709,
+    "seen": 1795446504.956092,
+    "ast_hash": "9f15e537239e805f540828bd2955924d",
+    "semantic_hash": ""
+  },
+  "common/common-domain/src/main/java/com/ravi/common/domain/event/OrderCreatedEvent.java": {
+    "mtime": 1794906705.9284656,
+    "seen": 1795446504.9560971,
+    "ast_hash": "5f2e76995bb93386de168734bf3ac16f",
+    "semantic_hash": ""
+  },
+  "common/common-domain/src/main/java/com/ravi/common/domain/event/OrderEvent.java": {
+    "mtime": 1794906814.7208402,
+    "seen": 1795446504.9561,
+    "ast_hash": "6657da27187795884dff797b55daaef1",
+    "semantic_hash": ""
+  },
+  "common/common-domain/src/main/java/com/ravi/common/domain/event/OrderPaidEvent.java": {
+    "mtime": 1794906710.3884814,
+    "seen": 1795446504.9561057,
+    "ast_hash": "3a0bee5c92bb2a414a972cbc4bfdbb4f",
+    "semantic_hash": ""
+  },
+  "common/common-domain/src/main/java/com/ravi/common/domain/model/ApiResponse.java": {
+    "mtime": 1794906697.0034103,
+    "seen": 1795446504.9561088,
+    "ast_hash": "1613d85cfb290d436b35a3698420b0e1",
+    "semantic_hash": ""
+  },
+  "common/common-domain/src/main/java/com/ravi/common/domain/model/Result.java": {
+    "mtime": 1794906692.776595,
+    "seen": 1795446504.9561105,
+    "ast_hash": "5620597e82b41bfa849709c80b7a0f89",
+    "semantic_hash": ""
+  },
+  "common/common-domain/src/test/java/com/ravi/common/domain/model/DomainFeaturesTest.java": {
+    "mtime": 1794906831.544046,
+    "seen": 1795446504.9561136,
+    "ast_hash": "eb9d04ce3849bda57d3b189799f9956a",
+    "semantic_hash": ""
+  },
+  "common/pom.xml": {
+    "mtime": 1794907358.2836897,
+    "seen": 1795446504.9561162,
+    "ast_hash": "4fdec8f5d21f403e1b995943c8f0b01b",
+    "semantic_hash": ""
+  },
+  "docker/aws-init/01-init-aws.sh": {
+    "mtime": 1794906980.206249,
+    "seen": 1795446504.9561212,
+    "ast_hash": "df94cc38b6d5cd60eea3933584c31eba",
+    "semantic_hash": ""
+  },
+  "docker/docker-compose.yml": {
+    "mtime": 1795012268.1133807,
+    "seen": 1795446504.956123,
+    "ast_hash": "3fa85897a41f75f0c4f0ef772b0d6eed",
+    "semantic_hash": ""
+  },
+  "docker/keycloak/ecommerce-realm.json": {
+    "mtime": 1794911002.5642035,
+    "seen": 1795446504.9561272,
+    "ast_hash": "86a607257c7192e9649e5e3f64bbe9f5",
+    "semantic_hash": ""
+  },
+  "k8s/base/configmap.yaml": {
+    "mtime": 1794919419.0813768,
+    "seen": 1795446504.9561296,
+    "ast_hash": "f9b5bc3543c674eb1de1dd3737666bd4",
+    "semantic_hash": ""
+  },
+  "k8s/base/namespace.yaml": {
+    "mtime": 1794906991.5008984,
+    "seen": 1795446504.9561312,
+    "ast_hash": "c059ec9ff71b8ea3476e9bf2480a299a",
+    "semantic_hash": ""
+  },
+  "k8s/infra/aws-emulator.yaml": {
+    "mtime": 1794941236.322009,
+    "seen": 1795446504.9561334,
+    "ast_hash": "81bc480d810dd40c49a02f39cb479a91",
+    "semantic_hash": ""
+  },
+  "k8s/infra/infra-uis.yaml": {
+    "mtime": 1795012267.8996668,
+    "seen": 1795446504.9561355,
+    "ast_hash": "6afcd08ebf075ddca38dc6818a9e14fc",
+    "semantic_hash": ""
+  },
+  "k8s/infra/kafka.yaml": {
+    "mtime": 1794941236.6480231,
+    "seen": 1795446504.9561372,
+    "ast_hash": "d44eb78b0686efdbb25cd746ae986745",
+    "semantic_hash": ""
+  },
+  "k8s/infra/keycloak.yaml": {
+    "mtime": 1794941236.910058,
+    "seen": 1795446504.956139,
+    "ast_hash": "9e7db49d939c1d1096365438ab0405f7",
+    "semantic_hash": ""
+  },
+  "k8s/infra/postgres.yaml": {
+    "mtime": 1794941237.176104,
+    "seen": 1795446504.9561431,
+    "ast_hash": "a1a9a7308bc5cc42dbc342b6a6361d01",
+    "semantic_hash": ""
+  },
+  "k8s/infra/redis.yaml": {
+    "mtime": 1794941237.4218361,
+    "seen": 1795446504.9561448,
+    "ast_hash": "adadb2c8a6cfe066d5ecc2e0714ff7d5",
+    "semantic_hash": ""
+  },
+  "k8s/kustomization.yaml": {
+    "mtime": 1795012135.147259,
+    "seen": 1795446504.9561477,
+    "ast_hash": "bd88b2c00c8f0e1631ee36f19176c250",
+    "semantic_hash": ""
+  },
+  "k8s/services/api-gateway.yaml": {
+    "mtime": 1794942281.371009,
+    "seen": 1795446504.956151,
+    "ast_hash": "8d59d940d9c8b960a3cb64e543da5478",
+    "semantic_hash": ""
+  },
+  "k8s/services/control-center.yaml": {
+    "mtime": 1795010944.7459714,
+    "seen": 1795446504.9561539,
+    "ast_hash": "d7c3486c11198af2fb361757fd3f0875",
+    "semantic_hash": ""
+  },
+  "k8s/services/inventory-service.yaml": {
+    "mtime": 1794942281.742649,
+    "seen": 1795446504.9561563,
+    "ast_hash": "ccb15978e3303dcd0021c2654c8ca20a",
+    "semantic_hash": ""
+  },
+  "k8s/services/notification-service.yaml": {
+    "mtime": 1794942281.8937922,
+    "seen": 1795446504.9561582,
+    "ast_hash": "360f11bacd39982ee79ab56cb9ac8f4d",
+    "semantic_hash": ""
+  },
+  "k8s/services/order-service.yaml": {
+    "mtime": 1794942282.0311785,
+    "seen": 1795446504.956161,
+    "ast_hash": "961f45a5d8bbc1be19190d4c1a4d2ea1",
+    "semantic_hash": ""
+  },
+  "k8s/services/payment-service.yaml": {
+    "mtime": 1794942282.1573265,
+    "seen": 1795446504.9561636,
+    "ast_hash": "89a18e9385c98b11153662c83b167ec5",
+    "semantic_hash": ""
+  },
+  "k8s/services/product-service.yaml": {
+    "mtime": 1794942282.2858834,
+    "seen": 1795446504.9561658,
+    "ast_hash": "894a2f3594d86c560fdcdd5439977590",
+    "semantic_hash": ""
+  },
+  "mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.9561682,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "pom.xml": {
+    "mtime": 1795006503.0790539,
+    "seen": 1795446504.9561706,
+    "ast_hash": "a7bad98eed510257ba1cb81e0e0a74ee",
+    "semantic_hash": ""
+  },
+  "scripts/open-k8s-ports.ps1": {
+    "mtime": 1795012181.2481039,
+    "seen": 1795446504.9561727,
+    "ast_hash": "3b4b71bebde990a78369bcb12ecfb58f",
+    "semantic_hash": ""
+  },
+  "scripts/start-local.ps1": {
+    "mtime": 1795012181.5922651,
+    "seen": 1795446504.956175,
+    "ast_hash": "1c44a66789e69fc1892805ef98a48da9",
+    "semantic_hash": ""
+  },
+  "scripts/start-local.sh": {
+    "mtime": 1794925170.5819366,
+    "seen": 1795446504.956177,
+    "ast_hash": "5f9d4feef69787a39d73a10078b706f0",
+    "semantic_hash": ""
+  },
+  "scripts/stop-local.ps1": {
+    "mtime": 1794940252.051953,
+    "seen": 1795446504.9561787,
+    "ast_hash": "412dc1dd6533329efedbe64246595d71",
+    "semantic_hash": ""
+  },
+  "scripts/stop-local.sh": {
+    "mtime": 1794925170.5899372,
+    "seen": 1795446504.956181,
+    "ast_hash": "725d841254cfaea01d0c3261a6a4a119",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.9561832,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/pom.xml": {
+    "mtime": 1795006667.1189137,
+    "seen": 1795446504.956185,
+    "ast_hash": "809bc1b8dc1079ef9d36301f30e9ef7c",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/java/com/ravi/gateway/ApiGatewayApplication.java": {
+    "mtime": 1794906793.9015548,
+    "seen": 1795446504.9561868,
+    "ast_hash": "91b0e38efddb99a6a64ccdc9eb63c6ee",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/java/com/ravi/gateway/infrastructure/filter/CorrelationIdFilter.java": {
+    "mtime": 1794924431.7528849,
+    "seen": 1795446504.9561892,
+    "ast_hash": "b39f3ff9cb2803e2230018e96e718d6d",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/java/com/ravi/gateway/infrastructure/ratelimit/RateLimiterService.java": {
+    "mtime": 1794924489.2951858,
+    "seen": 1795446504.956193,
+    "ast_hash": "c91a8039e0668691564893d7815f4d74",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/java/com/ravi/gateway/infrastructure/security/KeycloakJwtAuthenticationConverter.java": {
+    "mtime": 1794924553.3236341,
+    "seen": 1795446504.9561954,
+    "ast_hash": "2bc72341cf4b1a8b6e27580d729e0a56",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/java/com/ravi/gateway/infrastructure/security/SecurityConfig.java": {
+    "mtime": 1794926505.8087711,
+    "seen": 1795446504.956198,
+    "ast_hash": "4cc7ef43d1aa4c9fb32ea825025e58b7",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/java/com/ravi/gateway/presentation/rest/controller/GatewayHomeController.java": {
+    "mtime": 1794926258.2911687,
+    "seen": 1795446504.9561996,
+    "ast_hash": "5885a71c5905828d8fc40a819e2bc960",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/java/com/ravi/gateway/presentation/rest/controller/GatewayRoutingController.java": {
+    "mtime": 1794924464.3352726,
+    "seen": 1795446504.9562013,
+    "ast_hash": "b2fffad7c3b30a2f3e254da587e7b6be",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/resources/application.yaml": {
+    "mtime": 1794906797.752572,
+    "seen": 1795446504.9562035,
+    "ast_hash": "a6e7e18568fc1415bb3eb5e43df0e4d0",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/main/resources/application.yml": {
+    "mtime": 1794941046.2190988,
+    "seen": 1795446504.9562058,
+    "ast_hash": "dadf3b92ee0addbdaa97f9524187b055",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/test/java/com/ravi/gateway/ApiGatewayApplicationTests.java": {
+    "mtime": 1794906802.1639974,
+    "seen": 1795446504.9562075,
+    "ast_hash": "cf596d3602b0ef6e3e3512cd9979dbb6",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/test/java/com/ravi/gateway/ApiGatewayTests.java": {
+    "mtime": 1794924674.191521,
+    "seen": 1795446504.9562094,
+    "ast_hash": "b57ee5cdd451dc63e2cd65547f0f89ff",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/test/java/com/ravi/gateway/architecture/ArchitectureRulesTest.java": {
+    "mtime": 1794924529.4642143,
+    "seen": 1795446504.956214,
+    "ast_hash": "adedef971757b9c150285bf034cd1142",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/test/java/com/ravi/gateway/security/SecurityTests.java": {
+    "mtime": 1794924523.8202193,
+    "seen": 1795446504.9562168,
+    "ast_hash": "ab885fa6ce5c07fefc9675ee29396b58",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/src/test/resources/application.yml": {
+    "mtime": 1794911085.2124784,
+    "seen": 1795446504.9562197,
+    "ast_hash": "f36fab838c90c63457f729e2feaa8253",
+    "semantic_hash": ""
+  },
+  "services/control-center/mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.956223,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "services/control-center/pom.xml": {
+    "mtime": 1795006503.097601,
+    "seen": 1795446504.956226,
+    "ast_hash": "5aef5a5876660b4dcb6d464b6bba0b3e",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/ControlCenterApplication.java": {
+    "mtime": 1794941630.9484522,
+    "seen": 1795446504.9562278,
+    "ast_hash": "be54eb62b25a48fd856223b37a604756",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/aspect/SagaLearningTraceAspect.java": {
+    "mtime": 1794934637.062965,
+    "seen": 1795446504.9562316,
+    "ast_hash": "d6d8ff85177118c0ebfaad283373e1c7",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/aspect/SagaStepTrace.java": {
+    "mtime": 1794934299.427555,
+    "seen": 1795446504.9562361,
+    "ast_hash": "e89b7c4a834ee29c4a4affd092be3ce8",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/config/ControlCenterKafkaConfig.java": {
+    "mtime": 1794938679.4956665,
+    "seen": 1795446504.95624,
+    "ast_hash": "b14adca1f147a380709b8edd1aac69e6",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/config/NoCacheFilter.java": {
+    "mtime": 1794920289.3226357,
+    "seen": 1795446504.956244,
+    "ast_hash": "405dd086aa5459567814b157b293f25b",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/messaging/LiveKafkaSagaConsumer.java": {
+    "mtime": 1795011044.9793253,
+    "seen": 1795446504.9562478,
+    "ast_hash": "8c7c5d1d6e14b2b17ea41c12f5564699",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/AopDebugTrace.java": {
+    "mtime": 1794938795.419429,
+    "seen": 1795446504.9562535,
+    "ast_hash": "f83aef99b24c43f58a8ee88f01a11320",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/ArchitecturalDossier.java": {
+    "mtime": 1794933998.5475144,
+    "seen": 1795446504.9562569,
+    "ast_hash": "562280a7a684a09b08d601bd0c7cc4eb",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/ArchitectureTopology.java": {
+    "mtime": 1794911738.534329,
+    "seen": 1795446504.9562612,
+    "ast_hash": "377913fd488aa75092baa86b138c156a",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/AwsEmulatorHealth.java": {
+    "mtime": 1794938795.7109838,
+    "seen": 1795446504.9562643,
+    "ast_hash": "64f6255e3523580819e97fe7206ef92d",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/CodeReference.java": {
+    "mtime": 1795438678.641493,
+    "seen": 1795446504.9562685,
+    "ast_hash": "e3d3974429d4d44bbf500192da8a8f88",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/EditorLaunchRequest.java": {
+    "mtime": 1795438683.5352619,
+    "seen": 1795446504.9562721,
+    "ast_hash": "d7d7a8734fc60cb3c77a89151d87c73b",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/EditorLaunchResponse.java": {
+    "mtime": 1795438690.8867195,
+    "seen": 1795446504.9562767,
+    "ast_hash": "3a3c46a90f3347fc2f8b4a3682a01289",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/EventRecord.java": {
+    "mtime": 1795010512.6590989,
+    "seen": 1795446504.9562802,
+    "ast_hash": "6034fd8efa8137f63515b9aad136b7f8",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/InfraNodeInfo.java": {
+    "mtime": 1794916575.30885,
+    "seen": 1795446504.956284,
+    "ast_hash": "3eda7c1db0bb812b9355c9e6224491f6",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/InfrastructureDiff.java": {
+    "mtime": 1794934031.9259255,
+    "seen": 1795446504.9562883,
+    "ast_hash": "1a6d6acfacad00d6f2d35d929373f08d",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/InfrastructureSnapshot.java": {
+    "mtime": 1794934026.9498606,
+    "seen": 1795446504.9562929,
+    "ast_hash": "b52829817bd6183cbe3148f686792e9e",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/LearningPattern.java": {
+    "mtime": 1795438704.7532065,
+    "seen": 1795446504.9562964,
+    "ast_hash": "23debdc9ebef999332e82bcd18a478f8",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/LiveDispatchRequest.java": {
+    "mtime": 1794937384.038949,
+    "seen": 1795446504.9563067,
+    "ast_hash": "92f62895087450c2ee7e847edbfbb08b",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/LiveDispatchResponse.java": {
+    "mtime": 1794937389.050764,
+    "seen": 1795446504.9563112,
+    "ast_hash": "01a70151492a84ca646ba2b980538e5a",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/LiveFlowPreset.java": {
+    "mtime": 1794937393.8387976,
+    "seen": 1795446504.9563174,
+    "ast_hash": "68281db01537a99229d0e70643aaf982",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/SagaExecution.java": {
+    "mtime": 1794935463.0920258,
+    "seen": 1795446504.9563217,
+    "ast_hash": "f9751656c4248318cc4d96235ef3bb05",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/ServiceNode.java": {
+    "mtime": 1794911727.2056773,
+    "seen": 1795446504.9563248,
+    "ast_hash": "4b7b005ca4ddca7e06bad7c6b5345f85",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/SystemOverview.java": {
+    "mtime": 1794911744.37921,
+    "seen": 1795446504.9563284,
+    "ast_hash": "64b47137bd1c77b9a27fd5f7e7c2704f",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/model/TopologyEdge.java": {
+    "mtime": 1794911733.4118,
+    "seen": 1795446504.9563334,
+    "ast_hash": "9ed2da72d5721acd4a61ddec5aa0f35d",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/ArchitecturalPatternCatalogService.java": {
+    "mtime": 1795009787.090836,
+    "seen": 1795446504.9563382,
+    "ast_hash": "d181fbbabb6ca878f0cf454878d3a599",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/ArchitectureTopologyService.java": {
+    "mtime": 1795011078.7300098,
+    "seen": 1795446504.9563427,
+    "ast_hash": "c018a4d3477e91dfbd0553f67441a831",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/AwsEmulatorService.java": {
+    "mtime": 1794938796.4558375,
+    "seen": 1795446504.9563465,
+    "ast_hash": "376ddc5c172404300b2c27bed0599b23",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/InfrastructureAdminService.java": {
+    "mtime": 1794929025.3621438,
+    "seen": 1795446504.9563487,
+    "ast_hash": "30403a4a407b01cd51ebd263e4402618",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/InfrastructureStateInspectorService.java": {
+    "mtime": 1795010513.2193167,
+    "seen": 1795446504.956359,
+    "ast_hash": "280502d587d4d9d93df2eb7540f14aa2",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/KafkaEventExplorerService.java": {
+    "mtime": 1795010513.659828,
+    "seen": 1795446504.9563653,
+    "ast_hash": "15e426504ebbabb55334d0cbfbb52b54",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/LearningCenterService.java": {
+    "mtime": 1795438912.5852761,
+    "seen": 1795446504.956368,
+    "ast_hash": "92f6f378b87085aa15e8117c5c3794c6",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/LiveOperationsDispatcherService.java": {
+    "mtime": 1795011725.539746,
+    "seen": 1795446504.95637,
+    "ast_hash": "0e3ed0e78d66867101151ae403fda3f1",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/LocalEditorLauncherService.java": {
+    "mtime": 1795439195.4033113,
+    "seen": 1795446504.9563727,
+    "ast_hash": "8f97ca22b9ad841beabf50d5d8f70611",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/SagaExplorerService.java": {
+    "mtime": 1794933397.184772,
+    "seen": 1795446504.9563768,
+    "ast_hash": "510d834c3b0553897c5f3e426b57dbe9",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/service/ServiceRegistryService.java": {
+    "mtime": 1795011046.0699685,
+    "seen": 1795446504.9563801,
+    "ast_hash": "45254dd5681b63dd60dded5a57d85243",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/java/com/ravi/controlcenter/web/ControlCenterApiController.java": {
+    "mtime": 1795438949.2496152,
+    "seen": 1795446504.9563828,
+    "ast_hash": "4cfd68c6a795a3c898562c4858ee9737",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/resources/application.yml": {
+    "mtime": 1795010944.5845575,
+    "seen": 1795446504.9563868,
+    "ast_hash": "d0cf075b0f6b421d1645f699b4ba18bb",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/test/java/com/ravi/controlcenter/ControlCenterTests.java": {
+    "mtime": 1795445782.5886226,
+    "seen": 1795446504.9563894,
+    "ast_hash": "a1a828aed23e66e7ed8bafbb30bf40e9",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/test/resources/application.yml": {
+    "mtime": 1794912107.8646874,
+    "seen": 1795446504.9563935,
+    "ast_hash": "bb58eabf88712afe71f490e0c7d10335",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.956396,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/pom.xml": {
+    "mtime": 1795006667.125915,
+    "seen": 1795446504.956398,
+    "ast_hash": "a9755d83d3ca52074df94438447f7a88",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/InventoryServiceApplication.java": {
+    "mtime": 1794906767.9076827,
+    "seen": 1795446504.956402,
+    "ast_hash": "f6bccf26e53f7fdd56b4dc5cce7545c2",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/application/port/out/DistributedLockPort.java": {
+    "mtime": 1794924169.257724,
+    "seen": 1795446504.9564047,
+    "ast_hash": "cdfdc8bc4a0b700ce0a8d8ca33f3f08f",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/application/service/InventoryReservationService.java": {
+    "mtime": 1795011682.9310324,
+    "seen": 1795446504.956409,
+    "ast_hash": "73bfbf6799024978ef1114e6c3ff7a58",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/domain/event/InventoryCommittedEvent.java": {
+    "mtime": 1795009706.0191765,
+    "seen": 1795446504.9564137,
+    "ast_hash": "51f529c0af0ebf060ec02fc991bf33de",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/domain/event/InventoryRejectedEvent.java": {
+    "mtime": 1795007907.776277,
+    "seen": 1795446504.9564176,
+    "ast_hash": "fc92fb9cdc4dca8fd4c77c4a8a206d32",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/domain/event/InventoryReleasedEvent.java": {
+    "mtime": 1795007907.791338,
+    "seen": 1795446504.9564211,
+    "ast_hash": "ece56d6371b55f490d744b68e85132e7",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/domain/event/InventoryReservedEvent.java": {
+    "mtime": 1795007907.7644637,
+    "seen": 1795446504.9564238,
+    "ast_hash": "ca15d7f98740285f4d1dc2e8d031b2a7",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/domain/model/InventoryItem.java": {
+    "mtime": 1794924158.7102919,
+    "seen": 1795446504.9564273,
+    "ast_hash": "893b90c3ab8eab09f30d912a88b02288",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/domain/model/StockOperationResult.java": {
+    "mtime": 1795007907.7520735,
+    "seen": 1795446504.9564302,
+    "ast_hash": "2fdbd4012fb0944d0c71170659c3c534",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/domain/repository/InventoryRepository.java": {
+    "mtime": 1795011682.622708,
+    "seen": 1795446504.956432,
+    "ast_hash": "ade8e2e98707573baa6d90ff83707766",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/infrastructure/config/KafkaConfig.java": {
+    "mtime": 1795007936.159317,
+    "seen": 1795446504.9564342,
+    "ast_hash": "7ffd2e530228820c02f1a4f0e14019aa",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/infrastructure/messaging/consumer/OrderEventListener.java": {
+    "mtime": 1795009866.815412,
+    "seen": 1795446504.9564364,
+    "ast_hash": "3a7788a951b31426154d033e062d3be1",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/infrastructure/messaging/producer/InventoryEventPublisher.java": {
+    "mtime": 1795009706.3923707,
+    "seen": 1795446504.9564395,
+    "ast_hash": "deee80d0850f02139ca1e76e0f5a3bf7",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/infrastructure/persistence/adapter/InMemoryInventoryRepositoryAdapter.java": {
+    "mtime": 1795011682.8135214,
+    "seen": 1795446504.9564428,
+    "ast_hash": "ab9c5e01fa79f17e12e6996b827e579b",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/infrastructure/redis/RedisDistributedLock.java": {
+    "mtime": 1794924182.4754562,
+    "seen": 1795446504.9564464,
+    "ast_hash": "1187f25bd521193fc922f7eb75604469",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/java/com/ravi/inventory/presentation/rest/controller/InventoryController.java": {
+    "mtime": 1795011683.07306,
+    "seen": 1795446504.9564493,
+    "ast_hash": "20da9e253f97d3b0dbe449503930a70e",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/main/resources/application.yaml": {
+    "mtime": 1794941046.7546222,
+    "seen": 1795446504.9564965,
+    "ast_hash": "bd8f1e1d6013d715dee43c49fea22434",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/test/java/com/ravi/inventory/InventoryServiceApplicationTests.java": {
+    "mtime": 1794906777.0313253,
+    "seen": 1795446504.9565003,
+    "ast_hash": "26149db3975b7486bbc6744e158d5458",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/test/java/com/ravi/inventory/InventoryServiceTests.java": {
+    "mtime": 1795009717.9823167,
+    "seen": 1795446504.9565039,
+    "ast_hash": "3b5005a38f3521a7fae0286ffe988323",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/src/test/java/com/ravi/inventory/architecture/ArchitectureRulesTest.java": {
+    "mtime": 1794924242.0736153,
+    "seen": 1795446504.9565063,
+    "ast_hash": "be51e8af6b37c930fda2ace6ce551d13",
+    "semantic_hash": ""
+  },
+  "services/notification-service/mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.9565094,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "services/notification-service/pom.xml": {
+    "mtime": 1795006667.1329176,
+    "seen": 1795446504.9565125,
+    "ast_hash": "ccbc5d9d8853be46cc30956a763fc335",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/NotificationServiceApplication.java": {
+    "mtime": 1794906781.9244692,
+    "seen": 1795446504.9565146,
+    "ast_hash": "d89e485246733e9af828b44aa58eadb4",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/application/service/InvoiceArchivalService.java": {
+    "mtime": 1795011698.481747,
+    "seen": 1795446504.9565187,
+    "ast_hash": "ac0324924e6e4e6a472b7e3b2e37d7dc",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/domain/model/Invoice.java": {
+    "mtime": 1794924315.9426014,
+    "seen": 1795446504.9565208,
+    "ast_hash": "80729e1e714bb6fcc8e51482455952e0",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/domain/repository/InvoiceArchiveRepository.java": {
+    "mtime": 1795011697.8701844,
+    "seen": 1795446504.9565237,
+    "ast_hash": "c8085c6e099767c6866b940e933109ac",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/infrastructure/config/AwsS3Config.java": {
+    "mtime": 1794943612.345956,
+    "seen": 1795446504.9565256,
+    "ast_hash": "8aacba3cdd0d77372ba433f34437ce74",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/infrastructure/config/KafkaConfig.java": {
+    "mtime": 1794939340.5100646,
+    "seen": 1795446504.9565327,
+    "ast_hash": "7e26b58610d099a4f93ea9fa9ec9ea3f",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/infrastructure/messaging/consumer/OrderNotificationKafkaListener.java": {
+    "mtime": 1794943311.6786184,
+    "seen": 1795446504.9565353,
+    "ast_hash": "26b019e4fa2f0fafa6ee513c5482e008",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/infrastructure/messaging/inbox/IdempotentMessageStore.java": {
+    "mtime": 1795011698.3399458,
+    "seen": 1795446504.956538,
+    "ast_hash": "0b2c87ed9a09eb334f5d7c8df8cb8dbb",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/infrastructure/persistence/adapter/S3InvoiceArchiveRepositoryAdapter.java": {
+    "mtime": 1795011698.1992483,
+    "seen": 1795446504.9565396,
+    "ast_hash": "4681ea9ac0b70d984c065172310618e8",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/java/com/ravi/notification/presentation/rest/controller/NotificationController.java": {
+    "mtime": 1795011784.4556017,
+    "seen": 1795446504.9565434,
+    "ast_hash": "abe7fb5fdb06dfa6832279f299a90cd5",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/main/resources/application.yaml": {
+    "mtime": 1794941047.096232,
+    "seen": 1795446504.9565475,
+    "ast_hash": "bf2554b2a3cf8133e9124d5344f31936",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/test/java/com/ravi/notification/NotificationServiceApplicationTests.java": {
+    "mtime": 1794906789.2766862,
+    "seen": 1795446504.9565501,
+    "ast_hash": "3f33320555eea222122d4ff1cc057e23",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/test/java/com/ravi/notification/NotificationServiceTests.java": {
+    "mtime": 1794924676.565403,
+    "seen": 1795446504.9565523,
+    "ast_hash": "7a463c48e41994eff448be204093e73d",
+    "semantic_hash": ""
+  },
+  "services/notification-service/src/test/java/com/ravi/notification/architecture/ArchitectureRulesTest.java": {
+    "mtime": 1794924375.7380958,
+    "seen": 1795446504.9565547,
+    "ast_hash": "52a8e431be4913f3c6b5bce7457d6ffb",
+    "semantic_hash": ""
+  },
+  "services/order-service/mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.956558,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "services/order-service/pom.xml": {
+    "mtime": 1795006667.1409144,
+    "seen": 1795446504.9565613,
+    "ast_hash": "ad90c753e481a63f84a342a9553e8918",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/OrderServiceApplication.java": {
+    "mtime": 1794938397.2910192,
+    "seen": 1795446504.956565,
+    "ast_hash": "131fd6a1761d2ecdd0b9eb0753ba8eda",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/application/command/CancelOrderCommand.java": {
+    "mtime": 1794922521.7972102,
+    "seen": 1795446504.9565673,
+    "ast_hash": "fc46e0b5f1c27c437394a807c2dd5dfd",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/application/command/CreateOrderCommand.java": {
+    "mtime": 1794922517.3755805,
+    "seen": 1795446504.95657,
+    "ast_hash": "6521923eb55a6dab58bf20f9cc47f208",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/application/command/handler/OrderCommandHandler.java": {
+    "mtime": 1795011683.2153094,
+    "seen": 1795446504.9565725,
+    "ast_hash": "6b3c5656277186c90eccbe7c0e292e72",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/application/query/GetOrderByIdQuery.java": {
+    "mtime": 1794922527.9891055,
+    "seen": 1795446504.9565742,
+    "ast_hash": "db63e861c6f9bea752858d8e4608b4d7",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/application/query/handler/OrderQueryHandler.java": {
+    "mtime": 1794922823.1106327,
+    "seen": 1795446504.956576,
+    "ast_hash": "e9695dfd596a8f245ac3a83b11c7a371",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/application/query/model/OrderView.java": {
+    "mtime": 1794922532.8031583,
+    "seen": 1795446504.9565802,
+    "ast_hash": "72515935969ebb9deb8bc1f5f01eb4ce",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/event/OrderCancelledEvent.java": {
+    "mtime": 1795011047.895131,
+    "seen": 1795446504.956583,
+    "ast_hash": "630fd7389bd7a7359cac4e7cec05048d",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/event/OrderCompletedEvent.java": {
+    "mtime": 1795009734.9845507,
+    "seen": 1795446504.9565861,
+    "ast_hash": "923c535e14392a787e8c3789130005be",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/event/OrderConfirmedEvent.java": {
+    "mtime": 1794943244.802341,
+    "seen": 1795446504.9565892,
+    "ast_hash": "cdfc63172316e4f63a7b758e5f12f445",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/event/OrderCreatedEvent.java": {
+    "mtime": 1795011048.6000478,
+    "seen": 1795446504.9565923,
+    "ast_hash": "61c87a44c002b8f0901ea9383fe27e5f",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/event/OrderEvent.java": {
+    "mtime": 1794922498.6682763,
+    "seen": 1795446504.9565947,
+    "ast_hash": "56d00c4c2ec1e57d295697554058f84a",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/model/Order.java": {
+    "mtime": 1794922484.6551194,
+    "seen": 1795446504.9565988,
+    "ast_hash": "9dbf668297245821a3c6375877e7a562",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/model/OrderItem.java": {
+    "mtime": 1794922489.465853,
+    "seen": 1795446504.9566016,
+    "ast_hash": "47d5fca301b17280c3a70b027d08b6af",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/model/OrderStatus.java": {
+    "mtime": 1795009734.8927414,
+    "seen": 1795446504.9566054,
+    "ast_hash": "197a1df13c53ece64a430209459aaaa7",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/domain/repository/OrderRepository.java": {
+    "mtime": 1794922511.9232574,
+    "seen": 1795446504.9566076,
+    "ast_hash": "093bc8c5531f39f8b0e31b939a022ec3",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/config/RedisConfig.java": {
+    "mtime": 1794922813.68761,
+    "seen": 1795446504.95661,
+    "ast_hash": "00142b03bd2ded2aec849a76386124be",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/messaging/kafka/KafkaConfig.java": {
+    "mtime": 1794938690.9037738,
+    "seen": 1795446504.9566126,
+    "ast_hash": "ca35d6021c2dfce561bfdd579d4fef1b",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/messaging/outbox/OutboxJpaEntity.java": {
+    "mtime": 1794922560.3664515,
+    "seen": 1795446504.9566157,
+    "ast_hash": "01befe34ba8ca99a958995855b34754a",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/messaging/outbox/OutboxJpaRepository.java": {
+    "mtime": 1794922587.851477,
+    "seen": 1795446504.9566216,
+    "ast_hash": "e0df52e3419bc3aaf40b5d32ab7be9de",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/messaging/outbox/OutboxPublisher.java": {
+    "mtime": 1794938181.2216394,
+    "seen": 1795446504.9566238,
+    "ast_hash": "39e88e81a23bd10844bb25eb1c461574",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/persistence/adapter/OrderRepositoryAdapter.java": {
+    "mtime": 1794922606.8594463,
+    "seen": 1795446504.956626,
+    "ast_hash": "ba28b1aa0f9a5e74dd94235509cf57b8",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/persistence/config/OrderStatusConstraintMigration.java": {
+    "mtime": 1795010081.5821636,
+    "seen": 1795446504.9566288,
+    "ast_hash": "cdc1b457554dab96dd905a9252e5ec57",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/persistence/entity/OrderItemJpaEntity.java": {
+    "mtime": 1794922547.0034988,
+    "seen": 1795446504.9566321,
+    "ast_hash": "1bc321a4ff1dbee39c42b8d020d4e4e9",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/persistence/entity/OrderJpaEntity.java": {
+    "mtime": 1794922540.4381278,
+    "seen": 1795446504.956635,
+    "ast_hash": "49268e927c3cc8f4cdb280e8f394aab1",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/infrastructure/persistence/repository/OrderJpaRepository.java": {
+    "mtime": 1794922552.0616343,
+    "seen": 1795446504.9566379,
+    "ast_hash": "b7e598a52ee91df1e3f79a1180243cee",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/presentation/rest/controller/OrderCommandController.java": {
+    "mtime": 1795011683.3454523,
+    "seen": 1795446504.9566402,
+    "ast_hash": "9c7c78ebbf708e62858775d5b163e58e",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/presentation/rest/controller/OrderQueryController.java": {
+    "mtime": 1794922649.6768737,
+    "seen": 1795446504.956644,
+    "ast_hash": "88b27631645177dfa200cf3cbe1124e9",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/java/com/ravi/order/saga/orchestration/OrderSagaOrchestrator.java": {
+    "mtime": 1795009735.273229,
+    "seen": 1795446504.9566476,
+    "ast_hash": "a87b0e5eddbfcff82b51287cbadb3380",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/main/resources/application.yaml": {
+    "mtime": 1794941047.414723,
+    "seen": 1795446504.9566493,
+    "ast_hash": "fde2e203f5e1efeaa274da6b028eae93",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/test/java/com/ravi/order/OrderServiceApplicationTests.java": {
+    "mtime": 1794906764.2380617,
+    "seen": 1795446504.9566524,
+    "ast_hash": "bc3bcbe9185789eab9680f83c26c95fa",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/test/java/com/ravi/order/architecture/ArchitectureRulesTest.java": {
+    "mtime": 1794922937.1454358,
+    "seen": 1795446504.9566545,
+    "ast_hash": "c9594a7825d805b301124547ef3e7e03",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/test/java/com/ravi/order/integration/OrderCqrsTest.java": {
+    "mtime": 1795009735.3462274,
+    "seen": 1795446504.9566576,
+    "ast_hash": "696c5d7cfb3cf8fda2a6e2d438199a8b",
+    "semantic_hash": ""
+  },
+  "services/order-service/src/test/resources/application.yaml": {
+    "mtime": 1794910687.9108827,
+    "seen": 1795446504.95666,
+    "ast_hash": "7ce0b5f99c730a1bf5e64ad219ceb269",
+    "semantic_hash": ""
+  },
+  "services/payment-service/mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.9566736,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "services/payment-service/pom.xml": {
+    "mtime": 1795006667.1479273,
+    "seen": 1795446504.9566777,
+    "ast_hash": "d534535f9bd5f42f9397f70a945fc5ba",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/PaymentServiceApplication.java": {
+    "mtime": 1794909918.6813986,
+    "seen": 1795446504.9566798,
+    "ast_hash": "b05bf1c28b93afe33cd2d1b2ea1bb7fa",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/application/command/ProcessPaymentCommand.java": {
+    "mtime": 1794923902.9899645,
+    "seen": 1795446504.9566827,
+    "ast_hash": "5f97f572955f2a77d324157cb4cc3a88",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/application/port/out/PaymentProviderPort.java": {
+    "mtime": 1794923910.6891384,
+    "seen": 1795446504.9566853,
+    "ast_hash": "79212dae46a51333fad71392f29f861a",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/application/service/PaymentService.java": {
+    "mtime": 1795011683.5189934,
+    "seen": 1795446504.9567094,
+    "ast_hash": "ef5912b5710e28919b05de562949020d",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/domain/event/PaymentCapturedEvent.java": {
+    "mtime": 1795010913.5979042,
+    "seen": 1795446504.9567108,
+    "ast_hash": "51e1a94357226f262fba2adfe0148ea5",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/domain/event/PaymentFailedEvent.java": {
+    "mtime": 1795010913.7138443,
+    "seen": 1795446504.9567149,
+    "ast_hash": "a3a60898a1cd5f7c2ab3c7fef09ed2e9",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/domain/model/Payment.java": {
+    "mtime": 1794923881.733051,
+    "seen": 1795446504.956717,
+    "ast_hash": "4b537d72dd1b800401bc2a6f6e0fd866",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/domain/model/PaymentResult.java": {
+    "mtime": 1794923872.7068007,
+    "seen": 1795446504.9567204,
+    "ast_hash": "bdb61c251fb7182a41fc00d5832ff7bb",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/domain/model/PaymentStatus.java": {
+    "mtime": 1794923868.4547336,
+    "seen": 1795446504.9567225,
+    "ast_hash": "cd866a792e4510854bdf19dc49b9260a",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/domain/repository/PaymentRepository.java": {
+    "mtime": 1794923895.7308183,
+    "seen": 1795446504.956725,
+    "ast_hash": "5d037173071ba823fa6f621d38987be9",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/infrastructure/config/KafkaConfig.java": {
+    "mtime": 1794939340.78115,
+    "seen": 1795446504.9567292,
+    "ast_hash": "2ccb0aa199db5678e7424ea1996c1821",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/infrastructure/external/SimulatedPaymentProviderAdapter.java": {
+    "mtime": 1794923965.542735,
+    "seen": 1795446504.9567323,
+    "ast_hash": "311886354e7ac1e8be0a4da5b3ff98e2",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/infrastructure/messaging/producer/PaymentEventPublisher.java": {
+    "mtime": 1794939563.455844,
+    "seen": 1795446504.9567342,
+    "ast_hash": "c4f15913505f569d1afa3cf09da6bca1",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/infrastructure/persistence/adapter/PaymentRepositoryAdapter.java": {
+    "mtime": 1794923957.3043833,
+    "seen": 1795446504.9567368,
+    "ast_hash": "43e24edf7799f8ba3c9a2e275018f63e",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/infrastructure/persistence/entity/PaymentJpaEntity.java": {
+    "mtime": 1794923941.139348,
+    "seen": 1795446504.9567392,
+    "ast_hash": "e7f70437e06d9fc4aa52ced5876fd22e",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/infrastructure/persistence/repository/PaymentJpaRepository.java": {
+    "mtime": 1794923949.2918203,
+    "seen": 1795446504.956741,
+    "ast_hash": "2d4e2eb0314ec4cbdec3f8164d86997c",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/presentation/rest/controller/PaymentController.java": {
+    "mtime": 1795011683.6765795,
+    "seen": 1795446504.9567442,
+    "ast_hash": "38401448b34d11972d0a998a78d0cbd1",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/java/com/ravi/payment/presentation/rest/response/PaymentResponseDto.java": {
+    "mtime": 1794923916.7216897,
+    "seen": 1795446504.9567473,
+    "ast_hash": "ccfbf145990abbe9f3f10e643ecace80",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/main/resources/application.yml": {
+    "mtime": 1794941047.722542,
+    "seen": 1795446504.9567492,
+    "ast_hash": "336b81f15bcf108194fc3d0af5299015",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/test/java/com/ravi/payment/PaymentServiceTests.java": {
+    "mtime": 1794924682.995983,
+    "seen": 1795446504.9567516,
+    "ast_hash": "2f347ebe3839b9a713c7ef6bfe054061",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/test/java/com/ravi/payment/architecture/ArchitectureRulesTest.java": {
+    "mtime": 1794924018.4276145,
+    "seen": 1795446504.9567535,
+    "ast_hash": "dbda908e465727abf661220d76b4ebf0",
+    "semantic_hash": ""
+  },
+  "services/payment-service/src/test/resources/application.yml": {
+    "mtime": 1794910618.842834,
+    "seen": 1795446504.9567556,
+    "ast_hash": "9517e1315a027c18dcfe0f776993c0db",
+    "semantic_hash": ""
+  },
+  "services/pom.xml": {
+    "mtime": 1794912177.2264411,
+    "seen": 1795446504.9567583,
+    "ast_hash": "83299272f00a0815fca5caf6e9754119",
+    "semantic_hash": ""
+  },
+  "services/product-service/mvnw": {
+    "mtime": 1794906148.1002495,
+    "seen": 1795446504.9567606,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": ""
+  },
+  "services/product-service/pom.xml": {
+    "mtime": 1795006667.155927,
+    "seen": 1795446504.9567626,
+    "ast_hash": "ec7659e3aeba75d58538ba08ecb0ed27",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/ProductServiceApplication.java": {
+    "mtime": 1794924683.378346,
+    "seen": 1795446504.9567661,
+    "ast_hash": "2815ca1e9b82e2031a5094ed1f3e9882",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/application/service/ProductService.java": {
+    "mtime": 1794923438.6209602,
+    "seen": 1795446504.956768,
+    "ast_hash": "108cbff94a2245697090e5db703c7acf",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/domain/model/Category.java": {
+    "mtime": 1794923007.7997842,
+    "seen": 1795446504.9567704,
+    "ast_hash": "8d3cb65842000b52ad0ce6053b804000",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/domain/model/Product.java": {
+    "mtime": 1794923016.278511,
+    "seen": 1795446504.9567728,
+    "ast_hash": "b1213abeb42e1669f215aa269d794f65",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/infrastructure/persistence/repository/ProductRepository.java": {
+    "mtime": 1794923430.4645624,
+    "seen": 1795446504.956778,
+    "ast_hash": "732f4bc2313a7141ac1dfcbcbf0e8180",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/presentation/rest/controller/ProductController.java": {
+    "mtime": 1794923445.984005,
+    "seen": 1795446504.9567802,
+    "ast_hash": "9c0dd94d41e070e595bfa135f5b82b16",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/presentation/rest/request/CreateProductRequest.java": {
+    "mtime": 1794923021.5620866,
+    "seen": 1795446504.9567819,
+    "ast_hash": "a3b3353d7126ab1197d4d9029b15c702",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/java/com/ravi/product/presentation/rest/response/ProductDto.java": {
+    "mtime": 1794923424.895103,
+    "seen": 1795446504.9567838,
+    "ast_hash": "c17c176012f0fb2c2d950149252f4302",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/main/resources/application.yml": {
+    "mtime": 1794941047.976742,
+    "seen": 1795446504.9567864,
+    "ast_hash": "b3eace99c1ecfe0d967cdd9621b8e4df",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/test/java/com/ravi/product/architecture/ArchitectureRulesTest.java": {
+    "mtime": 1794923481.1919272,
+    "seen": 1795446504.956791,
+    "ast_hash": "80492735153063525c2c4ba41aed4531",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/test/java/com/ravi/product/integration/ProductServiceTests.java": {
+    "mtime": 1794923458.2460692,
+    "seen": 1795446504.9567947,
+    "ast_hash": "c41ab52fde1b9e1ec84bc7a644f42711",
+    "semantic_hash": ""
+  },
+  "services/product-service/src/test/resources/application.yml": {
+    "mtime": 1794910558.5479617,
+    "seen": 1795446504.956797,
+    "ast_hash": "e479805f0a6e7bd365df74a31cf46fb7",
+    "semantic_hash": ""
+  },
+  "start.ps1": {
+    "mtime": 1794941243.1181316,
+    "seen": 1795446504.9567993,
+    "ast_hash": "76c67e08a851ceae4f1ce412db3e63c3",
+    "semantic_hash": ""
+  },
+  "stop.ps1": {
+    "mtime": 1794925170.5661216,
+    "seen": 1795446504.9568021,
+    "ast_hash": "924f42cab2b5cd9093020d6223d60689",
+    "semantic_hash": ""
+  },
+  "GLOSSARY.md": {
+    "mtime": 1795445436.357947,
+    "seen": 1795446504.9568067,
+    "ast_hash": "dd08c7180f2eff8c07988f8faac60d98",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1795446967.7169645,
+    "seen": 1795446985.2922084,
+    "ast_hash": "6a0417b403b3ae9efb43898a3b2b93d1",
+    "semantic_hash": ""
+  },
+  "docs/ARCHITECTURE.md": {
+    "mtime": 1794907078.0552568,
+    "seen": 1795446504.9568112,
+    "ast_hash": "0c323c7383b4631d5aff7115ec375b3c",
+    "semantic_hash": ""
+  },
+  "docs/GLOSSARY.md": {
+    "mtime": 1795445436.357947,
+    "seen": 1795446504.9568133,
+    "ast_hash": "dd08c7180f2eff8c07988f8faac60d98",
+    "semantic_hash": ""
+  },
+  "docs/JAVA_SKILLS_CATALOG.md": {
+    "mtime": 1794908674.2037573,
+    "seen": 1795446504.956816,
+    "ast_hash": "f08ddc46737db5893fd8c1326bdf5fc7",
+    "semantic_hash": ""
+  },
+  "docs/KEYCLOAK_SECURITY_GUIDE.md": {
+    "mtime": 1794911169.0623505,
+    "seen": 1795446504.9568179,
+    "ast_hash": "da9b739c4f932460ee4f8793e9383076",
+    "semantic_hash": ""
+  },
+  "docs/LOCAL_AWS_EMULATOR_GUIDE.md": {
+    "mtime": 1794907107.8885913,
+    "seen": 1795446504.9568205,
+    "ast_hash": "aa1a59ea8e32ef8f310313624afbe9ec",
+    "semantic_hash": ""
+  },
+  "docs/ROADMAP.md": {
+    "mtime": 1794911623.3716488,
+    "seen": 1795446504.9568238,
+    "ast_hash": "039177ecb967a2d94ee30cfa7a26ab92",
+    "semantic_hash": ""
+  },
+  "docs/dashboard.md": {
+    "mtime": 1795445966.1695714,
+    "seen": 1795446504.9568274,
+    "ast_hash": "03d7d4c8d77aa8f57d996125375c89c1",
+    "semantic_hash": ""
+  },
+  "docs/java-microservices-saga-cqrs-project-structure.md": {
+    "mtime": 1795006850.3681352,
+    "seen": 1795446504.9568324,
+    "ast_hash": "b657b8a46b11b3df976164930689b1c6",
+    "semantic_hash": ""
+  },
+  "docs/java_microservices_ai_project_planning_brief.md": {
+    "mtime": 1794909349.7949238,
+    "seen": 1795446504.9568355,
+    "ast_hash": "89393dd5122f891dc417273590c71e78",
+    "semantic_hash": ""
+  },
+  "services/api-gateway/README.md": {
+    "mtime": 1794907450.1522388,
+    "seen": 1795446504.95684,
+    "ast_hash": "674407fba732eff0d22beb86350d446a",
+    "semantic_hash": ""
+  },
+  "services/control-center/README.md": {
+    "mtime": 1794912168.7399466,
+    "seen": 1795446504.9568427,
+    "ast_hash": "edfb08df0859b3cde92dc737133773b3",
+    "semantic_hash": ""
+  },
+  "services/control-center/src/main/resources/static/index.html": {
+    "mtime": 1795445897.0130978,
+    "seen": 1795446504.956845,
+    "ast_hash": "6fb48ddaddb5fbd5932a35f345edbada",
+    "semantic_hash": ""
+  },
+  "services/inventory-service/README.md": {
+    "mtime": 1794907421.15361,
+    "seen": 1795446504.956848,
+    "ast_hash": "321a952a059144370f5cb39e07702d82",
+    "semantic_hash": ""
+  },
+  "services/notification-service/README.md": {
+    "mtime": 1794907434.7569678,
+    "seen": 1795446504.956852,
+    "ast_hash": "7ea5f7c70c1217659a1faecfa343ef0f",
+    "semantic_hash": ""
+  },
+  "services/order-service/README.md": {
+    "mtime": 1794907406.601683,
+    "seen": 1795446504.956855,
+    "ast_hash": "3fed1bbbf79192747887fbbaf3aeb3e8",
+    "semantic_hash": ""
+  },
+  "services/payment-service/README.md": {
+    "mtime": 1794909956.0330477,
+    "seen": 1795446504.956858,
+    "ast_hash": "cd60d422f5c440088b6a49c028cec51b",
+    "semantic_hash": ""
+  },
+  "services/product-service/README.md": {
+    "mtime": 1794909785.9101684,
+    "seen": 1795446504.9568603,
+    "ast_hash": "bcf8094ca1435f43f61de8ca86290b2e",
+    "semantic_hash": ""
+  },
+  "scripts/update-graph.ps1": {
+    "mtime": 1795446908.3022962,
+    "seen": 1795446985.2545798,
+    "ast_hash": "6cb48ab4b53648215c57b413c20f5bb5",
+    "semantic_hash": ""
+  },
+  "scripts/update-graph.sh": {
+    "mtime": 1795446913.3309877,
+    "seen": 1795446985.2545831,
+    "ast_hash": "638afe13747ddc10bd64e3edbb4df2b2",
+    "semantic_hash": ""
+  },
+  ".gemini/GEMINI.md": {
+    "mtime": 1795446939.8587558,
+    "seen": 1795446985.2920344,
+    "ast_hash": "4dec714d5ef45526abb3968361388b63",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1795446932.2367513,
+    "seen": 1795446985.2920365,
+    "ast_hash": "85003b74744a499343f1cf0657627905",
+    "semantic_hash": ""
+  },
+  "docs/CODEBASE_SEARCH_GUIDE.md": {
+    "mtime": 1795446955.2081444,
+    "seen": 1795446985.2923822,
+    "ast_hash": "19606225d000cfe7a2f71b1ee4325f6c",
+    "semantic_hash": ""
+  }
+}

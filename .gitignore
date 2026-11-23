@@ -34,3 +34,7 @@ build/
 
 ### Local Build State ###
 .build-state.json
+
+### Graphify Cache (keeps graph.json and graph.html committed) ###
+graphify-out/cache/
+

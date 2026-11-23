@@ -192,6 +192,8 @@ Run tests and package all services from the root aggregator:
 
 ## 📚 Technical Documentation
 
+- 🧭 [Codebase Navigation & Tooling Guide](docs/CODEBASE_SEARCH_GUIDE.md): Fast code exploration using Graphify (AST knowledge graph), Ripgrep (`rg`), `fd`, `ast-grep`, and `jq`.
+- 🕸️ [Interactive Code Architecture Graph](graphify-out/graph.html): Live navigable knowledge graph with 2,700+ nodes and 4,900+ edges across all services.
 - 📖 [Architecture Deep Dive](docs/ARCHITECTURE.md): Hexagonal architecture, Outbox pattern, and Event-Driven choreography.
 - ☕ [Java Skills Catalog](docs/JAVA_SKILLS_CATALOG.md): Exhaustive guide to modern Java 21+ features, Virtual Threads, and design patterns.
 - ☁️ [Local AWS Emulator Guide](docs/LOCAL_AWS_EMULATOR_GUIDE.md): Local AWS emulation instructions, SQS/SNS/S3/DynamoDB CLI commands with no sign-in.
