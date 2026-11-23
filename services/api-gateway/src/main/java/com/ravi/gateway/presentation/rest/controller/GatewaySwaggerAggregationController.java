@@ -50,7 +50,11 @@ public class GatewaySwaggerAggregationController {
         this.restClient = restClient;
     }
 
-    @GetMapping(value = {"/services/{serviceName}/openapi.json", "/services/{serviceName}/openapi"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = {
+            "/services/{serviceName}/v3/api-docs",
+            "/services/{serviceName}/openapi.json",
+            "/services/{serviceName}/openapi"
+    }, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Fetch downstream OpenAPI JSON", description = "Proxies the /v3/api-docs endpoint of the requested microservice for central Swagger UI aggregation.")
     public ResponseEntity<String> getServiceApiDocs(
             @Parameter(description = "Service identifier (order-service, product-service, inventory-service, payment-service, notification-service)", example = "order-service")
