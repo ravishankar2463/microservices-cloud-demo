@@ -3,6 +3,7 @@ package com.ravi.order.application.command.handler;
 import com.ravi.order.application.command.CancelOrderCommand;
 import com.ravi.order.application.command.CreateOrderCommand;
 import com.ravi.order.domain.event.OrderCancelledEvent;
+import com.ravi.order.domain.event.OrderCompletedEvent;
 import com.ravi.order.domain.event.OrderConfirmedEvent;
 import com.ravi.order.domain.event.OrderCreatedEvent;
 import com.ravi.order.domain.model.Order;
@@ -148,6 +149,51 @@ public class OrderCommandHandler {
         saveToOutbox("Order", orderId.toString(), event.eventType(), event);
         evictOrderViewCacheAfterCommit(orderId);
         log.info("Order {} confirmed by Saga Orchestrator and OrderConfirmedEvent queued in Outbox", orderId);
+    }
+
+    @Transactional
+    public void completeOrder(UUID orderId) {
+        log.info("Handling completeOrder for order: {}", orderId);
+        OrderJpaEntity entity = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with ID: " + orderId));
+        if (entity.getStatus() == OrderStatus.COMPLETED) {
+            log.warn("Order {} is already completed", orderId);
+            return;
+        }
+        if (entity.getStatus() == OrderStatus.CANCELLED) {
+            log.warn("Order {} is cancelled and cannot be completed", orderId);
+            return;
+        }
+        entity.setStatus(OrderStatus.COMPLETED);
+        orderRepository.save(entity);
+
+        OrderCompletedEvent event = new OrderCompletedEvent(
+                UUID.randomUUID(),
+                entity.getId(),
+                entity.getCustomerId(),
+                entity.getTotalAmount(),
+                Instant.now()
+        );
+        saveToOutbox("Order", orderId.toString(), event.eventType(), event);
+        evictOrderViewCacheAfterCommit(orderId);
+        log.info("Order {} marked COMPLETED after inventory commit and OrderCompletedEvent queued in Outbox", orderId);
+    }
+
+    @Transactional
+    public void resetAll() {
+        outboxRepository.deleteAll();
+        orderRepository.deleteAll();
+        if (redisTemplate != null) {
+            try {
+                var keys = redisTemplate.keys("order:view:*");
+                if (keys != null && !keys.isEmpty()) {
+                    redisTemplate.delete(keys);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to clear order CQRS keys from Redis during reset: {}", e.getMessage());
+            }
+        }
+        log.info("Cleared all orders, order_items, outbox rows, and order CQRS Redis cache keys.");
     }
 
     private void evictOrderViewCacheAfterCommit(UUID orderId) {

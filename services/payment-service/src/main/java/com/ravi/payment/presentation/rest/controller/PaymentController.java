@@ -48,4 +48,13 @@ public class PaymentController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/reset")
+    public ResponseEntity<java.util.Map<String, Object>> resetPayments() {
+        paymentService.resetAll();
+        return ResponseEntity.ok(java.util.Map.of(
+                "success", true,
+                "message", "All payment transactions and idempotency records cleared"
+        ));
+    }
 }

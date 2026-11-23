@@ -43,6 +43,14 @@ spec:
               value: "http://keycloak.microservices-demo.svc.cluster.local:8080"
             - name: AWS_EMULATOR_URL
               value: "http://aws-emulator.microservices-demo.svc.cluster.local:4566"
+            - name: REDIS_ADDRESS
+              value: "inventory-redis.microservices-demo.svc.cluster.local:6379"
+            - name: ORDER_DB_ADDRESS
+              value: "order-db.microservices-demo.svc.cluster.local:5432"
+            - name: PRODUCT_DB_ADDRESS
+              value: "product-db.microservices-demo.svc.cluster.local:5432"
+            - name: PAYMENT_DB_ADDRESS
+              value: "payment-db.microservices-demo.svc.cluster.local:5432"
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

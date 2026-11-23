@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Executes real live HTTP requests against running cluster microservices,
@@ -30,6 +31,8 @@ public class LiveOperationsDispatcherService {
     private static final Logger log = LoggerFactory.getLogger(LiveOperationsDispatcherService.class);
 
     private final InfrastructureStateInspectorService infraInspector;
+    private final SagaExplorerService sagaService;
+    private final KafkaEventExplorerService eventService;
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
@@ -52,12 +55,16 @@ public class LiveOperationsDispatcherService {
 
     public LiveOperationsDispatcherService(
             InfrastructureStateInspectorService infraInspector,
+            SagaExplorerService sagaService,
+            KafkaEventExplorerService eventService,
             @Value("${services.order-service.url:http://localhost:8081}") String orderUrl,
             @Value("${services.payment-service.url:http://localhost:8084}") String paymentUrl,
             @Value("${services.inventory-service.url:http://localhost:8082}") String inventoryUrl,
             @Value("${services.notification-service.url:http://localhost:8083}") String notificationUrl,
             @Value("${services.api-gateway.url:http://localhost:8080}") String gatewayUrl) {
         this.infraInspector = infraInspector;
+        this.sagaService = sagaService;
+        this.eventService = eventService;
         this.orderUrl = orderUrl;
         this.paymentUrl = paymentUrl;
         this.inventoryUrl = inventoryUrl;
@@ -223,8 +230,8 @@ public class LiveOperationsDispatcherService {
                 null, corrId, steps, "Order creation failed with status: " + step1.statusCode(), Instant.now());
         }
 
-        // Wait 1200ms for Outbox polling (1000ms interval) and Redis stock reservation
-        sleepSilently(1200);
+        // Wait for real Outbox publish -> inventory-service reservation -> inventory-events
+        awaitSagaCondition(orderId, s -> hasStep(s, "INVENTORY_RESERVED"), 2500);
 
         // 2. Live Step 2: POST /api/payments/process
         String payBody = """
@@ -243,13 +250,16 @@ public class LiveOperationsDispatcherService {
         ));
         steps.add(step2);
 
-        // Wait 1600ms for Kafka payment confirmation, Outbox ORDER_CONFIRMED publish, and invoice archival
-        sleepSilently(1600);
+        // Wait for real Kafka payment confirmation -> Outbox ORDER_CONFIRMED -> inventory commit -> S3 invoice -> ORDER_COMPLETED
+        awaitSagaCondition(orderId, s -> "COMPLETED".equals(s.status())
+            && hasStep(s, "INVENTORY_COMMITTED")
+            && hasStep(s, "INVOICE_GENERATED")
+            && hasStep(s, "ORDER_COMPLETED"), 4500);
 
         boolean success = step2.statusCode() == 201;
         String status = success ? "SUCCESS" : "FAILED";
         String summary = success
-            ? "Live Order " + orderId + " placed and confirmed. Payment captured, Redis stock reserved, and S3 invoice generated."
+            ? "Live Order " + orderId + " completed end-to-end: payment captured, reserved stock committed for dispatch (RESERVED cleared), S3 invoice archived, and order marked COMPLETED."
             : "Payment processing failed for order " + orderId;
 
         return new FlowExecutionResult("happy-path", "Live Happy Path E-Commerce Flow", status,
@@ -286,8 +296,8 @@ public class LiveOperationsDispatcherService {
                 null, corrId, steps, "Order creation failed", Instant.now());
         }
 
-        // Wait 1200ms for Outbox polling and initial stock reservation
-        sleepSilently(1200);
+        // Wait for real Outbox publish and initial stock reservation
+        awaitSagaCondition(orderId, s -> hasStep(s, "INVENTORY_RESERVED"), 2500);
 
         // 2. Live Step 2: POST /api/payments/process (triggers DECLINE due to .99 rule)
         String payBody = """
@@ -306,8 +316,8 @@ public class LiveOperationsDispatcherService {
         ));
         steps.add(step2);
 
-        // Wait 1500ms for OrderSagaOrchestrator to receive PaymentFailedEvent, cancel order, and release Redis stock
-        sleepSilently(1500);
+        // Wait for OrderSagaOrchestrator cancellation + Outbox ORDER_CANCELLED + inventory-service stock restoration
+        awaitSagaCondition(orderId, s -> "COMPENSATED".equals(s.status()) && hasStep(s, "COMPENSATING_INVENTORY"), 3500);
 
         String summary = "Payment declined (402 Payment Required). Saga compensation triggered: Order cancelled in order_db and reserved stock restored in Redis.";
 
@@ -338,8 +348,23 @@ public class LiveOperationsDispatcherService {
         ));
         steps.add(step1);
 
-        return new FlowExecutionResult("inventory-exhaustion", "Live Inventory Exhaustion Test", "COMPLETED",
-            step1.orderId(), corrId, steps, "Inventory check evaluated on 999 requested units.", Instant.now());
+        String orderId = step1.orderId();
+        if (orderId == null || orderId.isBlank()) {
+            return new FlowExecutionResult("inventory-exhaustion", "Live Inventory Exhaustion Test", "FAILED",
+                null, corrId, steps, "Order creation failed with status: " + step1.statusCode(), Instant.now());
+        }
+
+        // Wait for live Outbox publish -> inventory-service guard rejection -> inventory-events -> OrderSagaOrchestrator cancellation -> order-events
+        awaitSagaCondition(orderId, s -> "REJECTED".equals(s.status()) && hasStep(s, "ORDER_CANCELLED"), 3500);
+        String observedOrderStatus = awaitLiveOrderStatus(orderId, "CANCELLED", 1000);
+        boolean rejected = "CANCELLED".equalsIgnoreCase(observedOrderStatus);
+        String resultStatus = rejected ? "REJECTED" : "IN_PROGRESS";
+        String summary = rejected
+            ? "Inventory exhaustion guard rejected 999 requested units in inventory-service. InventoryRejectedEvent emitted to inventory-events and Order " + orderId + " transitioned to CANCELLED in order_db."
+            : "Order " + orderId + " placed for 999 units; current live order_db status: " + observedOrderStatus + ".";
+
+        return new FlowExecutionResult("inventory-exhaustion", "Live Inventory Exhaustion Test", resultStatus,
+            orderId, corrId, steps, summary, Instant.now());
     }
 
     private FlowExecutionResult executeManualCancellationFlow(String corrId, Map<String, Object> overrides) {
@@ -347,30 +372,110 @@ public class LiveOperationsDispatcherService {
         String targetOrderId = (overrides != null && overrides.containsKey("orderId"))
             ? String.valueOf(overrides.get("orderId"))
             : null;
+        String customerId = "cust-cancel-" + UUID.randomUUID().toString().substring(0, 4);
 
-        // If no orderId supplied, create a quick live order first
+        // If no orderId supplied, create a quick live order first and wait for Outbox + inventory reservation
         if (targetOrderId == null || targetOrderId.isBlank()) {
             LiveDispatchResponse createStep = dispatch(new LiveDispatchRequest(
                 "order-service", "POST", "/api/orders", Map.of(),
-                "{\"customerId\":\"cust-cancel\",\"items\":[{\"productId\":\"PROD-TECH-001\",\"quantity\":1,\"unitPrice\":49.00}]}",
+                "{\"customerId\":\"" + customerId + "\",\"items\":[{\"productId\":\"PROD-TECH-001\",\"quantity\":1,\"unitPrice\":49.00}]}",
                 corrId, null, true
             ));
             steps.add(createStep);
             targetOrderId = createStep.orderId();
-            sleepSilently(300);
+            if (targetOrderId != null && !targetOrderId.isBlank()) {
+                awaitSagaCondition(targetOrderId, s -> hasStep(s, "INVENTORY_RESERVED"), 2500);
+            }
         }
 
-        if (targetOrderId != null) {
+        if (targetOrderId != null && !targetOrderId.isBlank()) {
             LiveDispatchResponse cancelStep = dispatch(new LiveDispatchRequest(
                 "order-service", "POST", "/api/orders/" + targetOrderId + "/cancel",
                 Map.of(), "{\"reason\":\"Customer requested cancellation from Control Center\"}",
                 corrId, targetOrderId, true
             ));
             steps.add(cancelStep);
+            awaitSagaCondition(targetOrderId, s -> "COMPENSATED".equals(s.status()) && hasStep(s, "COMPENSATING_INVENTORY"), 3500);
         }
 
         return new FlowExecutionResult("manual-cancellation", "Live Manual Order Cancellation", "COMPENSATED",
-            targetOrderId, corrId, steps, "Customer cancellation sent to order-service.", Instant.now());
+            targetOrderId, corrId, steps, "Customer cancellation sent to order-service and reserved stock restored via Saga compensation.", Instant.now());
+    }
+
+    /**
+     * Performs a full live platform reset across all stateful microservices, LocalStack S3,
+     * Redis caches, inventory stock levels, and Control Center Saga/Kafka Explorer stores.
+     */
+    public Map<String, Object> resetAllPlatformState() {
+        Map<String, String> components = new LinkedHashMap<>();
+
+        components.put("order-service", invokeResetEndpoint(orderUrl + "/api/orders/reset"));
+        components.put("inventory-service", invokeResetEndpoint(inventoryUrl + "/api/inventory/reset"));
+        components.put("payment-service", invokeResetEndpoint(paymentUrl + "/api/payments/reset"));
+        components.put("notification-service", invokeResetEndpoint(notificationUrl + "/api/notifications/reset"));
+
+        sagaService.clearAll();
+        components.put("saga-explorer", "CLEARED");
+
+        eventService.clearAll();
+        components.put("kafka-explorer", "CLEARED");
+
+        log.info("Full platform reset executed: {}", components);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("success", true);
+        result.put("message", "Platform state, databases, inventory, S3 invoices, sagas, and Kafka explorer cleared.");
+        result.put("components", components);
+        result.put("resetAt", Instant.now().toString());
+        return result;
+    }
+
+    private String invokeResetEndpoint(String url) {
+        try {
+            ResponseEntity<String> resp = restClient.post()
+                .uri(url)
+                .header("Content-Type", "application/json")
+                .body("{}")
+                .retrieve()
+                .toEntity(String.class);
+            return resp.getStatusCode().is2xxSuccessful() ? "RESET_OK" : ("HTTP_" + resp.getStatusCode().value());
+        } catch (Exception e) {
+            log.warn("Reset endpoint {} unavailable: {}", url, e.getMessage());
+            return "UNREACHABLE";
+        }
+    }
+
+    private void awaitSagaCondition(String orderId, Predicate<SagaExecution> condition, long maxWaitMs) {
+        if (orderId == null || orderId.isBlank()) {
+            return;
+        }
+        String sagaId = "saga-" + orderId;
+        long deadline = System.currentTimeMillis() + maxWaitMs;
+        while (System.currentTimeMillis() < deadline) {
+            Optional<SagaExecution> sagaOpt = sagaService.getSagaById(sagaId);
+            if (sagaOpt.isPresent() && condition.test(sagaOpt.get())) {
+                return;
+            }
+            sleepSilently(100);
+        }
+    }
+
+    private boolean hasStep(SagaExecution saga, String stepName) {
+        return saga.steps() != null && saga.steps().stream().anyMatch(s -> stepName.equals(s.stepName()));
+    }
+
+    private String awaitLiveOrderStatus(String orderId, String expectedStatus, long maxWaitMs) {
+        long deadline = System.currentTimeMillis() + maxWaitMs;
+        String currentStatus = "UNKNOWN";
+        while (System.currentTimeMillis() < deadline) {
+            InfrastructureSnapshot snap = infraInspector.captureSnapshot(orderId, "order-events");
+            currentStatus = snap.database().latestRecordStatus();
+            if (expectedStatus.equalsIgnoreCase(currentStatus)) {
+                return currentStatus;
+            }
+            sleepSilently(150);
+        }
+        return currentStatus;
     }
 
     public List<LiveFlowPreset> getPresets() {

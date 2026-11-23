@@ -51,3 +51,13 @@ services:
     url: ${KEYCLOAK_URL:http://localhost:8088}
   aws-emulator:
     url: ${AWS_EMULATOR_URL:http://localhost:4566}
+  kafka:
+    address: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  redis:
+    address: ${REDIS_ADDRESS:${REDIS_HOST:localhost}:${REDIS_PORT:6379}}
+  order-db:
+    address: ${ORDER_DB_ADDRESS:${ORDER_DB_HOST:localhost}:${ORDER_DB_PORT:5432}}
+  product-db:
+    address: ${PRODUCT_DB_ADDRESS:${PRODUCT_DB_HOST:localhost}:${PRODUCT_DB_PORT:5433}}
+  payment-db:
+    address: ${PAYMENT_DB_ADDRESS:${PAYMENT_DB_HOST:localhost}:${PAYMENT_DB_PORT:5434}}

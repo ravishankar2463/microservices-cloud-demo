@@ -12,13 +12,18 @@ public record OrderCancelledEvent(
         UUID orderId,
         String reason,
         List<OrderCreatedEvent.ItemPayload> items,
+        String eventType,
         Instant occurredAt
 ) implements OrderEvent {
 
     public static final String EVENT_TYPE = "ORDER_CANCELLED";
 
-    @Override
-    public String eventType() {
-        return EVENT_TYPE;
+    public OrderCancelledEvent(
+            UUID eventId,
+            UUID orderId,
+            String reason,
+            List<OrderCreatedEvent.ItemPayload> items,
+            Instant occurredAt) {
+        this(eventId, orderId, reason, items, EVENT_TYPE, occurredAt);
     }
 }

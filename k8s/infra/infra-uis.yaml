@@ -1,0 +1,132 @@
+# Ultra-lightweight Web UIs for PostgreSQL, Redis, and Apache Kafka (~90-130 MB total RAM)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer
+  namespace: microservices-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminer
+  template:
+    metadata:
+      labels:
+        app: adminer
+    spec:
+      containers:
+        - name: adminer
+          image: adminer:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ADMINER_DEFAULT_SERVER
+              value: "order-db.microservices-demo.svc.cluster.local"
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+            limits:
+              memory: "96Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer
+  namespace: microservices-demo
+spec:
+  selector:
+    app: adminer
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-commander
+  namespace: microservices-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-commander
+  template:
+    metadata:
+      labels:
+        app: redis-commander
+    spec:
+      containers:
+        - name: redis-commander
+          image: rediscommander/redis-commander:latest
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: REDIS_HOSTS
+              value: "local:inventory-redis.microservices-demo.svc.cluster.local:6379"
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "48Mi"
+            limits:
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-commander
+  namespace: microservices-demo
+spec:
+  selector:
+    app: redis-commander
+  ports:
+    - port: 8081
+      targetPort: 8081
+      name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redpanda-console
+  namespace: microservices-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redpanda-console
+  template:
+    metadata:
+      labels:
+        app: redpanda-console
+    spec:
+      containers:
+        - name: redpanda-console
+          image: redpandadata/console:v2.8.0
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: KAFKA_BROKERS
+              value: "kafka.microservices-demo.svc.cluster.local:9092"
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+            limits:
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redpanda-console
+  namespace: microservices-demo
+spec:
+  selector:
+    app: redpanda-console
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http

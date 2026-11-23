@@ -9,8 +9,12 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -71,5 +75,32 @@ public class S3InvoiceArchiveRepositoryAdapter implements InvoiceArchiveReposito
     @Override
     public Optional<Invoice> findByOrderId(String orderId) {
         return Optional.ofNullable(localInvoiceCache.get(orderId));
+    }
+
+    @Override
+    public int clearAll() {
+        int clearedCount = localInvoiceCache.size();
+        localInvoiceCache.clear();
+
+        if (s3Client.isPresent()) {
+            try {
+                S3Client client = s3Client.get();
+                ListObjectsV2Response listResp = client.listObjectsV2(
+                        ListObjectsV2Request.builder().bucket(bucketName).build());
+                int deletedS3 = 0;
+                for (S3Object obj : listResp.contents()) {
+                    client.deleteObject(DeleteObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(obj.key())
+                            .build());
+                    deletedS3++;
+                }
+                log.info("Cleared {} S3 invoice object(s) from bucket {}", deletedS3, bucketName);
+                return Math.max(clearedCount, deletedS3);
+            } catch (Exception e) {
+                log.warn("Could not clear S3 bucket {} during reset: {}", bucketName, e.getMessage());
+            }
+        }
+        return clearedCount;
     }
 }

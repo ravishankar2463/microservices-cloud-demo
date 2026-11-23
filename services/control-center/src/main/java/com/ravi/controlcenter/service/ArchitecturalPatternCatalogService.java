@@ -83,6 +83,81 @@ public class ArchitecturalPatternCatalogService {
             )
         ));
 
+        catalog.put("INVENTORY_REJECTED", new ArchitecturalDossier(
+            "Stock Boundary Guard & Event-Driven Saga Abort",
+            "Concurrency Control & Defensive Invariants",
+            "Acquired Redis distributed lock, verified requested quantity exceeded available stock, rejected the reservation with zero inventory mutation, and published InventoryRejectedEvent to Kafka topic 'inventory-events'.",
+            "Guarantees zero overselling under load while immediately signaling OrderSagaOrchestrator to cancel the pending order without charging payment or touching other orders' reserved stock.",
+            "Enforces domain invariants inside the owning microservice boundary. Because inventory-service never allows negative stock and broadcasts an explicit rejection event, the distributed saga terminates deterministically instead of hanging in PENDING/IN_PROGRESS.",
+            List.of(
+                "Strict zero-overselling invariant enforced inside the distributed lock",
+                "Zero unintended mutation of concurrent orders' reserved stock",
+                "Explicit InventoryRejectedEvent triggers deterministic Saga cancellation in order-service",
+                "Prevents unnecessary downstream payment authorization calls for unfulfillable orders"
+            ),
+            List.of(
+                "Asynchronous event choreography introduces brief eventual consistency window before order transitions to CANCELLED",
+                "Requires per-order reservation tracking so subsequent OrderCancelledEvent does not release unrelated reservations"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Distributed Redis mutex check followed by Kafka InventoryRejectedEvent broadcast",
+                "High-volume flash-sale rejection bursts saturate order_db writes and Kafka partitions",
+                "50,000 – 100,000+ RPS",
+                "Pre-flight Lua script stock counter in Redis Cluster with edge API Gateway stock-depleted circuit breakers and partitioned inventory-events topics",
+                "Execute atomic Redis Lua DECRBY-if-sufficient script at ingress and publish only committed/rejected state changes asynchronously"
+            )
+        ));
+
+        catalog.put("INVENTORY_COMMITTED", new ArchitecturalDossier(
+            "Two-Phase Inventory Hold & Finalization (Reserve -> Commit)",
+            "Concurrency Control & Fulfillment Integrity",
+            "Consumed ORDER_CONFIRMED, acquired the Redis distributed mutex, cleared the soft reservation hold (RESERVED -1 while keeping AVAIL permanently sold), and emitted InventoryCommittedEvent to Kafka topic 'inventory-events'.",
+            "Ensures reserved stock counts only represent in-flight unpaid orders and finalizes sold inventory for warehouse dispatch without lingering holds.",
+            "Completes the Try-Confirm/Cancel (TCC) inventory pattern. Pending orders hold stock temporarily in RESERVED; cancelled orders return it to AVAIL, while confirmed orders commit and clear the hold permanently.",
+            List.of(
+                "Clean separation between in-flight soft holds (RESERVED) and permanently sold stock",
+                "Prevents confirmed orders from ever being mistakenly released as unpaid cancellations",
+                "Idempotent per-order reservation tracking handles duplicate Kafka deliveries safely",
+                "Signals OrderSagaOrchestrator to finalize the order lifecycle to COMPLETED"
+            ),
+            List.of(
+                "Requires durable reservation ledger in production so holds survive pod restarts before commit"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Redis distributed lock with per-order allocation map and Kafka commit event",
+                "In-memory allocation tracking resets on pod crash if not backed by Redis/DynamoDB",
+                "50,000 – 100,000+ RPS",
+                "DynamoDB conditional TCC ledger with TTL-based reservation expiry reaper and DynamoDB Streams -> Kafka commit fan-out",
+                "Persist per-order holds in DynamoDB with TTL; commit atomically via TransactWriteItems on ORDER_CONFIRMED"
+            )
+        ));
+
+        catalog.put("ORDER_COMPLETED", new ArchitecturalDossier(
+            "Saga Fulfillment Terminal State Transition",
+            "Saga Lifecycle & State Machine",
+            "OrderSagaOrchestrator consumed INVENTORY_COMMITTED, transitioned Order status in PostgreSQL order_db from CONFIRMED to COMPLETED, evicted stale CQRS cache, and published ORDER_COMPLETED via Transactional Outbox.",
+            "Closes the distributed checkout and fulfillment saga once payment is captured, invoice is archived, and reserved inventory is permanently committed for dispatch.",
+            "Provides a true end-to-end finite state machine (PENDING -> CONFIRMED -> COMPLETED) backed by real cross-service events rather than stopping mid-flight with dangling stock holds.",
+            List.of(
+                "Deterministic terminal fulfillment state persisted in order_db",
+                "Zero lingering inventory holds once order reaches COMPLETED",
+                "Outbox event notifies downstream analytics, shipping, and customer portals reliably"
+            ),
+            List.of(
+                "Additional outbox hop adds one polling interval (~1s) before terminal completion event appears"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Transactional Outbox polling publisher updating PostgreSQL order_db",
+                "Multi-step fulfillment workflows (pack, ship, deliver) outgrow flat status columns",
+                "50,000 – 100,000+ RPS",
+                "Dedicated Fulfillment / Shipping bounded context orchestrated via Temporal or Debezium CDC event streams",
+                "Split post-payment warehouse dispatch, carrier tracking, and delivery confirmation into a dedicated fulfillment-service"
+            )
+        ));
+
         catalog.put("PAYMENT_CAPTURED", new ArchitecturalDossier(
             "Idempotency Key & Circuit-Resilient External Gateway",
             "Financial Integrity & Distributed Safety",

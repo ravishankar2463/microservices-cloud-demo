@@ -9,4 +9,5 @@ public interface InventoryRepository {
     Optional<InventoryItem> findById(String productId);
     InventoryItem save(InventoryItem item);
     Map<String, InventoryItem> findAll();
+    void resetToDefaults();
 }

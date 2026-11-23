@@ -20,6 +20,7 @@ public class ControlCenterApiController {
     private final KafkaEventExplorerService eventService;
     private final SagaExplorerService sagaService;
     private final LearningCenterService learningService;
+    private final LocalEditorLauncherService editorLauncherService;
     private final LiveOperationsDispatcherService liveDispatcherService;
     private final InfrastructureAdminService infraService;
     private final AwsEmulatorService awsEmulatorService;
@@ -31,6 +32,7 @@ public class ControlCenterApiController {
             KafkaEventExplorerService eventService,
             SagaExplorerService sagaService,
             LearningCenterService learningService,
+            LocalEditorLauncherService editorLauncherService,
             LiveOperationsDispatcherService liveDispatcherService,
             InfrastructureAdminService infraService,
             AwsEmulatorService awsEmulatorService,
@@ -40,6 +42,7 @@ public class ControlCenterApiController {
         this.eventService = eventService;
         this.sagaService = sagaService;
         this.learningService = learningService;
+        this.editorLauncherService = editorLauncherService;
         this.liveDispatcherService = liveDispatcherService;
         this.infraService = infraService;
         this.awsEmulatorService = awsEmulatorService;
@@ -103,8 +106,13 @@ public class ControlCenterApiController {
     public ResponseEntity<List<EventRecord>> getEvents(
             @RequestParam(required = false) String topic,
             @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "50") int limit) {
-        return ResponseEntity.ok(eventService.getEvents(topic, status, limit));
+            @RequestParam(required = false) String query,
+            @RequestParam(defaultValue = "200") int limit) {
+        return ResponseEntity.ok(eventService.getEvents(topic, status, query, limit));
+    }
+
+    public ResponseEntity<List<EventRecord>> getEvents(String topic, String status, int limit) {
+        return getEvents(topic, status, null, limit);
     }
 
     @GetMapping("/kafka/topics")
@@ -141,6 +149,27 @@ public class ControlCenterApiController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping({"/learning/open-editor", "/editor/open"})
+    public ResponseEntity<EditorLaunchResponse> openEditor(@RequestBody EditorLaunchRequest request) {
+        try {
+            EditorLaunchResponse response = editorLauncherService.launchEditor(request);
+            return ResponseEntity.ok(response);
+        } catch (SecurityException se) {
+            return ResponseEntity.badRequest().body(EditorLaunchResponse.error("NONE", request.filePath(), "", "", se.getMessage()));
+        } catch (java.util.NoSuchElementException nse) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                .body(EditorLaunchResponse.error("NONE", request.filePath(), "", "", nse.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(EditorLaunchResponse.error("NONE", request.filePath(), "", "", e.getMessage()));
+        }
+    }
+
+    @GetMapping({"/learning/editor-status", "/editor/status"})
+    public ResponseEntity<Map<String, Object>> getEditorStatus() {
+        return ResponseEntity.ok(editorLauncherService.getEditorStatus());
+    }
+
     @PostMapping("/live/dispatch")
     public ResponseEntity<LiveDispatchResponse> dispatchLiveRequest(@RequestBody LiveDispatchRequest request) {
         return ResponseEntity.ok(liveDispatcherService.dispatch(request));
@@ -168,6 +197,11 @@ public class ControlCenterApiController {
     @PostMapping("/operations/refresh")
     public ResponseEntity<List<ServiceNode>> refreshServices() {
         return ResponseEntity.ok(registryService.discoverAllServices());
+    }
+
+    @PostMapping("/operations/reset")
+    public ResponseEntity<Map<String, Object>> resetPlatform() {
+        return ResponseEntity.ok(liveDispatcherService.resetAllPlatformState());
     }
 
     @GetMapping("/infra/nodes")

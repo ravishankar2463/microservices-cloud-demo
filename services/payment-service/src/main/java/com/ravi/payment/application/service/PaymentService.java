@@ -100,4 +100,9 @@ public class PaymentService {
     public Optional<Payment> getPaymentById(Long id) {
         return paymentRepository.findById(id);
     }
+
+    public void resetAll() {
+        paymentRepository.deleteAll();
+        log.info("Cleared all payment transactions and idempotency keys from payment_db.");
+    }
 }

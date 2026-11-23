@@ -28,7 +28,10 @@ $portMappings = @(
     @{ Service = "inventory-service";    LocalPort = 8082; SvcPort = 8082; Name = "Inventory Service" },
     @{ Service = "notification-service"; LocalPort = 8083; SvcPort = 8083; Name = "Notification Service" },
     @{ Service = "payment-service";      LocalPort = 8084; SvcPort = 8084; Name = "Payment Service" },
-    @{ Service = "product-service";      LocalPort = 8085; SvcPort = 8085; Name = "Product Service" }
+    @{ Service = "product-service";      LocalPort = 8085; SvcPort = 8085; Name = "Product Service" },
+    @{ Service = "adminer";              LocalPort = 8091; SvcPort = 8080; Name = "PostgreSQL UI (Adminer)" },
+    @{ Service = "redis-commander";      LocalPort = 8092; SvcPort = 8081; Name = "Redis UI (Redis Commander)" },
+    @{ Service = "redpanda-console";     LocalPort = 8093; SvcPort = 8080; Name = "Kafka UI (Redpanda Console)" }
 )
 
 # Terminate existing kubectl port-forward processes

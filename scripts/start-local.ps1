@@ -565,9 +565,9 @@ Write-Host @"
  Product Service:          http://localhost:8085
  Keycloak IAM:             http://localhost:8088 (NodePort: 30088 in K8s)
  LocalStack AWS Emulator:  http://localhost:4566
- Apache Kafka:             localhost:9092
- Redis Cache:              localhost:6379
- PostgreSQL Databases:     Order (5432), Product (5433), Payment (5434)
+ Apache Kafka:             localhost:9092 (UI: http://localhost:8093)
+ Redis Cache:              localhost:6379 (UI: http://localhost:8092)
+ PostgreSQL Databases:     Order (5432), Product (5433), Payment (5434) (UI: http://localhost:8091)
 ========================================================================
 "@ -ForegroundColor Green
 

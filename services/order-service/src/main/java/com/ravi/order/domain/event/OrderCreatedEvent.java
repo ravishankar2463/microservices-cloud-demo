@@ -14,14 +14,20 @@ public record OrderCreatedEvent(
         String customerId,
         List<ItemPayload> items,
         BigDecimal totalAmount,
+        String eventType,
         Instant occurredAt
 ) implements OrderEvent {
 
     public static final String EVENT_TYPE = "ORDER_CREATED";
 
-    @Override
-    public String eventType() {
-        return EVENT_TYPE;
+    public OrderCreatedEvent(
+            UUID eventId,
+            UUID orderId,
+            String customerId,
+            List<ItemPayload> items,
+            BigDecimal totalAmount,
+            Instant occurredAt) {
+        this(eventId, orderId, customerId, items, totalAmount, EVENT_TYPE, occurredAt);
     }
 
     public record ItemPayload(

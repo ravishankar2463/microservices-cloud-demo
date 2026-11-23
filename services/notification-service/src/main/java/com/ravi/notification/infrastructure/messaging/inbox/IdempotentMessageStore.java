@@ -38,4 +38,9 @@ public class IdempotentMessageStore {
     public boolean isProcessed(String eventId) {
         return processedMessageIds.contains(eventId);
     }
+
+    public void clearAll() {
+        processedMessageIds.clear();
+        log.info("Cleared idempotent message deduplication store.");
+    }
 }

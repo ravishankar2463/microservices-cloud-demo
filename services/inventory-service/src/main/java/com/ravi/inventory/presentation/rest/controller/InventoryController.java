@@ -72,4 +72,13 @@ public class InventoryController {
             ));
         }
     }
+
+    @PostMapping("/reset")
+    public ResponseEntity<?> resetInventory() {
+        reservationService.resetAll();
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Inventory restored to initial stock levels and active reservations cleared"
+        ));
+    }
 }

@@ -127,12 +127,22 @@ public class InfrastructureStateInspectorService {
             }
         }
 
-        // 4. AWS S3 comparison
-        if (after.aws().objectCount() != before.aws().objectCount() || (!before.aws().invoiceFound() && after.aws().invoiceFound())) {
-            String s3Highlight = String.format("AWS S3 (%s): Invoice document archived (+%d object stored)",
-                after.aws().s3Bucket(), after.aws().objectCount() - before.aws().objectCount());
+        // 4. AWS S3 comparison (only emit diff when objects are actually added or removed in S3)
+        int s3Delta = after.aws().objectCount() - before.aws().objectCount();
+        boolean s3Added = s3Delta > 0 || (!before.aws().invoiceFound() && after.aws().invoiceFound());
+        boolean s3Removed = s3Delta < 0 || (before.aws().invoiceFound() && !after.aws().invoiceFound());
+        if (s3Added) {
+            String keyLabel = after.aws().invoiceKey() != null ? after.aws().invoiceKey() : "object";
+            String s3Highlight = String.format("AWS S3 (%s): Added %s (+%d object stored)",
+                after.aws().s3Bucket(), keyLabel, Math.max(1, s3Delta));
             highlights.add(s3Highlight);
-            details.put("aws.s3_invoice", "Archived object: " + after.aws().invoiceKey());
+            details.put("aws.s3_invoice", "Added object: " + keyLabel);
+        } else if (s3Removed) {
+            String keyLabel = before.aws().invoiceKey() != null ? before.aws().invoiceKey() : "object";
+            String s3Highlight = String.format("AWS S3 (%s): Removed %s (%d object)",
+                after.aws().s3Bucket(), keyLabel, Math.min(-1, s3Delta));
+            highlights.add(s3Highlight);
+            details.put("aws.s3_invoice", "Removed object: " + keyLabel);
         }
 
         if (highlights.isEmpty()) {
@@ -293,18 +303,22 @@ public class InfrastructureStateInspectorService {
 
     private KafkaState inspectKafkaState(String topicName) {
         String topic = (topicName != null && !topicName.isBlank()) ? topicName : "order-events";
-        List<EventRecord> events = kafkaEventService.getEvents(topic, null, 100);
-        long offset = events.size();
-        String lastKey = events.isEmpty() ? null : events.getFirst().correlationId();
-
-        return new KafkaState(topic, offset, lastKey);
+        List<EventRecord> events = kafkaEventService.getEvents(topic, null, 200);
+        if (events.isEmpty()) {
+            return new KafkaState(topic, 0, null);
+        }
+        EventRecord latest = events.getFirst();
+        long offset = (latest.offset() >= 0) ? latest.offset() : events.size();
+        return new KafkaState(topic, offset, latest.correlationId());
     }
 
     private AwsState inspectAwsState(String orderId) {
         String bucket = "order-invoices-bucket";
         int count = 0;
         boolean found = false;
-        String invoiceKey = (orderId != null) ? "invoices/" + orderId + ".json" : "invoices/latest.json";
+        String expectedKey = (orderId != null && !orderId.isBlank())
+            ? "invoices/" + orderId + ".json"
+            : null;
 
         try {
             String xml = restClient.get()
@@ -314,12 +328,12 @@ public class InfrastructureStateInspectorService {
 
             if (xml != null && xml.contains("<Key>")) {
                 count = (xml.split("<Key>").length - 1);
-                found = (orderId != null && xml.contains(orderId)) || count > 0;
+                found = expectedKey != null && xml.contains("<Key>" + expectedKey + "</Key>");
             }
         } catch (Exception ignored) {}
 
-        // Also check notification-service archive endpoint if LocalStack S3 bucket has not been populated directly
-        if (!found && orderId != null && !orderId.isBlank()) {
+        // Also check notification-service archive endpoint if LocalStack S3 bucket listing did not return the key yet
+        if (!found && expectedKey != null) {
             try {
                 String notifResp = restClient.get()
                     .uri(notificationUrl + "/api/notifications/invoices/" + orderId)
@@ -332,6 +346,6 @@ public class InfrastructureStateInspectorService {
             } catch (Exception ignored) {}
         }
 
-        return new AwsState(bucket, count, found, invoiceKey);
+        return new AwsState(bucket, count, found, found ? expectedKey : null);
     }
 }

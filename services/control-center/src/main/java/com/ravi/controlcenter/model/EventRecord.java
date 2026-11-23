@@ -11,6 +11,20 @@ public record EventRecord(
     String status,        // PUBLISHED, CONSUMED, FAILED
     String maskedPayload,
     String correlationId,
-    Instant timestamp
+    Instant timestamp,
+    int partition,
+    long offset
 ) {
+    public EventRecord(
+            String eventId,
+            String eventType,
+            String topic,
+            String producer,
+            String consumer,
+            String status,
+            String maskedPayload,
+            String correlationId,
+            Instant timestamp) {
+        this(eventId, eventType, topic, producer, consumer, status, maskedPayload, correlationId, timestamp, 0, -1L);
+    }
 }

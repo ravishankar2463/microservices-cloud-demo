@@ -13,7 +13,7 @@ import java.util.UUID;
 
 /**
  * Saga Orchestrator coordinating cross-service distributed workflows.
- * Listens for payment callback events on Kafka and executes confirmation or compensation.
+ * Listens for inventory and payment callback events on Kafka and executes confirmation or compensation.
  */
 @Component
 public class OrderSagaOrchestrator {
@@ -26,6 +26,38 @@ public class OrderSagaOrchestrator {
     public OrderSagaOrchestrator(OrderCommandHandler orderCommandHandler, ObjectMapper objectMapper) {
         this.orderCommandHandler = orderCommandHandler;
         this.objectMapper = objectMapper;
+    }
+
+    @KafkaListener(
+            topics = "inventory-events",
+            groupId = "order-saga-inventory-group",
+            autoStartup = "${order.saga.kafka.auto-startup:true}"
+    )
+    public void onInventoryEvent(String payload) {
+        try {
+            JsonNode root = objectMapper.readTree(payload);
+            String orderIdStr = root.path("orderId").asText();
+            if (orderIdStr.isBlank()) {
+                log.warn("Received inventory event without valid orderId: {}", payload);
+                return;
+            }
+
+            UUID orderId = UUID.fromString(orderIdStr);
+            String eventType = root.path("eventType").asText("");
+
+            if ("INVENTORY_REJECTED".equalsIgnoreCase(eventType) || eventType.contains("Reject")) {
+                String reason = root.path("reason").asText("Insufficient stock");
+                log.warn("SAGA ORCHESTRATION: Inventory REJECTED for order {} ({}). Cancelling order...", orderId, reason);
+                orderCommandHandler.handle(new CancelOrderCommand(orderId, "Inventory rejected: " + reason));
+            } else if ("INVENTORY_COMMITTED".equalsIgnoreCase(eventType) || eventType.contains("Commit")) {
+                log.info("SAGA ORCHESTRATION: Inventory COMMITTED for dispatch on order {}. Marking order COMPLETED...", orderId);
+                orderCommandHandler.completeOrder(orderId);
+            } else if ("INVENTORY_RESERVED".equalsIgnoreCase(eventType)) {
+                log.info("SAGA ORCHESTRATION: Inventory RESERVED for order {}. Awaiting payment processing.", orderId);
+            }
+        } catch (Exception e) {
+            log.error("Error processing inventory event in OrderSagaOrchestrator: {}", e.getMessage(), e);
+        }
     }
 
     @KafkaListener(

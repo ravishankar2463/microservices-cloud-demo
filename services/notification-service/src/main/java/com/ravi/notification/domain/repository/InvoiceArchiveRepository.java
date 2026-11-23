@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface InvoiceArchiveRepository {
     void save(Invoice invoice);
     Optional<Invoice> findByOrderId(String orderId);
+    int clearAll();
 }

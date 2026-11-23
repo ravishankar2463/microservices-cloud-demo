@@ -15,6 +15,12 @@ public class InMemoryInventoryRepositoryAdapter implements InventoryRepository {
     private final Map<String, InventoryItem> store = new ConcurrentHashMap<>();
 
     public InMemoryInventoryRepositoryAdapter() {
+        resetToDefaults();
+    }
+
+    @Override
+    public void resetToDefaults() {
+        store.clear();
         store.put("PROD-LAPTOP", new InventoryItem("PROD-LAPTOP", "Dev Laptop Pro", 50, 0));
         store.put("PROD-MOUSE", new InventoryItem("PROD-MOUSE", "Ergonomic Mouse", 150, 0));
         store.put("PROD-KEYBOARD", new InventoryItem("PROD-KEYBOARD", "Mechanical Keyboard", 80, 0));

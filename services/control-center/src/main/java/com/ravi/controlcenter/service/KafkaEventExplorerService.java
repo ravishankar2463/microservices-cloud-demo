@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class KafkaEventExplorerService {
 
     private final Deque<EventRecord> eventHistory = new ConcurrentLinkedDeque<>();
-    private static final int MAX_EVENTS = 200;
+    private static final int MAX_EVENTS = 500;
 
     private static final Pattern CARD_PATTERN = Pattern.compile("(?i)(\"(?:cardNumber|card_number|pan)\"\\s*:\\s*)[0-9\"-]+");
     private static final Pattern CVV_PATTERN = Pattern.compile("(?i)(\"(?:cvv|cvc)\"\\s*:\\s*)[0-9\"A-Za-z]+");
@@ -23,11 +23,17 @@ public class KafkaEventExplorerService {
     }
 
     public List<EventRecord> getEvents(String topic, String status, int limit) {
+        return getEvents(topic, status, null, limit);
+    }
+
+    public List<EventRecord> getEvents(String topic, String status, String query, int limit) {
+        String normalizedQuery = (query != null && !query.isBlank()) ? query.trim().toLowerCase() : null;
         return eventHistory.stream()
             .filter(e -> topic == null || topic.isBlank() || e.topic().equalsIgnoreCase(topic))
             .filter(e -> status == null || status.isBlank() || e.status().equalsIgnoreCase(status))
+            .filter(e -> normalizedQuery == null || matchesQuery(e, normalizedQuery))
             .sorted(Comparator.comparing(EventRecord::timestamp).reversed())
-            .limit(limit > 0 ? limit : 50)
+            .limit(limit > 0 ? limit : 100)
             .toList();
     }
 
@@ -42,7 +48,9 @@ public class KafkaEventExplorerService {
             event.status(),
             safePayload,
             event.correlationId(),
-            event.timestamp() != null ? event.timestamp() : Instant.now()
+            event.timestamp() != null ? event.timestamp() : Instant.now(),
+            event.partition(),
+            event.offset()
         );
         eventHistory.addFirst(sanitized);
         while (eventHistory.size() > MAX_EVENTS) {
@@ -61,6 +69,31 @@ public class KafkaEventExplorerService {
             "inventory-events",
             "order-events-dlq"
         );
+    }
+
+    private boolean matchesQuery(EventRecord e, String q) {
+        if (containsIgnoreCase(e.correlationId(), q)) return true;
+        if (containsIgnoreCase(e.eventId(), q)) return true;
+        if (containsIgnoreCase(e.eventType(), q)) return true;
+        if (containsIgnoreCase(e.topic(), q)) return true;
+        if (containsIgnoreCase(e.producer(), q)) return true;
+        if (containsIgnoreCase(e.consumer(), q)) return true;
+        if (containsIgnoreCase(e.maskedPayload(), q)) return true;
+        if (e.offset() >= 0) {
+            String offsetStr = String.valueOf(e.offset());
+            if (offsetStr.equals(q) || ("offset " + offsetStr).contains(q) || ("#" + offsetStr).equals(q)) {
+                return true;
+            }
+            String partOffset = "p" + e.partition() + ":" + offsetStr;
+            if (partOffset.contains(q) || ("partition " + e.partition()).contains(q)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsIgnoreCase(String value, String q) {
+        return value != null && value.toLowerCase().contains(q);
     }
 
     private String maskSensitiveData(String payload) {

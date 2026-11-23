@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ArchitectureTopologyService {
@@ -18,32 +21,54 @@ public class ArchitectureTopologyService {
     }
 
     public ArchitectureTopology getTopology() {
-        List<ServiceNode> nodes = new ArrayList<>(registryService.discoverAllServices());
+        List<ServiceNode> allRegistered = registryService.discoverAllServices();
+        Map<String, ServiceNode> byId = allRegistered.stream()
+            .collect(Collectors.toMap(ServiceNode::id, Function.identity(), (a, b) -> a));
 
-        // Add infrastructure nodes
+        List<ServiceNode> nodes = new ArrayList<>(
+            allRegistered.stream().filter(n -> !"INFRA".equals(n.type())).toList()
+        );
+
+        // Map live-probed INFRA nodes into topology categories (BROKER, CACHE, DATABASE) without duplication
+        ServiceNode kafkaLive = byId.get("kafka");
+        ServiceNode redisLive = byId.get("inventory-redis");
+        ServiceNode orderDbLive = byId.get("order-db");
+        ServiceNode productDbLive = byId.get("product-db");
+        ServiceNode paymentDbLive = byId.get("payment-db");
+
         nodes.add(new ServiceNode(
-            "kafka", "Apache Kafka", "BROKER", 9092, "http://localhost:9092",
-            "UP", 1, "KRaft Event Streaming Backbone for Event-Driven Architecture",
+            "kafka", "Apache Kafka", "BROKER", 9092, "localhost:9092",
+            kafkaLive != null ? kafkaLive.status() : "DOWN",
+            kafkaLive != null ? kafkaLive.responseTimeMs() : -1,
+            "KRaft Event Streaming Backbone for Event-Driven Architecture",
             "None", List.of(), List.of("order-events", "payment-events", "inventory-events"), List.of()
         ));
         nodes.add(new ServiceNode(
-            "redis", "Redis Cache & Locks", "CACHE", 6379, "http://localhost:6379",
-            "UP", 1, "Sub-millisecond Distributed Concurrency Locking & CQRS Cache-Aside",
+            "redis", "Redis Cache & Locks", "CACHE", 6379, "localhost:6379",
+            redisLive != null ? redisLive.status() : "DOWN",
+            redisLive != null ? redisLive.responseTimeMs() : -1,
+            "Sub-millisecond Distributed Concurrency Locking & CQRS Cache-Aside",
             "Redis 7.2 Alpine", List.of(), List.of(), List.of()
         ));
         nodes.add(new ServiceNode(
-            "order-db", "Order DB (PostgreSQL)", "DATABASE", 5432, "jdbc:postgresql://localhost:5432/order_db",
-            "UP", 1, "Isolated transactional store for orders, items, and transactional outbox",
+            "order-db", "Order DB (PostgreSQL)", "DATABASE", 5432, "localhost:5432",
+            orderDbLive != null ? orderDbLive.status() : "DOWN",
+            orderDbLive != null ? orderDbLive.responseTimeMs() : -1,
+            "Isolated transactional store for orders, items, and transactional outbox",
             "PostgreSQL 16", List.of(), List.of(), List.of()
         ));
         nodes.add(new ServiceNode(
-            "product-db", "Product DB (PostgreSQL)", "DATABASE", 5433, "jdbc:postgresql://localhost:5433/product_db",
-            "UP", 1, "Catalog relational store with Flyway schema versioning",
+            "product-db", "Product DB (PostgreSQL)", "DATABASE", 5433, "localhost:5433",
+            productDbLive != null ? productDbLive.status() : "DOWN",
+            productDbLive != null ? productDbLive.responseTimeMs() : -1,
+            "Catalog relational store with Flyway schema versioning",
             "PostgreSQL 16", List.of(), List.of(), List.of()
         ));
         nodes.add(new ServiceNode(
-            "payment-db", "Payment DB (PostgreSQL)", "DATABASE", 5434, "jdbc:postgresql://localhost:5434/payment_db",
-            "UP", 1, "Payment ledger with idempotency keys and simulated gateway audit",
+            "payment-db", "Payment DB (PostgreSQL)", "DATABASE", 5434, "localhost:5434",
+            paymentDbLive != null ? paymentDbLive.status() : "DOWN",
+            paymentDbLive != null ? paymentDbLive.responseTimeMs() : -1,
+            "Payment ledger with idempotency keys and simulated gateway audit",
             "PostgreSQL 16", List.of(), List.of(), List.of()
         ));
 

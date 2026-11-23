@@ -12,6 +12,7 @@ resources:
   - infra/postgres.yaml
   - infra/redis.yaml
   - infra/keycloak.yaml
+  - infra/infra-uis.yaml
   - services/api-gateway.yaml
   - services/order-service.yaml
   - services/inventory-service.yaml

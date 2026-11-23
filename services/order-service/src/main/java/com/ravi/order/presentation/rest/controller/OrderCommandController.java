@@ -46,4 +46,13 @@ public class OrderCommandController {
                 "message", "Order cancelled successfully"
         ));
     }
+
+    @PostMapping("/reset")
+    public ResponseEntity<Map<String, Object>> resetOrders() {
+        commandHandler.resetAll();
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "All orders, outbox events, and CQRS cache entries cleared"
+        ));
+    }
 }

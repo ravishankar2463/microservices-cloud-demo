@@ -9,19 +9,21 @@
   <title>Microservices Control Center | Local Architecture & Operations</title>
   <style>
     :root {
-      --bg-dark: #0b0f19;
-      --bg-panel: #111827;
-      --bg-card: #1f2937;
-      --bg-card-hover: #374151;
-      --border-color: #374151;
-      --text-main: #f9fafb;
-      --text-muted: #9ca3af;
-      --accent-blue: #3b82f6;
+      --bg-dark: #09090b;
+      --bg-panel: #121215;
+      --bg-card: #18181b;
+      --bg-card-hover: #27272a;
+      --border-color: #27272a;
+      --border-subtle: #1f1f23;
+      --text-main: #fafafa;
+      --text-body: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --accent-blue: #38bdf8;
       --accent-cyan: #06b6d4;
       --accent-green: #10b981;
       --accent-amber: #f59e0b;
-      --accent-red: #ef4444;
-      --accent-purple: #8b5cf6;
+      --accent-red: #f43f5e;
+      --accent-purple: #a855f7;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
@@ -100,9 +102,9 @@
     }
 
     .nav-item.active {
-      background-color: rgba(59, 130, 246, 0.15);
-      color: var(--accent-cyan);
-      border-left: 3px solid var(--accent-cyan);
+      background-color: rgba(56, 189, 248, 0.12);
+      color: var(--accent-blue);
+      border-left: 3px solid var(--accent-blue);
     }
 
     .nav-icon {
@@ -283,7 +285,7 @@
     .data-table th {
       text-align: left;
       padding: 10px 14px;
-      background-color: rgba(31, 41, 55, 0.5);
+      background-color: #18181b;
       color: var(--text-muted);
       border-bottom: 1px solid var(--border-color);
       font-weight: 600;
@@ -296,7 +298,7 @@
     }
 
     .data-table tr:hover td {
-      background-color: rgba(55, 65, 81, 0.3);
+      background-color: #1c1c21;
     }
 
     .badge {
@@ -335,7 +337,7 @@
     /* Architecture Visualizer SVG */
     #architecture-canvas-container {
       position: relative;
-      background-color: #0d121f;
+      background-color: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       height: 600px;
@@ -732,66 +734,596 @@
       user-select: none;
     }
 
-    /* Learning Center Cards */
+    /* Learning Center Showcase Styles */
+    .learning-hero {
+      background: #121215;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .learning-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+
+    .learning-hero-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .learning-hero-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 820px;
+      margin-bottom: 18px;
+    }
+
+    .learning-hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .learning-stat-card {
+      background: #18181b;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .learning-stat-val {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .learning-stat-lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .learning-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .learning-filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .learning-filter-btn {
+      background: #18181b;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .learning-filter-btn:hover {
+      background: #27272a;
+      color: var(--text-main);
+      border-color: #3f3f46;
+    }
+
+    .learning-filter-btn.active {
+      background: var(--accent-blue);
+      color: #09090b;
+      border-color: var(--accent-blue);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);
+    }
+
+    .learning-search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #18181b;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 7px 12px;
+      min-width: 300px;
+      flex-grow: 1;
+      max-width: 420px;
+    }
+
+    .learning-search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .learning-search-box input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Compact Catalog Cards Grid */
     .learning-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 16px;
     }
 
     .learning-card {
-      background: var(--bg-panel);
+      background: #121215;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 20px;
+      border-radius: 10px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      transition: transform 0.15s, border-color 0.15s;
+      justify-content: space-between;
+      min-height: 190px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      position: relative;
     }
 
     .learning-card:hover {
-      border-color: var(--accent-blue);
+      border-color: #3f3f46;
+      background: #16161a;
       transform: translateY(-2px);
+      box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    .learning-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .learning-category {
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
       font-weight: 700;
-      color: var(--accent-cyan);
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      letter-spacing: 0.5px;
+    }
+
+    .learning-services-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .service-tag {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #18181b;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
     }
 
     .learning-title {
-      font-size: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin: 10px 0 6px 0;
+    }
+
+    .learning-concept-snippet {
+      font-size: 12px;
+      color: var(--text-body);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .learning-card-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .learning-files-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .learning-inspect-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
       font-weight: 600;
+      color: var(--accent-blue);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .learning-card:hover .learning-inspect-btn {
+      text-decoration: underline;
+    }
+
+    /* Inspection Slide-out Drawer */
+    .learning-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .learning-drawer-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .learning-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 620px;
+      max-width: 92vw;
+      height: 100vh;
+      background: #121215;
+      border-left: 1px solid var(--border-color);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .learning-drawer.active {
+      transform: translateX(0);
+    }
+
+    .learning-drawer-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #151518;
+    }
+
+    .drawer-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .drawer-close-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      transition: all 0.15s ease;
+    }
+
+    .drawer-close-btn:hover {
+      background: #27272a;
+      color: var(--text-main);
+      border-color: #3f3f46;
+    }
+
+    .drawer-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+    }
+
+    .drawer-tabs {
+      display: flex;
+      background: #18181b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 16px;
+    }
+
+    .drawer-tab {
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .drawer-tab:hover {
       color: var(--text-main);
     }
 
-    .learning-problem {
-      font-size: 12px;
-      color: #e5e7eb;
-      line-height: 1.5;
-      background: rgba(0,0,0,0.2);
-      padding: 8px;
-      border-radius: 4px;
+    .drawer-tab.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .drawer-tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drawer-tab-pane.active {
+      display: flex;
+    }
+
+    /* Section Callouts inside Drawer */
+    .drawer-callout {
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .drawer-callout-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drawer-callout-text {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .callout-challenge {
+      background: rgba(245, 158, 11, 0.05);
+      border: 1px solid rgba(245, 158, 11, 0.2);
       border-left: 3px solid var(--accent-amber);
     }
+    .callout-challenge .drawer-callout-label { color: var(--accent-amber); }
+    .callout-challenge .drawer-callout-text { color: var(--text-main); }
 
-    .learning-concept {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.5;
+    .callout-concept {
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-left: 3px solid var(--accent-blue);
+    }
+    .callout-concept .drawer-callout-label { color: var(--accent-blue); }
+    .callout-concept .drawer-callout-text { color: var(--text-main); }
+
+    .callout-impl {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-left: 3px solid var(--accent-green);
+    }
+    .callout-impl .drawer-callout-label { color: var(--accent-green); }
+    .callout-impl .drawer-callout-text { color: var(--text-body); }
+
+    .drawer-tradeoffs-box {
+      background: #18181b;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .learning-code-ref {
+    .drawer-tradeoffs-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .drawer-tradeoffs-text {
+      font-size: 13px;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    /* Code Reference Items */
+    .learning-code-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .learning-code-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #18181b;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      gap: 12px;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .learning-code-item:hover {
+      border-color: #3f3f46;
+      background: #1c1c21;
+    }
+
+    .learning-code-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    .learning-code-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .learning-code-path {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--accent-cyan);
-      background: #0f172a;
-      padding: 6px 10px;
-      border-radius: 4px;
-      border: 1px solid #1e293b;
+      color: var(--accent-blue);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .learning-code-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .learning-open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #2563eb;
+      color: #fff;
+      border: 1px solid #3b82f6;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .learning-open-btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .learning-open-btn:active {
+      transform: translateY(0);
+    }
+
+    .learning-open-btn.launching {
+      background: #27272a;
+      border-color: #3f3f46;
+      cursor: wait;
+      opacity: 0.8;
+    }
+
+    .learning-tab-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      align-self: flex-start;
+    }
+
+    .learning-tab-link:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-blue);
+    }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulseAnimation 2s infinite;
+    }
+
+    @keyframes pulseAnimation {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
     }
 
     /* Operation Scenarios Runner */
@@ -1181,6 +1713,9 @@
           <span>🪵</span> Service &amp; Pod Logs
         </button>
         <span id="last-refresh" style="font-size: 12px; color: var(--text-muted);">Just now</span>
+        <button id="btn-reset-all" class="btn" style="background: rgba(239, 68, 68, 0.16); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; font-weight: 600;" onclick="resetPlatformState()" title="Reset all databases, inventory stock, LocalStack S3 invoices, Sagas, and Kafka Explorer">
+          <span>🧹</span> Reset All
+        </button>
         <button class="btn" onclick="refreshDashboard()">
           <span>🔄</span> Refresh
         </button>
@@ -1381,18 +1916,18 @@
     <div id="view-services" class="view-content">
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title">📦 Registered Ecosystem Microservices</div>
+          <div class="panel-title">📦 Registered Ecosystem Services & Infrastructure</div>
         </div>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Service</th>
+              <th>Service / Component</th>
               <th>Type</th>
               <th>Port</th>
-              <th>Base URL</th>
+              <th>Endpoint</th>
               <th>Status</th>
               <th>Response Time</th>
-              <th>Database</th>
+              <th>Database / Engine</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -1406,15 +1941,19 @@
     <!-- TAB 5: Kafka & Events -->
     <div id="view-events" class="view-content">
       <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">📬 Real-Time Kafka Event Explorer (KRaft Event Stream)</div>
+        <div class="panel-header" style="flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div class="panel-title">📬 Real-Time Kafka Event Explorer (KRaft Event Stream)</div>
+            <span id="event-search-count" class="badge badge-info" style="font-size: 11px;">0 events</span>
+          </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <button id="btn-toggle-all-events" class="btn" onclick="toggleAllKafkaEventPayloads()" title="Expand or collapse all Kafka message payloads">
-              <span>📂</span> Expand All Payloads
-            </button>
-            <button class="btn" style="background: rgba(59, 130, 246, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 600;" onclick="openNodeLogsDirect('kafka')">
-              <span>🪵</span> View Live Kafka Broker Logs
-            </button>
+            <div style="position: relative; display: flex; align-items: center;">
+              <input id="event-search-input" type="text" placeholder="🔍 Search Correlation Key, Order ID, Offset, Event Type..."
+                oninput="onKafkaEventSearchInput()"
+                style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 6px 28px 6px 10px; color: #e2e8f0; font-size: 12px; font-family: var(--font-mono); width: 320px;" />
+              <button id="btn-clear-event-search" onclick="clearKafkaEventSearch()" title="Clear search"
+                style="display: none; position: absolute; right: 6px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 12px; padding: 2px 4px;">✕</button>
+            </div>
             <select id="event-topic-select" class="btn" onchange="loadEvents()">
               <option value="">All Topics</option>
               <option value="order-events">order-events</option>
@@ -1422,16 +1961,22 @@
               <option value="inventory-events">inventory-events</option>
               <option value="order-events-dlq">order-events-dlq</option>
             </select>
+            <button id="btn-toggle-all-events" class="btn" onclick="toggleAllKafkaEventPayloads()" title="Expand or collapse all Kafka message payloads">
+              <span>📂</span> Expand All Payloads
+            </button>
+            <button class="btn" style="background: rgba(59, 130, 246, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 600;" onclick="openNodeLogsDirect('kafka')">
+              <span>🪵</span> View Live Kafka Broker Logs
+            </button>
           </div>
         </div>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Event ID</th>
+              <th>Partition / Offset</th>
               <th>Event Type</th>
               <th>Topic</th>
+              <th>Correlation Key</th>
               <th>Producer ➔ Consumer</th>
-              <th>Status</th>
               <th>Kafka Message Payload</th>
               <th>Timestamp</th>
             </tr>
@@ -1488,12 +2033,117 @@
 
     <!-- TAB 7: Learning Center -->
     <div id="view-learning" class="view-content">
-      <div style="margin-bottom: 20px;">
-        <h2 style="font-size: 16px; margin-bottom: 6px;">Microservices Architectural Learning Center</h2>
-        <p style="font-size: 13px; color: var(--text-muted);">Explore the core architectural patterns, design motivations, code implementations, and trade-offs used across this demo project.</p>
+      <!-- Showcase Hero Section -->
+      <div class="learning-hero">
+        <div class="learning-hero-content">
+          <div class="learning-hero-badge">🏛️ ARCHITECTURAL SHOWCASE &amp; EXPLORATION HUB</div>
+          <h2 class="learning-hero-title">Microservices Architectural Learning Center</h2>
+          <p class="learning-hero-desc">
+            Explore production-grade distributed systems patterns implemented across this multi-service demo platform.
+            Every pattern is mapped directly to real source code files with instant deep-linking to VS Code or Notepad.
+          </p>
+          <div class="learning-hero-stats">
+            <div class="learning-stat-card">
+              <span class="learning-stat-val" id="stat-patterns-count">12</span>
+              <span class="learning-stat-lbl">Architectural Patterns</span>
+            </div>
+            <div class="learning-stat-card">
+              <span class="learning-stat-val" id="stat-files-count">35+</span>
+              <span class="learning-stat-lbl">Linked Source Files</span>
+            </div>
+            <div class="learning-stat-card">
+              <span class="learning-stat-val">13</span>
+              <span class="learning-stat-lbl">Services &amp; Nodes</span>
+            </div>
+            <div class="learning-stat-card">
+              <span class="learning-stat-val" id="stat-editor-status"><span class="pulse-dot"></span> Detecting...</span>
+              <span class="learning-stat-lbl">Host Editor Integration</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- Controls: Category Filter Bar & Live Search -->
+      <div class="learning-controls">
+        <div class="learning-filter-group" id="learning-category-filters">
+          <button class="learning-filter-btn active" data-category="ALL" onclick="filterLearningCategory('ALL')">All Patterns</button>
+          <button class="learning-filter-btn" data-category="Distributed Transactions" onclick="filterLearningCategory('Distributed Transactions')">Distributed Sagas</button>
+          <button class="learning-filter-btn" data-category="Data Architecture" onclick="filterLearningCategory('Data Architecture')">CQRS &amp; Data</button>
+          <button class="learning-filter-btn" data-category="Edge & Security" onclick="filterLearningCategory('Edge & Security')">Edge &amp; Security</button>
+          <button class="learning-filter-btn" data-category="Event-Driven Backbone" onclick="filterLearningCategory('Event-Driven Backbone')">Kafka Messaging</button>
+          <button class="learning-filter-btn" data-category="Concurrency & Cloud" onclick="filterLearningCategory('Concurrency & Cloud')">Concurrency &amp; Cloud</button>
+        </div>
+        <div class="learning-search-box">
+          <span style="color: var(--text-muted); font-size: 14px;">🔍</span>
+          <input type="text" id="learning-search-input" placeholder="Search patterns, files, services, or trade-offs..." oninput="handleLearningSearch(this.value)">
+        </div>
+      </div>
+
+      <!-- Pattern Cards Showcase Grid -->
       <div class="learning-grid" id="learning-grid">
-        <!-- Populated dynamically -->
+        <!-- Populated dynamically by loadLearningPatterns() -->
+      </div>
+
+      <!-- Pattern Inspection Slide-out Drawer -->
+      <div class="learning-drawer-backdrop" id="learning-drawer-backdrop" onclick="closePatternDrawer()"></div>
+      <div class="learning-drawer" id="learning-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-pattern-title">
+        <div class="learning-drawer-header">
+          <div class="drawer-top-row">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span class="learning-category" id="drawer-category">CATEGORY</span>
+              <div class="learning-services-tags" id="drawer-services"></div>
+            </div>
+            <button class="drawer-close-btn" onclick="closePatternDrawer()" title="Close (Esc)" aria-label="Close Inspection Drawer">✕</button>
+          </div>
+          <h2 class="drawer-title" id="drawer-pattern-title">Pattern Title</h2>
+        </div>
+
+        <div class="drawer-tabs">
+          <button class="drawer-tab active" data-tab="concept" onclick="switchDrawerTab('concept')">
+            <span>🏛️</span> Concept &amp; Demo
+          </button>
+          <button class="drawer-tab" data-tab="code" onclick="switchDrawerTab('code')">
+            <span>📂</span> Source Code Files (<span id="drawer-code-count">0</span>)
+          </button>
+          <button class="drawer-tab" data-tab="tradeoffs" onclick="switchDrawerTab('tradeoffs')">
+            <span>⚖️</span> Trade-Offs &amp; Live Actions
+          </button>
+        </div>
+
+        <div class="drawer-body">
+          <!-- Tab 1: Architecture Concept -->
+          <div class="drawer-tab-pane active" id="drawer-pane-concept">
+            <div class="drawer-callout callout-challenge">
+              <div class="drawer-callout-label">⚠️ Distributed Systems Challenge</div>
+              <div class="drawer-callout-text" id="drawer-problem-text"></div>
+            </div>
+            <div class="drawer-callout callout-concept">
+              <div class="drawer-callout-label">💡 Architectural Concept</div>
+              <div class="drawer-callout-text" id="drawer-concept-text"></div>
+            </div>
+            <div class="drawer-callout callout-impl">
+              <div class="drawer-callout-label">⚙️ Concrete Implementation in Demo</div>
+              <div class="drawer-callout-text" id="drawer-impl-text"></div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Source Code Files -->
+          <div class="drawer-tab-pane" id="drawer-pane-code">
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px;">
+              Click any source file below to open directly in <strong>VS Code</strong> (or <strong>Notepad</strong> if VS Code is unavailable) relative to the cloned workspace.
+            </div>
+            <div class="learning-code-list" id="drawer-code-list"></div>
+          </div>
+
+          <!-- Tab 3: Trade-Offs & Presets -->
+          <div class="drawer-tab-pane" id="drawer-pane-tradeoffs">
+            <div class="drawer-tradeoffs-box">
+              <div class="drawer-tradeoffs-title">Production Trade-Offs &amp; Architectural Considerations</div>
+              <div class="drawer-tradeoffs-text" id="drawer-tradeoffs-text"></div>
+            </div>
+            <div id="drawer-crosstab-container" style="margin-top: 6px;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1943,7 +2593,7 @@
         <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
           You can interact with LocalStack using standard AWS CLI, AWS SDKs, or curl without real AWS credentials or charges:
         </div>
-        <div style="background: #0d121f; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; font-family: var(--font-mono); font-size: 12px; color: #a5f3fc; line-height: 1.8;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; font-family: var(--font-mono); font-size: 12px; color: #a5f3fc; line-height: 1.8;">
           <div style="color: #6ee7b7;"># 1. Configure dummy test credentials</div>
           <div>export AWS_ACCESS_KEY_ID=test &amp;&amp; export AWS_SECRET_ACCESS_KEY=test &amp;&amp; export AWS_DEFAULT_REGION=us-east-1</div>
           <div style="margin-top: 8px; color: #6ee7b7;"># 2. Interact with S3 Invoices bucket</div>
@@ -1987,6 +2637,7 @@
     let currentActiveTab = 'overview';
 
     function switchTab(tabName) {
+      if (typeof closePatternDrawer === 'function') closePatternDrawer();
       currentActiveTab = tabName;
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
@@ -2036,6 +2687,67 @@
       document.getElementById('last-refresh').innerText = new Date().toLocaleTimeString();
     }
 
+    async function resetPlatformState() {
+      if (!confirm('Reset all platform state?\n\nThis will:\n• Clear PostgreSQL orders, outbox & payments\n• Restore inventory stock to default levels (100/0)\n• Delete archived invoices from AWS LocalStack S3\n• Clear all Sagas, Kafka Event Explorer & UI panels')) {
+        return;
+      }
+      const btn = document.getElementById('btn-reset-all');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Resetting...';
+      }
+      showToast('🧹 Resetting all microservices, databases, S3, and UI state...');
+      try {
+        const res = await fetch(`${API_BASE}/operations/reset`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}'
+        });
+        if (!res.ok) throw new Error('Reset failed with status ' + res.status);
+        const data = await res.json();
+
+        // Clear all client-side UI caches, filters, and operations output panels
+        cachedSagas = [];
+        cachedKafkaEvents = [];
+        expandedKafkaEventIds.clear();
+        expandAllKafkaEvents = false;
+        const toggleBtn = document.getElementById('btn-toggle-all-events');
+        if (toggleBtn) toggleBtn.innerHTML = '<span>📂</span> Expand All Payloads';
+
+        const searchInput = document.getElementById('event-search-input');
+        if (searchInput) searchInput.value = '';
+        const clearSearchBtn = document.getElementById('btn-clear-event-search');
+        if (clearSearchBtn) clearSearchBtn.style.display = 'none';
+        const topicSelect = document.getElementById('event-topic-select');
+        if (topicSelect) topicSelect.value = '';
+
+        const opPanel = document.getElementById('operation-result-panel');
+        if (opPanel) opPanel.style.display = 'none';
+
+        await loadOverview();
+        await Promise.all([
+          loadServices(),
+          loadArchitecture(),
+          loadEvents(),
+          loadSagas(),
+          loadAwsEmulator()
+        ]);
+        document.getElementById('last-refresh').innerText = new Date().toLocaleTimeString();
+
+        const resetSummary = data.components
+          ? Object.entries(data.components).map(([k, v]) => `${k}: ${v}`).join(' | ')
+          : 'All state cleared';
+        showToast(`✅ Platform reset complete (${resetSummary})`);
+      } catch (e) {
+        showToast('❌ Platform reset failed: ' + e.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🧹</span> Reset All';
+        }
+      }
+    }
+
     async function loadOverview() {
       try {
         const res = await fetch(`${API_BASE}/overview`);
@@ -2067,15 +2779,29 @@
         if (!res.ok) return;
         const services = await res.json();
         const tbody = document.getElementById('services-table-body');
-        tbody.innerHTML = services.map(s => `
+        const infraUiLinks = {
+          'order-db':        { url: 'http://localhost:8091/?pgsql=order-db&username=postgres&db=order_db',     label: 'Adminer UI' },
+          'product-db':      { url: 'http://localhost:8091/?pgsql=product-db&username=postgres&db=product_db', label: 'Adminer UI' },
+          'payment-db':      { url: 'http://localhost:8091/?pgsql=payment-db&username=postgres&db=payment_db', label: 'Adminer UI' },
+          'inventory-redis': { url: 'http://localhost:8092',                                                    label: 'Redis UI' },
+          'kafka':           { url: 'http://localhost:8093',                                                    label: 'Kafka UI' }
+        };
+        tbody.innerHTML = services.map(s => {
+          const isHttp = s.baseUrl && s.baseUrl.startsWith('http');
+          const infraUi = infraUiLinks[s.id];
+          const typeBadgeStyle = s.type === 'INFRA'
+            ? 'background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);'
+            : '';
+          return `
           <tr>
             <td style="font-weight: 600;">${escapeHtml(s.name)}</td>
-            <td><span class="badge badge-type">${escapeHtml(s.type)}</span></td>
+            <td><span class="badge badge-type" style="${typeBadgeStyle}">${escapeHtml(s.type)}</span></td>
             <td style="font-family: var(--font-mono);">${s.port}</td>
             <td style="font-family: var(--font-mono); font-size: 11px;">
+              ${isHttp ? `
               <a href="${escapeHtml(s.baseUrl)}" target="_blank" style="color: var(--accent-cyan); text-decoration: none;" title="Open endpoint in browser">
                 ${escapeHtml(s.baseUrl)} ↗
-              </a>
+              </a>` : `<span style="color: #cbd5e1;">${escapeHtml(s.baseUrl)}</span>`}
             </td>
             <td>
               <span class="badge ${s.status === 'UP' ? 'badge-up' : 'badge-down'}">
@@ -2085,12 +2811,19 @@
             <td style="font-family: var(--font-mono);">${s.responseTimeMs >= 0 ? s.responseTimeMs + ' ms' : 'N/A'}</td>
             <td style="font-size: 12px; color: var(--text-muted);">${escapeHtml(s.database || 'None')}</td>
             <td>
-              <button class="btn" style="padding: 3px 8px; font-size: 11px; background: rgba(59, 130, 246, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan);" onclick="openNodeLogsDirect('${escapeHtml(s.name)}')">
-                🪵 Logs
-              </button>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                ${infraUi ? `
+                <a class="btn" href="${escapeHtml(infraUi.url)}" target="_blank" style="padding: 3px 8px; font-size: 11px; text-decoration: none; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); color: #d8b4fe;" title="Open ${escapeHtml(infraUi.label)} in new tab">
+                  🌐 ${escapeHtml(infraUi.label)} ↗
+                </a>` : ''}
+                <button class="btn" style="padding: 3px 8px; font-size: 11px; background: rgba(59, 130, 246, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan);" onclick="openNodeLogsDirect('${escapeHtml(s.id)}')">
+                  🪵 Logs
+                </button>
+              </div>
             </td>
           </tr>
-        `).join('');
+        `;
+        }).join('');
       } catch (e) {
         console.error('Failed to load services', e);
       }
@@ -2289,31 +3022,43 @@
 
     function renderKafkaEventsTable(events) {
       const tbody = document.getElementById('events-table-body');
+      const countEl = document.getElementById('event-search-count');
+      const searchInput = document.getElementById('event-search-input');
+      const activeQuery = searchInput ? searchInput.value.trim() : '';
+
+      if (countEl) {
+        const count = events ? events.length : 0;
+        countEl.innerText = activeQuery ? `${count} match${count === 1 ? '' : 'es'}` : `${count} event${count === 1 ? '' : 's'}`;
+      }
+
       if (!events || events.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
           <div style="font-size: 24px; margin-bottom: 6px;">📬</div>
-          <div style="font-size: 13px; font-weight: 600; color: #cbd5e1;">No Kafka Events Recorded Yet</div>
-          <div style="font-size: 11px; margin-top: 4px;">Trigger a live flow in the <strong>🚀 Operations Console</strong> or submit orders via API to stream real Kafka events.</div>
+          <div style="font-size: 13px; font-weight: 600; color: #cbd5e1;">${activeQuery ? 'No Kafka Events Match "' + escapeHtml(activeQuery) + '"' : 'No Kafka Events Recorded Yet'}</div>
+          <div style="font-size: 11px; margin-top: 4px;">${activeQuery ? 'Try clearing the topic filter or searching by Correlation Key, Order ID, Offset, or Event Type.' : 'Trigger a live flow in the <strong>🚀 Operations Console</strong> or submit orders via API to stream real Kafka events.'}</div>
         </td></tr>`;
         return;
       }
 
       tbody.innerHTML = events.map((e, idx) => {
-        const key = `${e.eventId || idx}-${e.timestamp || idx}`;
+        const key = `${e.eventId || idx}-${e.offset ?? idx}-${e.timestamp || idx}`;
         const isExpanded = expandAllKafkaEvents || expandedKafkaEventIds.has(key);
         const prettyPayload = formatKafkaJson(e.maskedPayload);
         const keyEsc = escapeHtml(key).replace(/'/g, "\\'");
+        const offsetLabel = (e.offset !== undefined && e.offset !== null && e.offset >= 0)
+          ? `P${e.partition ?? 0} • #${e.offset}`
+          : `P${e.partition ?? 0} • live`;
 
         return `
           <tr onclick="toggleKafkaEventRow('${keyEsc}')" style="cursor: pointer; ${isExpanded ? 'background: rgba(56, 189, 248, 0.06);' : ''}" title="Click to ${isExpanded ? 'collapse' : 'expand'} full Kafka message">
-            <td style="font-family: var(--font-mono); font-size: 11px;">
-              <span style="color: var(--accent-cyan); margin-right: 6px; font-size: 10px;">${isExpanded ? '▼' : '▶'}</span>${escapeHtml(e.eventId)}
+            <td style="font-family: var(--font-mono); font-size: 11px; white-space: nowrap;">
+              <span style="color: var(--accent-cyan); margin-right: 6px; font-size: 10px;">${isExpanded ? '▼' : '▶'}</span><span style="color: #4ade80; font-weight: 600;">${escapeHtml(offsetLabel)}</span>
             </td>
             <td style="font-weight: 600; color: var(--accent-cyan);">${escapeHtml(e.eventType)}</td>
             <td><span class="badge badge-type">${escapeHtml(e.topic)}</span></td>
+            <td style="font-family: var(--font-mono); font-size: 11px; color: #e2e8f0; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(e.correlationId || 'N/A')}">${escapeHtml(e.correlationId || 'N/A')}</td>
             <td style="font-size: 12px;">${escapeHtml(e.producer)} ➔ ${escapeHtml(e.consumer)}</td>
-            <td><span class="badge badge-up">${escapeHtml(e.status)}</span></td>
-            <td style="font-family: var(--font-mono); font-size: 11px; max-width: 340px;">
+            <td style="font-family: var(--font-mono); font-size: 11px; max-width: 300px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; color: #cbd5e1;">${escapeHtml(e.maskedPayload)}</span>
                 <button class="btn btn-sm" style="padding: 2px 8px; font-size: 10px; flex-shrink: 0;" onclick="event.stopPropagation(); toggleKafkaEventRow('${keyEsc}')">
@@ -2329,8 +3074,10 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
                   <div style="display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
                     <span><strong style="color: #94a3b8;">Topic:</strong> <span style="color: #38bdf8;">${escapeHtml(e.topic)}</span></span>
-                    <span><strong style="color: #94a3b8;">Correlation ID:</strong> <span style="color: #e2e8f0;">${escapeHtml(e.correlationId || 'N/A')}</span></span>
+                    <span><strong style="color: #94a3b8;">Partition / Offset:</strong> <span style="color: #4ade80;">Partition ${e.partition ?? 0}, offset ${e.offset >= 0 ? e.offset : 'N/A'}</span></span>
+                    <span><strong style="color: #94a3b8;">Correlation Key:</strong> <span style="color: #e2e8f0;">${escapeHtml(e.correlationId || 'N/A')}</span></span>
                     <span><strong style="color: #94a3b8;">Event ID:</strong> <span style="color: #e2e8f0;">${escapeHtml(e.eventId)}</span></span>
+                    <span><strong style="color: #94a3b8;">Status:</strong> <span style="color: #4ade80;">${escapeHtml(e.status)}</span></span>
                     <span><strong style="color: #94a3b8;">Timestamp:</strong> <span style="color: #e2e8f0;">${escapeHtml(e.timestamp)}</span></span>
                   </div>
                   <button class="btn btn-sm" style="padding: 3px 10px; font-size: 11px;" onclick="copyKafkaEventPayload(${idx}, event)">
@@ -2345,14 +3092,68 @@
       }).join('');
     }
 
-    async function loadEvents() {
+    let kafkaSearchDebounceTimer = null;
+    function onKafkaEventSearchInput() {
+      const input = document.getElementById('event-search-input');
+      const clearBtn = document.getElementById('btn-clear-event-search');
+      if (clearBtn && input) {
+        clearBtn.style.display = input.value.trim() ? 'block' : 'none';
+      }
+      clearTimeout(kafkaSearchDebounceTimer);
+      kafkaSearchDebounceTimer = setTimeout(() => loadEvents(), 150);
+    }
+
+    function clearKafkaEventSearch() {
+      const input = document.getElementById('event-search-input');
+      const clearBtn = document.getElementById('btn-clear-event-search');
+      if (input) input.value = '';
+      if (clearBtn) clearBtn.style.display = 'none';
+      loadEvents();
+    }
+
+    async function inspectInKafkaExplorer(correlationKey, topic, targetOffset) {
+      switchTab('events');
+      const topicSelect = document.getElementById('event-topic-select');
+      if (topicSelect) {
+        topicSelect.value = topic || '';
+      }
+      const input = document.getElementById('event-search-input');
+      const clearBtn = document.getElementById('btn-clear-event-search');
+      if (input) {
+        input.value = correlationKey || '';
+      }
+      if (clearBtn) {
+        clearBtn.style.display = correlationKey ? 'block' : 'none';
+      }
+      await loadEvents(true, targetOffset);
+    }
+
+    async function loadEvents(autoExpandMatches = false, targetOffset = null) {
       try {
         const topic = document.getElementById('event-topic-select').value;
-        const url = topic ? `${API_BASE}/events?topic=${encodeURIComponent(topic)}` : `${API_BASE}/events`;
+        const searchInput = document.getElementById('event-search-input');
+        const query = searchInput ? searchInput.value.trim() : '';
+        const params = new URLSearchParams();
+        if (topic) params.set('topic', topic);
+        if (query) params.set('query', query);
+        params.set('limit', '200');
+        const url = `${API_BASE}/events?${params.toString()}`;
         const res = await fetch(url);
         if (!res.ok) return;
         const events = await res.json();
         cachedKafkaEvents = events || [];
+        if (autoExpandMatches && cachedKafkaEvents.length > 0) {
+          expandedKafkaEventIds.clear();
+          cachedKafkaEvents.forEach((e, idx) => {
+            if (targetOffset === null || targetOffset === undefined || Number(e.offset) === Number(targetOffset)) {
+              expandedKafkaEventIds.add(`${e.eventId || idx}-${e.offset ?? idx}-${e.timestamp || idx}`);
+            }
+          });
+          if (expandedKafkaEventIds.size === 0) {
+            const first = cachedKafkaEvents[0];
+            expandedKafkaEventIds.add(`${first.eventId || 0}-${first.offset ?? 0}-${first.timestamp || 0}`);
+          }
+        }
         renderKafkaEventsTable(cachedKafkaEvents);
       } catch (e) {
         console.error('Failed to load events', e);
@@ -2505,8 +3306,21 @@
       const stockDelta = (afterRedis.stockQuantity || 0) - (beforeRedis.stockQuantity || 0);
       const rowDelta = (afterDb.rowCount || 0) - (beforeDb.rowCount || 0);
       const offsetDelta = (afterKafka.partitionOffset || 0) - (beforeKafka.partitionOffset || 0);
+      const awsCountDelta = (afterAws.objectCount ?? 0) - (beforeAws.objectCount ?? 0);
+      const awsAdded = awsCountDelta > 0 || (!beforeAws.invoiceFound && !!afterAws.invoiceFound);
+      const awsRemoved = awsCountDelta < 0 || (!!beforeAws.invoiceFound && !afterAws.invoiceFound);
+      const showAwsCard = awsAdded || awsRemoved;
 
       const dbName = afterDb.databaseName || 'order_db';
+      const isInventoryGuardRejected = afterDb.outboxStatus === 'STOCK_GUARD_REJECTED';
+      const isInventoryCommitted = afterDb.outboxStatus === 'STOCK_COMMITTED';
+      const showRedisCard = dbName === 'inventory_store' || stockDelta !== 0 || !!afterRedis.lockHeld || !!beforeRedis.lockHeld;
+      const isKafkaConsumerOnly = dbName === 'notification_inbox' && offsetDelta === 0;
+      const afterStatusUpper = String(afterDb.latestRecordStatus || '').toUpperCase();
+      const afterStatusColor = (afterStatusUpper === 'FAILED' || afterStatusUpper === 'DECLINED' || afterStatusUpper === 'REJECTED')
+        ? '#f87171'
+        : (afterStatusUpper === 'CANCELLED' ? '#fbbf24' : '#4ade80');
+      const afterOutboxColor = isInventoryGuardRejected ? '#f87171' : (isInventoryCommitted ? '#4ade80' : '#38bdf8');
       const dbHeaderTip = dbName === 'payment_db'
         ? tipAttrs('Database-per-Service: payment_db', 'Dedicated PostgreSQL instance owned exclusively by payment-service. Stores payment authorizations, captures, declines, and idempotency keys.', 'No other microservice can query or mutate payment_db directly.')
         : dbName === 'inventory_store'
@@ -2565,7 +3379,7 @@
                 </div>
                 <div class="diff-comp-row has-tip" ${tipAttrs('Live Record State Transition', 'Real before-and-after state read directly from this microservice API after PostgreSQL commit and CQRS cache eviction.', 'Confirms the local transaction actually persisted in the owning service.')}>
                   <span class="diff-comp-label">Status:</span>
-                  <span class="diff-comp-val">${escapeHtml(beforeDb.latestRecordStatus || 'NONE')} ➔ <strong style="color: #4ade80;">${escapeHtml(afterDb.latestRecordStatus || 'CREATED')}</strong></span>
+                  <span class="diff-comp-val">${escapeHtml(beforeDb.latestRecordStatus || 'NONE')} ➔ <strong style="color: ${afterStatusColor};">${escapeHtml(afterDb.latestRecordStatus || 'CREATED')}</strong></span>
                 </div>
                 <div class="diff-comp-row has-tip" ${secondRowTip}>
                   <span class="diff-comp-label">${
@@ -2574,7 +3388,7 @@
                     dbName === 'notification_inbox' ? 'Idempotency:' :
                     'Outbox State:'
                   }</span>
-                  <span class="diff-comp-val">${escapeHtml(beforeDb.outboxStatus || 'NONE')} ➔ <strong style="color: #38bdf8;">${escapeHtml(afterDb.outboxStatus || 'PUBLISHED')}</strong></span>
+                  <span class="diff-comp-val">${escapeHtml(beforeDb.outboxStatus || 'NONE')} ➔ <strong style="color: ${afterOutboxColor};">${escapeHtml(afterDb.outboxStatus || 'PUBLISHED')}</strong></span>
                 </div>
                 <div class="diff-comp-row has-tip" ${tipAttrs(dbName === 'inventory_store' ? 'Reserved Stock Delta' : 'Database Row Delta', dbName === 'inventory_store' ? 'Net change in reserved units for this SKU (+1 on reservation, -1 on Saga compensation release).' : 'Number of new records inserted (+1) or updated (+0) in ' + dbName + ' during this step.')}>
                   <span class="diff-comp-label">${dbName === 'inventory_store' ? 'Reserved Delta:' : 'Row Delta:'}</span>
@@ -2582,17 +3396,18 @@
                 </div>
               </div>
 
-              <!-- Redis Card -->
+              ${showRedisCard ? `
+              <!-- Redis Card (rendered only on steps that acquire Redis locks or mutate inventory stock) -->
               <div class="diff-component-card">
                 <div class="diff-comp-title">
                   <span class="has-tip" style="color: #f87171;" ${tipAttrs('Redis Cache & Distributed Lock Store', 'In-memory Redis server used for sub-millisecond distributed mutex locks (inventory-service) and CQRS read-through caching (order-service).', 'Prevents race conditions and shields PostgreSQL from high-concurrency read/write spikes.')}>⚡ Redis Store</span>
-                  <span class="delta-highlight-badge ${stockDelta < 0 ? 'delta-amber' : (stockDelta > 0 ? 'delta-green' : 'delta-blue')} has-tip" ${tipAttrs('SKU Allocation Status', stockDelta < 0 ? 'Stock was decremented for this order reservation.' : (stockDelta > 0 ? 'Previously reserved stock was restored by a Saga compensating rollback.' : 'No stock mutation occurred in this specific step.'))}>
-                    ${stockDelta !== 0 ? (stockDelta > 0 ? '+' + stockDelta : stockDelta) + ' SKU Allocation' : 'In Sync'}
+                  <span class="delta-highlight-badge ${isInventoryGuardRejected ? 'delta-amber' : (isInventoryCommitted ? 'delta-green' : (stockDelta < 0 ? 'delta-amber' : (stockDelta > 0 ? 'delta-green' : 'delta-blue')))} has-tip" ${tipAttrs('SKU Allocation Status', isInventoryGuardRejected ? 'Requested quantity exceeded available stock; guard rejected reservation with zero stock mutation.' : (isInventoryCommitted ? 'Soft reservation hold finalized/committed for dispatch; reserved count decremented back down while available stock stays sold.' : (stockDelta < 0 ? 'Stock was decremented for this order reservation.' : (stockDelta > 0 ? 'Previously reserved stock was restored by a Saga compensating rollback.' : 'No stock mutation occurred in this specific step.'))))}>
+                    ${isInventoryGuardRejected ? 'Guard Rejected' : (isInventoryCommitted ? 'Stock Committed' : (stockDelta !== 0 ? (stockDelta > 0 ? '+' + stockDelta : stockDelta) + ' SKU Allocation' : 'In Sync'))}
                   </span>
                 </div>
-                <div class="diff-comp-row has-tip" ${tipAttrs('Live Available Stock Units', 'Real-time available inventory for SKU ' + skuName + ' queried from inventory-service. Decrements on ORDER_CREATED and increments back on ORDER_CANCELLED.', 'Proves atomic reservation and compensating rollback actually happened live.')}>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Live Available Stock Units', 'Real-time available inventory for SKU ' + skuName + ' inside inventory-service distributed lock. Decrements on INVENTORY_RESERVED and increments back on COMPENSATING_INVENTORY.', 'Proves atomic reservation and compensating rollback actually happened live.')}>
                   <span class="diff-comp-label">Stock Units:</span>
-                  <span class="diff-comp-val">${beforeRedis.stockQuantity ?? 100} ➔ <strong style="color: #fbbf24;">${afterRedis.stockQuantity ?? 99}</strong> available</span>
+                  <span class="diff-comp-val">${beforeRedis.stockQuantity ?? 100} ➔ <strong style="color: ${isInventoryGuardRejected ? '#f87171' : (stockDelta > 0 ? '#4ade80' : '#fbbf24')};">${afterRedis.stockQuantity ?? 99}</strong> available</span>
                 </div>
                 <div class="diff-comp-row has-tip" ${tipAttrs('Redis Distributed Mutex Lock (' + lockKeyName + ')', 'An atomic Redis key acquired via "SET ' + lockKeyName + ' <token> NX PX 5000" before mutating stock for SKU ' + skuName + '. Only one pod/thread can hold this key at a time.', 'Prevents double-allocation and overselling when multiple concurrent orders compete for the same product.')}>
                   <span class="diff-comp-label">Mutex Lock:</span>
@@ -2603,46 +3418,53 @@
                   <span class="diff-comp-val">${afterRedis.lockHeld ? '3,000 ms lease' : 'Cleanly Released (0 ms)'}</span>
                 </div>
               </div>
+              ` : ''}
 
               <!-- Apache Kafka Card -->
               <div class="diff-component-card">
                 <div class="diff-comp-title">
-                  <span class="has-tip" style="color: #c084fc;" ${tipAttrs('Apache Kafka (KRaft Mode)', 'Distributed event streaming backbone decoupling producers (order-service, payment-service) from consumers (inventory-service, notification-service, control-center).', 'Enables asynchronous resilience: downstream slowdowns or restarts never block checkout.')}>📬 Apache Kafka</span>
-                  <span class="delta-highlight-badge delta-green has-tip" ${tipAttrs('Committed Event Count', 'Number of domain event messages durably appended to the Kafka topic log during this step.')}>+${Math.max(1, offsetDelta)} Committed</span>
+                  <span class="has-tip" style="color: #c084fc;" ${tipAttrs('Apache Kafka (KRaft Mode)', 'Distributed event streaming backbone decoupling producers (order-service, inventory-service, payment-service) from consumers (inventory-service, notification-service, control-center).', 'Enables asynchronous resilience: downstream slowdowns or restarts never block checkout.')}>📬 Apache Kafka</span>
+                  <span class="delta-highlight-badge ${isKafkaConsumerOnly ? 'delta-blue' : 'delta-green'} has-tip" ${tipAttrs(isKafkaConsumerOnly ? 'Consumed Event' : 'Committed Event Count', isKafkaConsumerOnly ? 'Consumed existing domain event from Kafka topic without publishing a new message.' : 'Number of domain event messages durably appended to the Kafka topic log during this step.')}>${isKafkaConsumerOnly ? 'Consumed' : ('+' + Math.max(1, offsetDelta) + ' Committed')}</span>
                 </div>
-                <div class="diff-comp-row has-tip" ${tipAttrs('Kafka Topic: ' + (afterKafka.topic || 'order-events'), 'Named append-only event stream. "order-events" carries ORDER_CREATED, ORDER_CONFIRMED, and ORDER_CANCELLED; "payment-events" carries PaymentCaptured and PaymentFailed.')}>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Kafka Topic: ' + (afterKafka.topic || 'order-events'), 'Named append-only event stream. "order-events" carries ORDER_CREATED, ORDER_CONFIRMED, and ORDER_CANCELLED; "inventory-events" carries INVENTORY_RESERVED, INVENTORY_REJECTED, and INVENTORY_RELEASED; "payment-events" carries PaymentCaptured and PaymentFailed.')}>
                   <span class="diff-comp-label">Topic:</span>
                   <span class="diff-comp-val">${escapeHtml(afterKafka.topic || 'order-events')}</span>
                 </div>
                 <div class="diff-comp-row has-tip" ${tipAttrs('Partition Log Offset', 'Sequential, immutable position of the message inside Partition 0. Each consumer group tracks its own offset independently, allowing replay and fault recovery.', 'Ensures at-least-once delivery without losing messages across pod restarts.')}>
                   <span class="diff-comp-label">Offset Progression:</span>
-                  <span class="diff-comp-val">Partition 0: offset ${beforeKafka.partitionOffset ?? 0} ➔ <strong style="color: #4ade80;">${afterKafka.partitionOffset ?? 1}</strong></span>
+                  <span class="diff-comp-val">${isKafkaConsumerOnly ? 'Partition 0: read offset <strong style="color: #38bdf8;">' + (afterKafka.partitionOffset ?? 1) + '</strong>' : 'Partition 0: offset ' + (beforeKafka.partitionOffset ?? 0) + ' ➔ <strong style="color: #4ade80;">' + (afterKafka.partitionOffset ?? 1) + '</strong>'}</span>
                 </div>
-                <div class="diff-comp-row has-tip" ${tipAttrs('Message Partition / Correlation Key', 'The orderId is used as the Kafka partition key so all events for the same order hash to the exact same partition.', 'Guarantees strict FIFO ordering (CREATED -> CONFIRMED/CANCELLED) per order even when scaled to many partitions.')}>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Message Partition / Correlation Key', 'The orderId is used as the Kafka partition key so all events for the same order hash to the exact same partition. Click to open this exact event in the Kafka tab.', 'Guarantees strict FIFO ordering (CREATED -> CONFIRMED/CANCELLED) per order even when scaled to many partitions.')}>
                   <span class="diff-comp-label">Correlation Key:</span>
-                  <span class="diff-comp-val">${escapeHtml(afterKafka.lastEventKey || 'N/A')}</span>
+                  <span class="diff-comp-val">
+                    ${afterKafka.lastEventKey ? `<a href="#" onclick="event.preventDefault(); inspectInKafkaExplorer('${escapeHtml(afterKafka.lastEventKey).replace(/'/g, "\\'")}', '${escapeHtml(afterKafka.topic || 'order-events').replace(/'/g, "\\'")}', ${afterKafka.partitionOffset ?? 'null'});" style="color: #38bdf8; text-decoration: underline; cursor: pointer;" title="Inspect this exact event in Kafka Event Explorer">${escapeHtml(afterKafka.lastEventKey)} ↗</a>` : 'N/A'}
+                  </span>
                 </div>
               </div>
 
-              <!-- AWS LocalStack S3 Card -->
+              ${showAwsCard ? `
+              <!-- AWS LocalStack S3 Card (rendered only when an S3 object is added or removed in this step) -->
               <div class="diff-component-card">
                 <div class="diff-comp-title">
-                  <span class="has-tip" style="color: #fbbf24;" ${tipAttrs('AWS S3 via LocalStack Emulator', 'Real S3-compatible object storage running locally at localhost:4566. notification-service uploads invoice JSON documents using the official AWS SDK v2 S3Client.', 'Offloads document archival from synchronous checkout threads to durable cloud object storage.')}>☁️ AWS LocalStack S3</span>
-                  <span class="delta-highlight-badge delta-green has-tip" ${tipAttrs("11 9's Durability (99.999999999%)", 'Amazon S3 replicates objects across multiple Availability Zones to achieve 99.999999999% annual durability — ideal for immutable financial invoices and compliance records.')}>11 9's Durability</span>
+                  <span class="has-tip" style="color: #fbbf24;" ${tipAttrs('AWS S3 via LocalStack Emulator', 'Real S3-compatible object storage running locally at localhost:4566. Watched after every service execution and displayed only when an object is added to or removed from S3.', 'Offloads document archival from synchronous checkout threads to durable cloud object storage.')}>☁️ AWS LocalStack S3</span>
+                  <span class="delta-highlight-badge ${awsAdded ? 'delta-green' : 'delta-amber'} has-tip" ${tipAttrs(awsAdded ? 'S3 Object Added' : 'S3 Object Removed', awsAdded ? 'A new object was uploaded into LocalStack S3 during this service execution.' : 'An object was removed from LocalStack S3 during this service execution.')}>
+                    ${awsAdded ? '+' + Math.max(1, awsCountDelta) + ' Added' : Math.min(-1, awsCountDelta) + ' Removed'}
+                  </span>
                 </div>
-                <div class="diff-comp-row has-tip" ${tipAttrs('S3 Bucket: ' + (afterAws.s3Bucket || 'order-invoices-bucket'), 'Top-level S3 container auto-created by notification-service in LocalStack. Inspect live objects directly at http://localhost:4566/order-invoices-bucket.')}>
+                <div class="diff-comp-row has-tip" ${tipAttrs('S3 Bucket: ' + (afterAws.s3Bucket || 'order-invoices-bucket'), 'Top-level S3 container in LocalStack. Inspect live objects directly at http://localhost:4566/order-invoices-bucket.')}>
                   <span class="diff-comp-label">Bucket:</span>
                   <span class="diff-comp-val">${escapeHtml(afterAws.s3Bucket || 'order-invoices-bucket')}</span>
                 </div>
-                <div class="diff-comp-row has-tip" ${tipAttrs('Real S3 Object Count', 'Live count of archived invoices in LocalStack S3. Increments (+1) only during INVOICE_GENERATED after ORDER_CONFIRMED; declined orders never write an invoice.')}>
+                <div class="diff-comp-row has-tip" ${tipAttrs('Real S3 Object Count', 'Live count of objects in LocalStack S3 before and after this step.')}>
                   <span class="diff-comp-label">Archived Count:</span>
-                  <span class="diff-comp-val">${beforeAws.objectCount ?? 0} ➔ <strong style="color: #fbbf24;">${afterAws.objectCount ?? 0}</strong> object(s)</span>
+                  <span class="diff-comp-val">${beforeAws.objectCount ?? 0} ➔ <strong style="color: ${awsAdded ? '#4ade80' : '#f87171'};">${afterAws.objectCount ?? 0}</strong> object(s)</span>
                 </div>
-                <div class="diff-comp-row has-tip" ${tipAttrs('S3 Object Key', 'Unique path of the archived invoice document inside the bucket. Once archived, it is directly downloadable at http://localhost:4566/' + (afterAws.s3Bucket || 'order-invoices-bucket') + '/' + (afterAws.invoiceKey || ''))}>
-                  <span class="diff-comp-label">Invoice Key:</span>
-                  <span class="diff-comp-val">${escapeHtml(afterAws.invoiceKey || 'invoices/pending.json')}</span>
+                <div class="diff-comp-row has-tip" ${tipAttrs(awsAdded ? 'Added S3 Object Key' : 'Removed S3 Object Key', 'Verified live object key in http://localhost:4566/' + (afterAws.s3Bucket || 'order-invoices-bucket') + '.')}>
+                  <span class="diff-comp-label">${awsAdded ? 'Added Key:' : 'Removed Key:'}</span>
+                  <span class="diff-comp-val">${escapeHtml((awsAdded ? afterAws.invoiceKey : beforeAws.invoiceKey) || 'N/A')}</span>
                 </div>
               </div>
+              ` : ''}
             </div>
           </div>
 
@@ -2789,7 +3611,7 @@
               <span style="font-weight: 700; font-size: 14px;">${escapeHtml(s.sagaId)}</span>
               <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">Order: ${escapeHtml(s.orderId)} | Amount: $${escapeHtml(s.amount)}</span>
             </div>
-            <span class="badge ${s.status === 'CONFIRMED' ? 'badge-up' : (s.status === 'COMPENSATED' ? 'badge-warn' : 'badge-down')}">${escapeHtml(s.status)}</span>
+            <span class="badge ${(s.status === 'CONFIRMED' || s.status === 'COMPLETED') ? 'badge-up' : ((s.status === 'COMPENSATED' || s.status === 'COMPENSATING' || s.status === 'IN_PROGRESS') ? 'badge-warn' : 'badge-down')}">${escapeHtml(s.status)}</span>
           </div>
 
           <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
@@ -2859,7 +3681,7 @@
                 <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">Order: <strong>${escapeHtml(s.orderId)}</strong> | Customer: ${escapeHtml(s.customerId)} | Amount: $${escapeHtml(s.amount)}</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="badge ${s.status === 'CONFIRMED' ? 'badge-up' : (s.status === 'COMPENSATED' ? 'badge-warn' : 'badge-down')}">${escapeHtml(s.status)}</span>
+                <span class="badge ${(s.status === 'CONFIRMED' || s.status === 'COMPLETED') ? 'badge-up' : ((s.status === 'COMPENSATED' || s.status === 'COMPENSATING' || s.status === 'IN_PROGRESS') ? 'badge-warn' : 'badge-down')}">${escapeHtml(s.status)}</span>
                 <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">${s.steps.length} Steps</span>
               </div>
             </div>
@@ -2895,25 +3717,335 @@
       }
     }
 
+    let allLearningPatterns = [];
+    let currentLearningCategory = 'ALL';
+    let currentLearningSearch = '';
+    let hostEditorStatus = null;
+
     async function loadLearningPatterns() {
       try {
-        const res = await fetch(`${API_BASE}/learning`);
-        if (!res.ok) return;
-        const patterns = await res.json();
-        const grid = document.getElementById('learning-grid');
-        grid.innerHTML = patterns.map(p => `
-          <div class="learning-card">
-            <span class="learning-category">${escapeHtml(p.category)}</span>
-            <h3 class="learning-title">${escapeHtml(p.title)}</h3>
-            <div class="learning-problem"><strong>Problem:</strong> ${escapeHtml(p.problem)}</div>
-            <div class="learning-concept"><strong>Concept:</strong> ${escapeHtml(p.concept)}</div>
-            <div style="font-size: 12px; color: var(--text-main);"><strong>Implementation:</strong> ${escapeHtml(p.implementation)}</div>
-            <div class="learning-code-ref">📄 Anchor: ${escapeHtml(p.codeAnchor)}</div>
-            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">${escapeHtml(p.tradeOffs)}</div>
-          </div>
-        `).join('');
+        const [patternsRes, editorRes] = await Promise.all([
+          fetch(`${API_BASE}/learning`),
+          fetch(`${API_BASE}/learning/editor-status`).catch(() => null)
+        ]);
+
+        if (editorRes && editorRes.ok) {
+          hostEditorStatus = await editorRes.json();
+          updateEditorStatusBadge(hostEditorStatus);
+        }
+
+        if (!patternsRes.ok) return;
+        allLearningPatterns = await patternsRes.json();
+
+        // Update hero metrics
+        const totalRefs = allLearningPatterns.reduce((acc, p) => acc + (p.codeReferences ? p.codeReferences.length : 1), 0);
+        const countElem = document.getElementById('stat-patterns-count');
+        if (countElem) countElem.innerText = allLearningPatterns.length;
+        const filesElem = document.getElementById('stat-files-count');
+        if (filesElem) filesElem.innerText = `${totalRefs}+ Files`;
+
+        renderLearningGrid();
       } catch (e) {
         console.error('Failed to load learning patterns', e);
+      }
+    }
+
+    function updateEditorStatusBadge(status) {
+      const badge = document.getElementById('stat-editor-status');
+      if (!badge || !status) return;
+      if (status.vsCodeAvailable) {
+        badge.innerHTML = `<span class="pulse-dot"></span> VS Code Ready`;
+        badge.style.color = '#38bdf8';
+        badge.title = `VS Code detected at: ${status.vsCodePath || 'PATH'}`;
+      } else if (status.notepadAvailable) {
+        badge.innerHTML = `<span class="pulse-dot" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span> Notepad Ready`;
+        badge.style.color = '#fbbf24';
+        badge.title = `Notepad fallback at: ${status.notepadPath || 'PATH'}`;
+      } else {
+        badge.innerHTML = `<span style="color:var(--text-muted);">Web Mode</span>`;
+      }
+    }
+
+    function filterLearningCategory(category) {
+      currentLearningCategory = category;
+      document.querySelectorAll('#learning-category-filters .learning-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-category') === category) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      renderLearningGrid();
+    }
+
+    function handleLearningSearch(keyword) {
+      currentLearningSearch = (keyword || '').trim().toLowerCase();
+      renderLearningGrid();
+    }
+
+    function renderLearningGrid() {
+      const grid = document.getElementById('learning-grid');
+      if (!grid) return;
+
+      const filtered = allLearningPatterns.filter(p => {
+        // Category filter
+        if (currentLearningCategory !== 'ALL') {
+          if (currentLearningCategory === 'Distributed Transactions' && p.category !== 'Distributed Transactions') return false;
+          if (currentLearningCategory === 'Data Architecture' && p.category !== 'Data Architecture') return false;
+          if (currentLearningCategory === 'Edge & Security' && !p.category.includes('Security') && !p.category.includes('Edge')) return false;
+          if (currentLearningCategory === 'Event-Driven Backbone' && !p.category.includes('Event') && !p.category.includes('Reliability')) return false;
+          if (currentLearningCategory === 'Concurrency & Cloud' && !p.category.includes('Concurrency') && !p.category.includes('Cloud') && !p.category.includes('DevOps')) return false;
+        }
+
+        // Search filter
+        if (currentLearningSearch) {
+          const s = currentLearningSearch;
+          const matchTitle = (p.title || '').toLowerCase().includes(s);
+          const matchProb = (p.problem || '').toLowerCase().includes(s);
+          const matchConcept = (p.concept || '').toLowerCase().includes(s);
+          const matchImpl = (p.implementation || '').toLowerCase().includes(s);
+          const matchCategory = (p.category || '').toLowerCase().includes(s);
+          const matchServices = (p.services || []).some(srv => srv.toLowerCase().includes(s));
+          const matchRefs = (p.codeReferences || []).some(r =>
+            (r.label || '').toLowerCase().includes(s) ||
+            (r.relativePath || '').toLowerCase().includes(s) ||
+            (r.description || '').toLowerCase().includes(s)
+          );
+          if (!matchTitle && !matchProb && !matchConcept && !matchImpl && !matchCategory && !matchServices && !matchRefs) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 40px; text-align: center; background: var(--bg-panel); border: 1px dashed var(--border-color); border-radius: 8px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🔍</div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">No architectural patterns match your filter</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Try searching for "Saga", "Kafka", "Redis", "Gateway", or "Outbox"</div>
+          </div>
+        `;
+        return;
+      }
+
+      const TAB_LINK_LABELS = {
+        'sagas': { label: 'Explore Saga Timelines', icon: '🔄', tab: 'sagas' },
+        'kafka': { label: 'Inspect Kafka Events', icon: '📬', tab: 'events' },
+        'topology': { label: 'Explore Architecture Topology', icon: '🕸️', tab: 'architecture' },
+        'operations': { label: 'Trigger Live Flow Preset', icon: '⚡', tab: 'operations' },
+        'overview': { label: 'View Cluster Health', icon: '📊', tab: 'overview' }
+      };
+
+      grid.innerHTML = filtered.map(p => {
+        const servicesHtml = (p.services || []).map(s => `<span class="service-tag">${escapeHtml(s)}</span>`).join('');
+        const fileCount = (p.codeReferences && p.codeReferences.length) ? p.codeReferences.length : (p.codeAnchor ? 1 : 0);
+        const conceptSnippet = p.concept || p.problem || '';
+
+        return `
+          <div class="learning-card" onclick="openPatternDrawer('${escapeHtml(p.id)}')">
+            <div>
+              <div class="learning-card-header">
+                <span class="learning-category">${escapeHtml(p.category)}</span>
+                <div class="learning-services-tags">${servicesHtml}</div>
+              </div>
+              <h3 class="learning-title">${escapeHtml(p.title)}</h3>
+              <div class="learning-concept-snippet">${escapeHtml(conceptSnippet)}</div>
+            </div>
+            <div class="learning-card-footer">
+              <span class="learning-files-count">📂 ${fileCount} source ${fileCount === 1 ? 'file' : 'files'}</span>
+              <button class="learning-inspect-btn" onclick="event.stopPropagation(); openPatternDrawer('${escapeHtml(p.id)}')">
+                Inspect Pattern ➔
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    let currentDrawerPattern = null;
+
+    function openPatternDrawer(patternId) {
+      const p = allLearningPatterns.find(item => item.id === patternId);
+      if (!p) return;
+      currentDrawerPattern = p;
+
+      // Populate header
+      const catEl = document.getElementById('drawer-category');
+      if (catEl) catEl.textContent = p.category || 'PATTERN';
+
+      const srvEl = document.getElementById('drawer-services');
+      if (srvEl) {
+        srvEl.innerHTML = (p.services || []).map(s => `<span class="service-tag">${escapeHtml(s)}</span>`).join('');
+      }
+
+      const titleEl = document.getElementById('drawer-pattern-title');
+      if (titleEl) titleEl.textContent = p.title || '';
+
+      // Populate Tab 1: Concept & Demo
+      const probEl = document.getElementById('drawer-problem-text');
+      if (probEl) probEl.textContent = p.problem || '';
+
+      const concEl = document.getElementById('drawer-concept-text');
+      if (concEl) concEl.textContent = p.concept || '';
+
+      const implEl = document.getElementById('drawer-impl-text');
+      if (implEl) implEl.textContent = p.implementation || '';
+
+      // Populate Tab 2: Code Files
+      const fileCount = (p.codeReferences && p.codeReferences.length) ? p.codeReferences.length : (p.codeAnchor ? 1 : 0);
+      const codeCountEl = document.getElementById('drawer-code-count');
+      if (codeCountEl) codeCountEl.textContent = fileCount;
+
+      const codeListEl = document.getElementById('drawer-code-list');
+      if (codeListEl) {
+        if (p.codeReferences && p.codeReferences.length > 0) {
+          codeListEl.innerHTML = p.codeReferences.map(r => {
+            const fileName = r.relativePath ? r.relativePath.split('/').pop() : '';
+            return `
+              <div class="learning-code-item">
+                <div class="learning-code-info">
+                  <div class="learning-code-label">
+                    <span>📄</span> ${escapeHtml(r.label || fileName)}
+                    <span style="font-size: 11px; color: var(--accent-blue); font-family: var(--font-mono); font-weight: normal;">:${r.line || 1}</span>
+                  </div>
+                  <div class="learning-code-path" title="${escapeHtml(r.relativePath)}">${escapeHtml(r.relativePath)}</div>
+                  ${r.description ? `<div class="learning-code-desc">${escapeHtml(r.description)}</div>` : ''}
+                </div>
+                <button class="learning-open-btn" onclick="openCodeInEditor('${escapeHtml(r.relativePath)}', ${r.line || 1}, this)" title="Open in VS Code / Local Editor">
+                  <span>💻</span> Open
+                </button>
+              </div>
+            `;
+          }).join('');
+        } else if (p.codeAnchor) {
+          codeListEl.innerHTML = `
+            <div class="learning-code-item">
+              <div class="learning-code-info">
+                <div class="learning-code-label"><span>📄</span> Source Anchor</div>
+                <div class="learning-code-path">${escapeHtml(p.codeAnchor)}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          codeListEl.innerHTML = `<div style="color: var(--text-muted); font-size: 12px;">No source code files linked to this pattern.</div>`;
+        }
+      }
+
+      // Populate Tab 3: Trade-Offs & Presets
+      const tradeoffsEl = document.getElementById('drawer-tradeoffs-text');
+      if (tradeoffsEl) tradeoffsEl.textContent = p.tradeOffs || 'No trade-offs specified.';
+
+      const crossTabContainer = document.getElementById('drawer-crosstab-container');
+      if (crossTabContainer) {
+        const TAB_LINK_LABELS = {
+          'sagas': { label: 'Explore Saga Timelines', icon: '🔄', tab: 'sagas' },
+          'kafka': { label: 'Inspect Kafka Events', icon: '📬', tab: 'events' },
+          'topology': { label: 'Explore Architecture Topology', icon: '🕸️', tab: 'architecture' },
+          'operations': { label: 'Trigger Live Flow Preset', icon: '⚡', tab: 'operations' },
+          'overview': { label: 'View Cluster Health', icon: '📊', tab: 'overview' }
+        };
+
+        if (p.dashboardTab && TAB_LINK_LABELS[p.dashboardTab]) {
+          const link = TAB_LINK_LABELS[p.dashboardTab];
+          crossTabContainer.innerHTML = `
+            <button class="learning-tab-link" onclick="closePatternDrawer(); switchTab('${link.tab}');">
+              <span>${link.icon}</span> ${link.label} ➔
+            </button>
+          `;
+        } else {
+          crossTabContainer.innerHTML = '';
+        }
+      }
+
+      // Switch to first tab by default
+      switchDrawerTab('concept');
+
+      // Show drawer & backdrop
+      const backdrop = document.getElementById('learning-drawer-backdrop');
+      const drawer = document.getElementById('learning-drawer');
+      if (backdrop) backdrop.classList.add('active');
+      if (drawer) drawer.classList.add('active');
+    }
+
+    function closePatternDrawer() {
+      const backdrop = document.getElementById('learning-drawer-backdrop');
+      const drawer = document.getElementById('learning-drawer');
+      if (backdrop) backdrop.classList.remove('active');
+      if (drawer) drawer.classList.remove('active');
+      currentDrawerPattern = null;
+    }
+
+    function switchDrawerTab(tabName) {
+      document.querySelectorAll('.drawer-tab').forEach(btn => {
+        if (btn.getAttribute('data-tab') === tabName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.drawer-tab-pane').forEach(pane => {
+        pane.classList.remove('active');
+      });
+
+      const activePane = document.getElementById(`drawer-pane-${tabName}`);
+      if (activePane) activePane.classList.add('active');
+    }
+
+    // Keyboard Esc dismiss for drawer
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        closePatternDrawer();
+      }
+    });
+
+    async function openCodeInEditor(filePath, line, btnElement) {
+      if (!filePath) return;
+      const originalText = btnElement ? btnElement.innerHTML : '';
+      if (btnElement) {
+        btnElement.classList.add('launching');
+        btnElement.innerHTML = `<span>⏳</span> Opening...`;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/learning/open-editor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filePath: filePath, line: line || 1 })
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (res.ok && data && data.status === 'SUCCESS') {
+          const editorIcon = data.editor === 'VS_CODE' ? '💻' : '📝';
+          const editorName = data.editor === 'VS_CODE' ? 'VS Code' : 'Notepad';
+          const fileShort = filePath.split('/').pop();
+          showToast(`${editorIcon} [${editorName}] Opened ${fileShort}:${line || 1}`);
+
+          // Hybrid fallback: If client launch url is present and server is containerized, try client URI
+          if (data.clientLaunchUrl && (data.editor === 'VS_CODE' || data.message.includes('container'))) {
+            try {
+              window.location.href = data.clientLaunchUrl;
+            } catch (ignored) {}
+          }
+        } else {
+          const errMessage = (data && data.message) ? data.message : 'Failed to launch local editor';
+          showToast(`⚠️ ${errMessage}`);
+          if (data && data.clientLaunchUrl) {
+            window.location.href = data.clientLaunchUrl;
+          }
+        }
+      } catch (e) {
+        console.error('Error invoking open-editor API', e);
+        showToast(`❌ Error launching editor: ${e.message}`);
+      } finally {
+        if (btnElement) {
+          setTimeout(() => {
+            btnElement.classList.remove('launching');
+            btnElement.innerHTML = originalText;
+          }, 800);
+        }
       }
     }
 

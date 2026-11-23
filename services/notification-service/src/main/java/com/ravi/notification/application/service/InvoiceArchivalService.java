@@ -29,4 +29,8 @@ public class InvoiceArchivalService {
     public Optional<Invoice> getInvoice(String orderId) {
         return invoiceRepository.findByOrderId(orderId);
     }
+
+    public int resetAll() {
+        return invoiceRepository.clearAll();
+    }
 }

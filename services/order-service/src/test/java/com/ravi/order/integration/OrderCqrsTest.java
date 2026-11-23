@@ -148,4 +148,82 @@ class OrderCqrsTest {
                 && e.getEventType().equals("ORDER_CANCELLED")
                 && e.getPayload().contains("Payment failed"));
     }
+
+    @Test
+    @DisplayName("Saga Orchestrator: Inventory exhaustion rejection triggers order cancellation")
+    void testSagaInventoryRejectionCancelsOrder() {
+        CreateOrderCommand createCommand = new CreateOrderCommand(
+                "customer-overstock",
+                List.of(new CreateOrderCommand.ItemCommand("PROD-TECH-001", 999, BigDecimal.valueOf(149.00)))
+        );
+        UUID orderId = commandHandler.handle(createCommand);
+
+        OrderSagaOrchestrator orchestrator = new OrderSagaOrchestrator(
+                commandHandler,
+                new tools.jackson.databind.ObjectMapper()
+        );
+
+        String inventoryRejectedPayload = """
+            {
+                "eventType": "INVENTORY_REJECTED",
+                "orderId": "%s",
+                "customerId": "customer-overstock",
+                "productId": "PROD-TECH-001",
+                "requestedQuantity": 999,
+                "availableQuantity": 100,
+                "reservedQuantity": 0,
+                "reason": "Insufficient stock for PROD-TECH-001: requested 999, available 100"
+            }
+        """.formatted(orderId);
+
+        orchestrator.onInventoryEvent(inventoryRejectedPayload);
+
+        Optional<OrderView> queryView = queryHandler.handle(new GetOrderByIdQuery(orderId));
+        assertThat(queryView).isPresent();
+        assertThat(queryView.get().status()).isEqualTo("CANCELLED");
+
+        List<OutboxJpaEntity> outbox = outboxRepository.findAll();
+        assertThat(outbox).anyMatch(e -> e.getAggregateId().equals(orderId.toString())
+                && e.getEventType().equals("ORDER_CANCELLED")
+                && e.getPayload().contains("Inventory rejected"));
+    }
+
+    @Test
+    @DisplayName("Saga Orchestrator: Inventory commit event transitions confirmed order to COMPLETED")
+    void testSagaInventoryCommittedCompletesOrder() {
+        CreateOrderCommand createCommand = new CreateOrderCommand(
+                "cust-fulfill",
+                List.of(new CreateOrderCommand.ItemCommand("PROD-TECH-001", 1, BigDecimal.valueOf(149.00)))
+        );
+        UUID orderId = commandHandler.handle(createCommand);
+        commandHandler.confirmOrder(orderId);
+
+        OrderSagaOrchestrator orchestrator = new OrderSagaOrchestrator(
+                commandHandler,
+                new tools.jackson.databind.ObjectMapper()
+        );
+
+        String inventoryCommittedPayload = """
+            {
+                "eventType": "INVENTORY_COMMITTED",
+                "orderId": "%s",
+                "productId": "PROD-TECH-001",
+                "committedQuantity": 1,
+                "stockBefore": 99,
+                "stockAfter": 99,
+                "reservedBefore": 1,
+                "reservedAfter": 0
+            }
+        """.formatted(orderId);
+
+        orchestrator.onInventoryEvent(inventoryCommittedPayload);
+
+        Optional<OrderView> queryView = queryHandler.handle(new GetOrderByIdQuery(orderId));
+        assertThat(queryView).isPresent();
+        assertThat(queryView.get().status()).isEqualTo("COMPLETED");
+
+        List<OutboxJpaEntity> outbox = outboxRepository.findAll();
+        assertThat(outbox).anyMatch(e -> e.getAggregateId().equals(orderId.toString())
+                && e.getEventType().equals("ORDER_COMPLETED"));
+    }
 }
