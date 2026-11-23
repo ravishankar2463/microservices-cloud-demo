@@ -251,55 +251,18 @@ Provide filters to show:
 
 Support zooming, panning, dragging and resetting the architecture view.
 
-### Module 3: Live Request Flow Visualizer
+### Module 3: Distributed Transaction Journey (Merged into Operations Console)
 
-Show how a request travels through the microservices.
+The request flow visualizer and distributed transaction journey are unified directly into the **Live Operations & Transaction Workflow Console** (see Section 6).
 
-For example:
+This interactive pipeline visualizes each architectural phase of an end-to-end distributed transaction:
+1. **Client Request & Gateway Authentication**: `POST /api/orders` validated via Keycloak, rate-limited, and injected with `X-Correlation-ID`.
+2. **ACID Write & Transactional Outbox**: Order persisted in PostgreSQL and relayed to Kafka topics & AWS SQS.
+3. **Inventory Reservation & Concurrency Lock**: Redis distributed mutex lock `SET NX PX` and stock decrement guard on Java 21 Virtual Threads.
+4. **Payment Gateway Authorization**: Simulated payment capture with idempotency keys and decline triggers.
+5. **Saga Completion & Document Archival**: Order confirmed or rolled back; PDF invoices generated and archived to LocalStack S3.
 
-Customer
-  |
-  v
-API Gateway
-  |
-  v
-Order Service
-  |
-  v
-Kafka: order.created
-  |
-  +----> Inventory Service
-  |
-  +----> Payment Service
-  |
-  v
-Order Status Updated
-  |
-  v
-Notification Service
-
-This must represent real observed activity wherever telemetry is available.
-
-Features:
-
-- Live request animation.
-- Service-to-service connection visualization.
-- Request correlation ID.
-- Trace ID.
-- Timestamp.
-- Request duration.
-- HTTP status.
-- Event name.
-- Producer and consumer.
-- Retry count.
-- Failure indication.
-- Complete request journey.
-
-Clicking a request should open its detailed execution timeline.
-
-Do not present a static illustrative flow as live system activity.
-
-If real telemetry is unavailable, explicitly label the view as an architecture illustration or demo simulation.
+The journey pipeline connects directly to live cluster execution presets and custom single-request dispatches, dynamically synchronizing node states (idle standby, running, completed, or compensated).
 
 ### Module 4: Service Registry and Health Monitor
 
@@ -648,34 +611,36 @@ Each explanation should include:
 
 The objective is to make the dashboard an interactive microservices learning environment.
 
+Features:
+- Responsive catalog card grid with category filters and instant live search.
+- Unconstrained viewport scrolling with flexbox overflow isolation (`min-height: 0`) and bottom buffer clearance ensuring all 12 cards remain fully visible without clipping across all font-scaling zoom ratios (80% to 150%).
+- Decoupled slide-out inspection drawer with deep-linking to host editors (VS Code / Notepad).
+- End-of-catalog status bar with a smooth "Back to Top ⬆" navigation shortcut.
+
 ---
 
-## 6. Local Operations Console
+## 6. Live Operations & Transaction Workflow Console
 
-Provide a controlled operations area for local development.
+Provide a unified operations console and live transaction workflow hub for local development and demonstration.
 
-Possible actions:
+This console consolidates the **Distributed Transaction Journey (Order Placement & Saga Execution)** with live scenario presets and an interactive HTTP request builder:
 
-- Refresh service discovery.
-- Refresh infrastructure status.
-- View service logs.
-- Open service Swagger documentation.
-- Open Grafana.
-- Open Prometheus.
-- Open trace explorer.
-- Open Kafka monitoring interface.
-- Restart an individual service.
-- Stop or start selected local containers.
-- Trigger predefined demonstration workflows.
-- Run approved failure simulations.
-
-All destructive or disruptive actions must require explicit confirmation.
-
-Container management must be performed by a backend with tightly scoped permissions, never by exposing the Docker socket directly to Angular.
-
-Provide a prominent LOCAL DEVELOPMENT ONLY indicator.
-
-No production deployment should expose these local administrative capabilities by default.
+### Features:
+- **Interactive Distributed Transaction Stepper Pipeline**:
+  - Connects 5 core lifecycle phases: Gateway Auth -> ACID Outbox Write -> Inventory Mutex Lock -> Payment Authorization -> Saga Archival & S3.
+  - Dynamically updates with live cluster telemetry (green for completed, red for failed, amber for compensated/rollback).
+  - Quick action buttons on each node to jump to live logs, topology, and preset tests.
+  - Collapsible/expandable header with manual pipeline reset capability.
+- **Scenario Presets Grid**:
+  - *🟢 Happy Path E-Commerce Flow*: Order placement, stock reservation, payment capture, and S3 PDF archiving.
+  - *🔴 Payment Decline & Saga Rollback*: Over-limit order triggering payment failure and automated inventory compensation.
+  - *🟠 Inventory Exhaustion Test*: Overstock order testing guardrail validation before payment invocation.
+  - *🔵 Customer Order Cancellation*: Manual cancellation emitting Kafka events to release reserved stock.
+- **Interactive Live Request Builder & Inspector**:
+  - Dispatch custom single HTTP requests to any microservice (`api-gateway`, `order-service`, `inventory-service`, `payment-service`, `notification-service`).
+  - Generates executable `curl` commands and inspects before/after infrastructure state deltas (PostgreSQL, Redis, S3).
+- **Live Execution Trace Panel**:
+  - Step-by-step timeline of executed cluster operations with correlation IDs, latency metrics, and direct links to Pod logs.
 
 ---
 

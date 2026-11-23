@@ -145,6 +145,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      min-height: 0;
     }
 
     /* Header Bar */
@@ -197,12 +198,64 @@
       background-color: #2563eb;
     }
 
+    /* Font Size Adjustment Controls */
+    .font-scale-group {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 2px 4px;
+      gap: 2px;
+      user-select: none;
+    }
+
+    .font-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-sans);
+    }
+
+    .font-btn:hover:not(:disabled) {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+    }
+
+    .font-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .font-indicator {
+      font-size: 11px;
+      color: var(--text-main);
+      min-width: 46px;
+      text-align: center;
+      font-family: var(--font-mono);
+    }
+
+    .font-indicator:hover {
+      background: var(--bg-card-hover);
+      color: var(--accent-cyan);
+    }
+
     /* View Content Container */
     .view-content {
       flex: 1;
       overflow-y: auto;
       padding: 24px;
       display: none;
+      min-height: 0;
     }
 
     .view-content.active {
@@ -881,6 +934,46 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* Learning Center Catalog Footer */
+    .learning-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: rgba(18, 18, 21, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-top: 24px;
+      margin-bottom: 48px;
+      color: var(--text-muted);
+      font-size: 12px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .learning-back-to-top-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--accent-blue);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .learning-back-to-top-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-blue);
+      color: #fff;
+      transform: translateY(-1px);
     }
 
     .learning-card {
@@ -1361,6 +1454,152 @@
       display: none;
     }
 
+    /* Distributed Transaction Journey Pipeline (Merged into Operations) */
+    .journey-pipeline-wrapper {
+      background: var(--bg-panel);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    .journey-pipeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .journey-pipeline-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .journey-pipeline-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .journey-pipeline-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .journey-stepper-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px 2px 14px 2px;
+    }
+    .journey-step-node {
+      flex: 1 1 0;
+      min-width: 200px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .journey-step-node.step-1 { border-top: 3px solid var(--accent-blue); }
+    .journey-step-node.step-2 { border-top: 3px solid var(--accent-cyan); }
+    .journey-step-node.step-3 { border-top: 3px solid var(--accent-purple); }
+    .journey-step-node.step-4 { border-top: 3px solid var(--accent-amber); }
+    .journey-step-node.step-5 { border-top: 3px solid var(--accent-green); }
+
+    .journey-step-node.running {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+    .journey-step-node.completed {
+      border-color: var(--accent-green) !important;
+      background: rgba(16, 185, 129, 0.06);
+    }
+    .journey-step-node.failed {
+      border-color: var(--accent-red) !important;
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .journey-step-node.compensated {
+      border-color: var(--accent-amber) !important;
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .journey-step-node.skipped {
+      opacity: 0.45;
+    }
+    .journey-step-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 16px;
+      font-weight: bold;
+      user-select: none;
+      flex: 0 0 auto;
+    }
+    .journey-node-pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .pill-standby {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .pill-running {
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .pill-completed {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .pill-failed {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--accent-red);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .pill-compensated {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .pill-skipped {
+      background: rgba(148, 163, 184, 0.1);
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .journey-mini-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-size: 10px;
+      padding: 3px 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .journey-mini-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+
     /* Live cURL & Request Customizer */
     .curl-box-wrap {
       position: relative;
@@ -1677,9 +1916,6 @@
       <li class="nav-item" onclick="switchTab('events')">
         <span class="nav-icon">📬</span> Kafka &amp; Events
       </li>
-      <li class="nav-item" onclick="switchTab('request-flow')">
-        <span class="nav-icon">🔀</span> Live Request Flow
-      </li>
       <li class="nav-item" onclick="switchTab('sagas')">
         <span class="nav-icon">🔄</span> Saga Explorer
       </li>
@@ -1709,6 +1945,11 @@
         <h1 id="view-title">System Overview</h1>
       </div>
       <div class="header-actions">
+        <div class="font-scale-group" title="Adjust Control Center Text & Display Size">
+          <button id="btn-font-dec" class="font-btn" onclick="adjustFontScale(-10)" title="Decrease text size (Alt + -)" aria-label="Decrease font size">A-</button>
+          <button id="font-scale-display" class="font-btn font-indicator" onclick="resetFontScale()" title="Click to reset font size to 100% (Alt + 0)" aria-label="Reset font size to 100%">100%</button>
+          <button id="btn-font-inc" class="font-btn" onclick="adjustFontScale(10)" title="Increase text size (Alt + +)" aria-label="Increase font size">A+</button>
+        </div>
         <button class="btn" style="background: rgba(59, 130, 246, 0.2); border-color: var(--accent-blue); color: #93c5fd; font-weight: 600;" onclick="switchTab('infra-admin')">
           <span>🪵</span> Service &amp; Pod Logs
         </button>
@@ -1858,59 +2099,7 @@
       </div>
     </div>
 
-    <!-- TAB 3: Live Request Flow -->
-    <div id="view-request-flow" class="view-content">
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">🔀 Distributed Transaction Journey (Order Placement & Saga Execution)</div>
-        </div>
-        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-          This visualizer illustrates the real-time path taken by an incoming request through API Gateway, Kafka event broker, Saga Orchestrator, Redis concurrency locks, and LocalStack cloud storage.
-        </div>
 
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-blue);">
-            <div style="font-size: 20px;">1️⃣</div>
-            <div>
-              <div style="font-weight: 600; color: var(--text-main);">Client Request & Gateway Authentication</div>
-              <div style="font-size: 12px; color: var(--text-muted);">Customer sends <code>POST /api/orders</code> with JWT. <strong>API Gateway (8080)</strong> checks token against <strong>Keycloak (8088)</strong>, executes Token-Bucket rate limiting, injects <code>X-Correlation-ID</code>, and proxies to Order Service.</div>
-            </div>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-cyan);">
-            <div style="font-size: 20px;">2️⃣</div>
-            <div>
-              <div style="font-weight: 600; color: var(--text-main);">ACID Write & Transactional Outbox</div>
-              <div style="font-size: 12px; color: var(--text-muted);"><strong>Order Service (8081)</strong> saves <code>Order</code> in PostgreSQL write model and simultaneously inserts <code>OutboxEvent</code> in the SAME ACID database transaction. Scheduled relay publishes <code>OrderCreatedEvent</code> to Kafka and AWS SQS.</div>
-            </div>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-purple);">
-            <div style="font-size: 20px;">3️⃣</div>
-            <div>
-              <div style="font-weight: 600; color: var(--text-main);">Inventory Reservation & Concurrency Lock</div>
-              <div style="font-size: 12px; color: var(--text-muted);"><strong>Inventory Service (8082)</strong> consumes event on Java 21 Virtual Thread, acquires Redis distributed lock <code>SET lock:stock:{sku} NX PX 5000</code>, decrements available stock, and emits inventory event.</div>
-            </div>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-amber);">
-            <div style="font-size: 20px;">4️⃣</div>
-            <div>
-              <div style="font-weight: 600; color: var(--text-main);">Payment Gateway Authorization</div>
-              <div style="font-size: 12px; color: var(--text-muted);"><strong>Payment Service (8084)</strong> executes simulated payment with idempotency key. Emits <code>PaymentCapturedEvent</code> (or <code>PaymentFailedEvent</code> if amount triggered decline rule).</div>
-            </div>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-card); padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-green);">
-            <div style="font-size: 20px;">5️⃣</div>
-            <div>
-              <div style="font-weight: 600; color: var(--text-main);">Saga Completion & Document Archival</div>
-              <div style="font-size: 12px; color: var(--text-muted);"><strong>OrderSagaOrchestrator</strong> receives payment confirmation, marks order <code>CONFIRMED</code>. <strong>Notification Service (8083)</strong> idempotently consumes order event, generates PDF invoice, and archives it to <strong>LocalStack S3</strong> bucket.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- TAB 4: Services Registry -->
     <div id="view-services" class="view-content">
@@ -2084,65 +2273,76 @@
         <!-- Populated dynamically by loadLearningPatterns() -->
       </div>
 
-      <!-- Pattern Inspection Slide-out Drawer -->
-      <div class="learning-drawer-backdrop" id="learning-drawer-backdrop" onclick="closePatternDrawer()"></div>
-      <div class="learning-drawer" id="learning-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-pattern-title">
-        <div class="learning-drawer-header">
-          <div class="drawer-top-row">
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span class="learning-category" id="drawer-category">CATEGORY</span>
-              <div class="learning-services-tags" id="drawer-services"></div>
-            </div>
-            <button class="drawer-close-btn" onclick="closePatternDrawer()" title="Close (Esc)" aria-label="Close Inspection Drawer">✕</button>
+      <!-- Catalog End & Back-to-Top Footer Bar -->
+      <div class="learning-footer" id="learning-footer">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span>🏛️</span>
+          <span>Showing <strong id="learning-footer-count" style="color: var(--text-main);">12</strong> architectural patterns &bull; End of catalog</span>
+        </div>
+        <button class="learning-back-to-top-btn" onclick="scrollToTopLearning()">
+          <span>⬆</span> Back to Top
+        </button>
+      </div>
+    </div>
+
+    <!-- Pattern Inspection Slide-out Drawer (Decoupled at #main-container level) -->
+    <div class="learning-drawer-backdrop" id="learning-drawer-backdrop" onclick="closePatternDrawer()"></div>
+    <div class="learning-drawer" id="learning-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-pattern-title">
+      <div class="learning-drawer-header">
+        <div class="drawer-top-row">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span class="learning-category" id="drawer-category">CATEGORY</span>
+            <div class="learning-services-tags" id="drawer-services"></div>
           </div>
-          <h2 class="drawer-title" id="drawer-pattern-title">Pattern Title</h2>
+          <button class="drawer-close-btn" onclick="closePatternDrawer()" title="Close (Esc)" aria-label="Close Inspection Drawer">✕</button>
+        </div>
+        <h2 class="drawer-title" id="drawer-pattern-title">Pattern Title</h2>
+      </div>
+
+      <div class="drawer-tabs">
+        <button class="drawer-tab active" data-tab="concept" onclick="switchDrawerTab('concept')">
+          <span>🏛️</span> Concept &amp; Demo
+        </button>
+        <button class="drawer-tab" data-tab="code" onclick="switchDrawerTab('code')">
+          <span>📂</span> Source Code Files (<span id="drawer-code-count">0</span>)
+        </button>
+        <button class="drawer-tab" data-tab="tradeoffs" onclick="switchDrawerTab('tradeoffs')">
+          <span>⚖️</span> Trade-Offs &amp; Live Actions
+        </button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Tab 1: Architecture Concept -->
+        <div class="drawer-tab-pane active" id="drawer-pane-concept">
+          <div class="drawer-callout callout-challenge">
+            <div class="drawer-callout-label">⚠️ Distributed Systems Challenge</div>
+            <div class="drawer-callout-text" id="drawer-problem-text"></div>
+          </div>
+          <div class="drawer-callout callout-concept">
+            <div class="drawer-callout-label">💡 Architectural Concept</div>
+            <div class="drawer-callout-text" id="drawer-concept-text"></div>
+          </div>
+          <div class="drawer-callout callout-impl">
+            <div class="drawer-callout-label">⚙️ Concrete Implementation in Demo</div>
+            <div class="drawer-callout-text" id="drawer-impl-text"></div>
+          </div>
         </div>
 
-        <div class="drawer-tabs">
-          <button class="drawer-tab active" data-tab="concept" onclick="switchDrawerTab('concept')">
-            <span>🏛️</span> Concept &amp; Demo
-          </button>
-          <button class="drawer-tab" data-tab="code" onclick="switchDrawerTab('code')">
-            <span>📂</span> Source Code Files (<span id="drawer-code-count">0</span>)
-          </button>
-          <button class="drawer-tab" data-tab="tradeoffs" onclick="switchDrawerTab('tradeoffs')">
-            <span>⚖️</span> Trade-Offs &amp; Live Actions
-          </button>
+        <!-- Tab 2: Source Code Files -->
+        <div class="drawer-tab-pane" id="drawer-pane-code">
+          <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px;">
+            Click any source file below to open directly in <strong>VS Code</strong> (or <strong>Notepad</strong> if VS Code is unavailable) relative to the cloned workspace.
+          </div>
+          <div class="learning-code-list" id="drawer-code-list"></div>
         </div>
 
-        <div class="drawer-body">
-          <!-- Tab 1: Architecture Concept -->
-          <div class="drawer-tab-pane active" id="drawer-pane-concept">
-            <div class="drawer-callout callout-challenge">
-              <div class="drawer-callout-label">⚠️ Distributed Systems Challenge</div>
-              <div class="drawer-callout-text" id="drawer-problem-text"></div>
-            </div>
-            <div class="drawer-callout callout-concept">
-              <div class="drawer-callout-label">💡 Architectural Concept</div>
-              <div class="drawer-callout-text" id="drawer-concept-text"></div>
-            </div>
-            <div class="drawer-callout callout-impl">
-              <div class="drawer-callout-label">⚙️ Concrete Implementation in Demo</div>
-              <div class="drawer-callout-text" id="drawer-impl-text"></div>
-            </div>
+        <!-- Tab 3: Trade-Offs & Presets -->
+        <div class="drawer-tab-pane" id="drawer-pane-tradeoffs">
+          <div class="drawer-tradeoffs-box">
+            <div class="drawer-tradeoffs-title">Production Trade-Offs &amp; Architectural Considerations</div>
+            <div class="drawer-tradeoffs-text" id="drawer-tradeoffs-text"></div>
           </div>
-
-          <!-- Tab 2: Source Code Files -->
-          <div class="drawer-tab-pane" id="drawer-pane-code">
-            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px;">
-              Click any source file below to open directly in <strong>VS Code</strong> (or <strong>Notepad</strong> if VS Code is unavailable) relative to the cloned workspace.
-            </div>
-            <div class="learning-code-list" id="drawer-code-list"></div>
-          </div>
-
-          <!-- Tab 3: Trade-Offs & Presets -->
-          <div class="drawer-tab-pane" id="drawer-pane-tradeoffs">
-            <div class="drawer-tradeoffs-box">
-              <div class="drawer-tradeoffs-title">Production Trade-Offs &amp; Architectural Considerations</div>
-              <div class="drawer-tradeoffs-text" id="drawer-tradeoffs-text"></div>
-            </div>
-            <div id="drawer-crosstab-container" style="margin-top: 6px;"></div>
-          </div>
+          <div id="drawer-crosstab-container" style="margin-top: 6px;"></div>
         </div>
       </div>
     </div>
@@ -2157,6 +2357,141 @@
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
           Execute live HTTP requests against running Kubernetes microservices. Every action generates the exact executable <code style="color: #38bdf8;">curl</code> command, tracks live Kafka event streaming, captures before/after state diffs (PostgreSQL, Redis, S3), and visualizes real distributed saga rollbacks with zero mock data.
         </p>
+
+        <!-- Unified Distributed Transaction Journey Pipeline -->
+        <div id="journey-pipeline-section" class="journey-pipeline-wrapper">
+          <div class="journey-pipeline-header">
+            <div class="journey-pipeline-title-group">
+              <div class="journey-pipeline-title">
+                <span>🔀</span> Distributed Transaction Journey (Order Placement &amp; Saga Execution)
+              </div>
+              <div class="journey-pipeline-subtitle">
+                Visual Microservices Lifecycle &amp; Live Synchronized Telemetry Pipeline
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <span id="journey-lifecycle-badge" class="badge badge-info">IDLE / ARCHITECTURAL STANDBY</span>
+              <button id="btn-toggle-journey" class="btn btn-sm" onclick="toggleJourneyPipeline()" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18);">
+                <span>🔼</span> Collapse Journey
+              </button>
+              <button class="btn btn-sm" onclick="resetJourneyPipeline()" style="background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3); color: #93c5fd;" title="Reset pipeline steps to architectural standby">
+                <span>🔄</span> Reset Stepper
+              </button>
+            </div>
+          </div>
+
+          <div id="journey-pipeline-body">
+            <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.45; margin-bottom: 14px; background: rgba(15, 23, 42, 0.6); padding: 10px 12px; border-radius: 6px; border-left: 3px solid var(--accent-blue);">
+              This interactive pipeline visualizes the complete end-to-end distributed lifecycle for incoming e-commerce requests across the microservices ecosystem. When you trigger any preset below or dispatch a custom payload, the journey nodes dynamically synchronize with real cluster state.
+            </div>
+
+            <!-- Horizontal Connected Stepper Flow -->
+            <div class="journey-stepper-flow">
+              <!-- Node 1: Client Request & Gateway Authentication -->
+              <div id="journey-node-1" class="journey-step-node step-1">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.5px;">STEP 1 &bull; PORT 8080</span>
+                    <span id="j-status-1" class="journey-node-pill pill-standby">STANDBY</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 2px;">1️⃣ Gateway &amp; OAuth2</div>
+                  <div style="font-size: 11px; color: #93c5fd; font-weight: 600; margin-bottom: 6px;">API Gateway &amp; Keycloak</div>
+                  <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+                    Validates client JWT, enforces Token-Bucket rate limiting, injects <code>X-Correlation-ID</code>, and proxies to Order Service.
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                  <button class="journey-mini-btn" onclick="openNodeLogsDirect('api-gateway')">🪵 Gateway Logs</button>
+                  <button class="journey-mini-btn" onclick="switchTab('architecture')">🌐 Topology</button>
+                </div>
+              </div>
+
+              <div class="journey-step-arrow">➔</div>
+
+              <!-- Node 2: ACID Write & Transactional Outbox -->
+              <div id="journey-node-2" class="journey-step-node step-2">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px;">STEP 2 &bull; PORT 8081</span>
+                    <span id="j-status-2" class="journey-node-pill pill-standby">STANDBY</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 2px;">2️⃣ ACID Outbox Write</div>
+                  <div style="font-size: 11px; color: #67e8f9; font-weight: 600; margin-bottom: 6px;">Order Service &amp; PostgreSQL</div>
+                  <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+                    Persists <code>Order</code> in PostgreSQL write model and inserts <code>OutboxEvent</code> in single ACID transaction. Relays to Kafka &amp; SQS.
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                  <button class="journey-mini-btn" onclick="openNodeLogsDirect('order-service')">🪵 Order Logs</button>
+                  <button class="journey-mini-btn" onclick="switchTab('events')">📬 Kafka Topics</button>
+                </div>
+              </div>
+
+              <div class="journey-step-arrow">➔</div>
+
+              <!-- Node 3: Inventory Reservation & Concurrency Lock -->
+              <div id="journey-node-3" class="journey-step-node step-3">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 0.5px;">STEP 3 &bull; PORT 8082</span>
+                    <span id="j-status-3" class="journey-node-pill pill-standby">STANDBY</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 2px;">3️⃣ Inventory Mutex Lock</div>
+                  <div style="font-size: 11px; color: #d8b4fe; font-weight: 600; margin-bottom: 6px;">Inventory Service &amp; Redis</div>
+                  <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+                    Consumes event on Virtual Thread, acquires Redis distributed lock <code>SET NX PX</code>, checks available stock, and emits inventory event.
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                  <button class="journey-mini-btn" onclick="openNodeLogsDirect('inventory-service')">🪵 Inventory Logs</button>
+                  <button class="journey-mini-btn" onclick="openRequestEditor('inventory-exhaustion')">⚙️ Overstock Test</button>
+                </div>
+              </div>
+
+              <div class="journey-step-arrow">➔</div>
+
+              <!-- Node 4: Payment Gateway Authorization -->
+              <div id="journey-node-4" class="journey-step-node step-4">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.5px;">STEP 4 &bull; PORT 8084</span>
+                    <span id="j-status-4" class="journey-node-pill pill-standby">STANDBY</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 2px;">4️⃣ Payment Authorization</div>
+                  <div style="font-size: 11px; color: #fcd34d; font-weight: 600; margin-bottom: 6px;">Payment Service (Idempotent)</div>
+                  <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+                    Executes simulated payment with idempotency key. Emits <code>PaymentCaptured</code> or declines (&gt;$1000) triggering compensating rollback.
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                  <button class="journey-mini-btn" onclick="openNodeLogsDirect('payment-service')">🪵 Payment Logs</button>
+                  <button class="journey-mini-btn" onclick="openRequestEditor('payment-decline')">💳 Decline Test</button>
+                </div>
+              </div>
+
+              <div class="journey-step-arrow">➔</div>
+
+              <!-- Node 5: Saga Completion & Document Archival -->
+              <div id="journey-node-5" class="journey-step-node step-5">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; color: var(--accent-green); text-transform: uppercase; letter-spacing: 0.5px;">STEP 5 &bull; PORT 8083</span>
+                    <span id="j-status-5" class="journey-node-pill pill-standby">STANDBY</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 2px;">5️⃣ Saga Archival &amp; S3</div>
+                  <div style="font-size: 11px; color: #86efac; font-weight: 600; margin-bottom: 6px;">OrderSaga &amp; Notification</div>
+                  <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+                    Orchestrator marks order <code>CONFIRMED</code>. Notification Service generates PDF invoice and archives it to LocalStack S3 bucket.
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                  <button class="journey-mini-btn" onclick="switchTab('aws-emulator')">☁️ LocalStack S3</button>
+                  <button class="journey-mini-btn" onclick="switchTab('sagas')">🔄 Saga Traces</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Scenario Presets Grid -->
         <div class="scenario-grid">
@@ -2617,6 +2952,84 @@
     let currentTopology = null;
     let selectedEdgeFilter = 'ALL';
 
+    // --- Font & Display Scaling Engine ---
+    const MIN_FONT_SCALE = 80;
+    const MAX_FONT_SCALE = 150;
+    const FONT_SCALE_STEP = 10;
+    const DEFAULT_FONT_SCALE = 100;
+    const STORAGE_KEY_FONT_SCALE = 'cc_font_scale';
+    let currentFontScale = DEFAULT_FONT_SCALE;
+
+    function applyFontScale(scale, persist = true) {
+      const clamped = Math.max(MIN_FONT_SCALE, Math.min(MAX_FONT_SCALE, scale));
+      currentFontScale = clamped;
+      document.body.style.zoom = (clamped / 100).toString();
+
+      const display = document.getElementById('font-scale-display');
+      if (display) {
+        display.textContent = clamped + '%';
+      }
+
+      const decBtn = document.getElementById('btn-font-dec');
+      if (decBtn) {
+        decBtn.disabled = (clamped <= MIN_FONT_SCALE);
+      }
+
+      const incBtn = document.getElementById('btn-font-inc');
+      if (incBtn) {
+        incBtn.disabled = (clamped >= MAX_FONT_SCALE);
+      }
+
+      if (persist) {
+        try {
+          localStorage.setItem(STORAGE_KEY_FONT_SCALE, clamped.toString());
+        } catch (e) {
+          console.warn('Unable to persist font scale in localStorage', e);
+        }
+      }
+    }
+
+    function adjustFontScale(delta) {
+      applyFontScale(currentFontScale + delta, true);
+    }
+
+    function resetFontScale() {
+      applyFontScale(DEFAULT_FONT_SCALE, true);
+      showToast('Font size reset to 100%');
+    }
+
+    function initFontScale() {
+      let savedScale = DEFAULT_FONT_SCALE;
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY_FONT_SCALE);
+        if (stored) {
+          const parsed = parseInt(stored, 10);
+          if (!isNaN(parsed) && parsed >= MIN_FONT_SCALE && parsed <= MAX_FONT_SCALE) {
+            savedScale = parsed;
+          }
+        }
+      } catch (e) {
+        console.warn('Unable to read font scale from localStorage', e);
+      }
+      applyFontScale(savedScale, false);
+
+      // Global keyboard shortcuts: Alt + + / Alt + = (increase), Alt + - (decrease), Alt + 0 (reset)
+      window.addEventListener('keydown', (e) => {
+        if (e.altKey && !e.ctrlKey && !e.metaKey) {
+          if (e.key === '=' || e.key === '+') {
+            e.preventDefault();
+            adjustFontScale(FONT_SCALE_STEP);
+          } else if (e.key === '-' || e.key === '_') {
+            e.preventDefault();
+            adjustFontScale(-FONT_SCALE_STEP);
+          } else if (e.key === '0') {
+            e.preventDefault();
+            resetFontScale();
+          }
+        }
+      });
+    }
+
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
       return String(str)
@@ -2636,15 +3049,19 @@
 
     let currentActiveTab = 'overview';
 
-    function switchTab(tabName) {
+    function switchTab(tabName, targetSectionId = null) {
       if (typeof closePatternDrawer === 'function') closePatternDrawer();
+      if (tabName === 'request-flow') {
+        tabName = 'operations';
+        targetSectionId = targetSectionId || 'journey-pipeline-section';
+      }
       currentActiveTab = tabName;
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
 
       const navMap = {
         'overview': 0, 'architecture': 1, 'infra-admin': 2, 'aws-emulator': 3, 'services': 4,
-        'events': 5, 'request-flow': 6, 'sagas': 7, 'learning': 8, 'operations': 9
+        'events': 5, 'sagas': 6, 'learning': 7, 'operations': 8
       };
       const items = document.querySelectorAll('.nav-item');
       if (items[navMap[tabName]]) items[navMap[tabName]].classList.add('active');
@@ -2659,10 +3076,9 @@
         'aws-emulator': 'AWS Cloud Emulator (LocalStack) Services & Health Dashboard',
         'services': 'Service Registry',
         'events': 'Kafka & Events',
-        'request-flow': 'Live Request Flow',
         'sagas': 'Saga Explorer',
         'learning': 'Architecture Learning Center',
-        'operations': 'Operations Console'
+        'operations': 'Live Operations & Transaction Workflow Console'
       };
       document.getElementById('view-title').innerText = titles[tabName] || 'Control Center';
 
@@ -2673,6 +3089,13 @@
       if (tabName === 'learning') loadLearningPatterns();
       if (tabName === 'infra-admin') loadInfraNodes();
       if (tabName === 'aws-emulator') loadAwsEmulator();
+
+      if (targetSectionId) {
+        setTimeout(() => {
+          const el = document.getElementById(targetSectionId);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+      }
     }
 
     async function refreshDashboard() {
@@ -2723,6 +3146,7 @@
 
         const opPanel = document.getElementById('operation-result-panel');
         if (opPanel) opPanel.style.display = 'none';
+        resetJourneyPipeline();
 
         await loadOverview();
         await Promise.all([
@@ -3861,6 +4285,16 @@
           </div>
         `;
       }).join('');
+
+      const footerCount = document.getElementById('learning-footer-count');
+      if (footerCount) footerCount.textContent = filtered.length;
+    }
+
+    function scrollToTopLearning() {
+      const viewEl = document.getElementById('view-learning');
+      if (viewEl) {
+        viewEl.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
     let currentDrawerPattern = null;
@@ -4200,6 +4634,7 @@
 
         indicator.innerText = '✓ Dispatched at ' + new Date().toLocaleTimeString();
         showToast(`Dispatched ${method} ${path} -> HTTP ${data.statusCode}`);
+        updateJourneyCustomDispatch(target, data);
 
         loadOverview();
         loadSagas();
@@ -4212,6 +4647,7 @@
 
     async function triggerLiveFlow(presetId) {
       showToast(`⚡ Dispatching live cluster flow: ${presetId}...`);
+      updateJourneyFlowState('RUNNING', presetId);
       try {
         const res = await fetch(`${API_BASE}/live/execute-flow?presetId=${encodeURIComponent(presetId)}`, { method: 'POST' });
         if (!res.ok) throw new Error('Live flow execution failed with status: ' + res.status);
@@ -4279,12 +4715,211 @@
           `;
         }
 
+        updateJourneyFlowResult(presetId, data);
         showToast(`⚡ Live Flow ${presetId} completed! Status: ${data.status}`);
         loadOverview();
         loadSagas();
         loadEvents();
       } catch (e) {
         showToast(`Error: ${e.message}`);
+        updateJourneyFlowResult(presetId, { status: 'FAILED' });
+      }
+    }
+
+    // --- Distributed Transaction Journey Synchronization Engine ---
+    function toggleJourneyPipeline() {
+      const body = document.getElementById('journey-pipeline-body');
+      const btn = document.getElementById('btn-toggle-journey');
+      if (!body || !btn) return;
+      const isHidden = body.style.display === 'none';
+      body.style.display = isHidden ? 'block' : 'none';
+      btn.innerHTML = isHidden ? '<span>🔼</span> Collapse Journey' : '<span>🔽</span> Expand Journey';
+    }
+
+    function resetJourneyPipeline() {
+      for (let i = 1; i <= 5; i++) {
+        const node = document.getElementById(`journey-node-${i}`);
+        const pill = document.getElementById(`j-status-${i}`);
+        if (node) {
+          node.className = `journey-step-node step-${i}`;
+        }
+        if (pill) {
+          pill.className = 'journey-node-pill pill-standby';
+          pill.innerText = 'STANDBY';
+        }
+      }
+      const badge = document.getElementById('journey-lifecycle-badge');
+      if (badge) {
+        badge.className = 'badge badge-info';
+        badge.innerText = 'IDLE / ARCHITECTURAL STANDBY';
+      }
+    }
+
+    function updateJourneyFlowState(status, presetId) {
+      const badge = document.getElementById('journey-lifecycle-badge');
+      if (badge) {
+        badge.className = 'badge badge-warn';
+        badge.innerText = `RUNNING FLOW: ${presetId.toUpperCase()}`;
+      }
+      resetJourneyPipeline();
+      const node1 = document.getElementById('journey-node-1');
+      const pill1 = document.getElementById('j-status-1');
+      if (node1) node1.classList.add('running');
+      if (pill1) {
+        pill1.className = 'journey-node-pill pill-running';
+        pill1.innerText = 'PROCESSING...';
+      }
+    }
+
+    function updateJourneyFlowResult(presetId, data) {
+      const badge = document.getElementById('journey-lifecycle-badge');
+      const nodeIds = [1, 2, 3, 4, 5];
+      nodeIds.forEach(i => {
+        const n = document.getElementById(`journey-node-${i}`);
+        if (n) n.classList.remove('running', 'completed', 'failed', 'compensated', 'skipped');
+      });
+
+      if (presetId === 'happy-path') {
+        nodeIds.forEach(i => {
+          const n = document.getElementById(`journey-node-${i}`);
+          if (n) n.classList.add('completed');
+        });
+        const p1 = document.getElementById('j-status-1');
+        if (p1) { p1.className = 'journey-node-pill pill-completed'; p1.innerText = '✓ AUTH 200'; }
+        const p2 = document.getElementById('j-status-2');
+        if (p2) { p2.className = 'journey-node-pill pill-completed'; p2.innerText = '✓ OUTBOX EMITTED'; }
+        const p3 = document.getElementById('j-status-3');
+        if (p3) { p3.className = 'journey-node-pill pill-completed'; p3.innerText = '✓ STOCK RESERVED'; }
+        const p4 = document.getElementById('j-status-4');
+        if (p4) { p4.className = 'journey-node-pill pill-completed'; p4.innerText = '✓ PAID $149'; }
+        const p5 = document.getElementById('j-status-5');
+        if (p5) { p5.className = 'journey-node-pill pill-completed'; p5.innerText = '✓ S3 ARCHIVED'; }
+
+        if (badge) {
+          badge.className = 'badge badge-up';
+          badge.innerText = '5/5 STEPS CONFIRMED';
+        }
+      } else if (presetId === 'payment-decline') {
+        [1, 2, 3].forEach(i => {
+          const n = document.getElementById(`journey-node-${i}`);
+          if (n) n.classList.add('completed');
+        });
+        const n4 = document.getElementById('journey-node-4');
+        if (n4) n4.classList.add('failed');
+        const n5 = document.getElementById('journey-node-5');
+        if (n5) n5.classList.add('compensated');
+
+        const p1 = document.getElementById('j-status-1');
+        if (p1) { p1.className = 'journey-node-pill pill-completed'; p1.innerText = '✓ AUTH 200'; }
+        const p2 = document.getElementById('j-status-2');
+        if (p2) { p2.className = 'journey-node-pill pill-completed'; p2.innerText = '✓ OUTBOX EMITTED'; }
+        const p3 = document.getElementById('j-status-3');
+        if (p3) { p3.className = 'journey-node-pill pill-completed'; p3.innerText = '✓ STOCK RESERVED'; }
+        const p4 = document.getElementById('j-status-4');
+        if (p4) { p4.className = 'journey-node-pill pill-failed'; p4.innerText = '✕ DECLINED (402)'; }
+        const p5 = document.getElementById('j-status-5');
+        if (p5) { p5.className = 'journey-node-pill pill-compensated'; p5.innerText = '↺ SAGA ROLLBACK'; }
+
+        if (badge) {
+          badge.className = 'badge badge-warn';
+          badge.innerText = 'COMPENSATED / SAGA ROLLBACK';
+        }
+      } else if (presetId === 'inventory-exhaustion') {
+        [1, 2].forEach(i => {
+          const n = document.getElementById(`journey-node-${i}`);
+          if (n) n.classList.add('completed');
+        });
+        const n3 = document.getElementById('journey-node-3');
+        if (n3) n3.classList.add('failed');
+        [4, 5].forEach(i => {
+          const n = document.getElementById(`journey-node-${i}`);
+          if (n) n.classList.add('skipped');
+        });
+
+        const p1 = document.getElementById('j-status-1');
+        if (p1) { p1.className = 'journey-node-pill pill-completed'; p1.innerText = '✓ AUTH 200'; }
+        const p2 = document.getElementById('j-status-2');
+        if (p2) { p2.className = 'journey-node-pill pill-completed'; p2.innerText = '✓ ORDER CREATED'; }
+        const p3 = document.getElementById('j-status-3');
+        if (p3) { p3.className = 'journey-node-pill pill-failed'; p3.innerText = '✕ GUARD FAIL (STOCK 0)'; }
+        const p4 = document.getElementById('j-status-4');
+        if (p4) { p4.className = 'journey-node-pill pill-skipped'; p4.innerText = '⊘ HALTED'; }
+        const p5 = document.getElementById('j-status-5');
+        if (p5) { p5.className = 'journey-node-pill pill-skipped'; p5.innerText = '⊘ SKIPPED'; }
+
+        if (badge) {
+          badge.className = 'badge badge-down';
+          badge.innerText = 'INVENTORY GUARD HALTED';
+        }
+      } else if (presetId === 'manual-cancellation') {
+        [1, 2, 3, 5].forEach(i => {
+          const n = document.getElementById(`journey-node-${i}`);
+          if (n) n.classList.add('completed');
+        });
+        const n4 = document.getElementById('journey-node-4');
+        if (n4) n4.classList.add('skipped');
+
+        const p1 = document.getElementById('j-status-1');
+        if (p1) { p1.className = 'journey-node-pill pill-completed'; p1.innerText = '✓ POST CANCEL'; }
+        const p2 = document.getElementById('j-status-2');
+        if (p2) { p2.className = 'journey-node-pill pill-completed'; p2.innerText = '✓ DB CANCELLED'; }
+        const p3 = document.getElementById('j-status-3');
+        if (p3) { p3.className = 'journey-node-pill pill-compensated'; p3.innerText = '↺ STOCK RESTORED'; }
+        const p4 = document.getElementById('j-status-4');
+        if (p4) { p4.className = 'journey-node-pill pill-skipped'; p4.innerText = '⊘ NO PAYMENT'; }
+        const p5 = document.getElementById('j-status-5');
+        if (p5) { p5.className = 'journey-node-pill pill-completed'; p5.innerText = '✓ SAGA LOGGED'; }
+
+        if (badge) {
+          badge.className = 'badge badge-type';
+          badge.innerText = 'MANUAL CANCELLATION EXECUTED';
+        }
+      } else {
+        if (data && data.status === 'SUCCESS') {
+          nodeIds.forEach(i => {
+            const n = document.getElementById(`journey-node-${i}`);
+            if (n) n.classList.add('completed');
+          });
+          if (badge) {
+            badge.className = 'badge badge-up';
+            badge.innerText = 'FLOW CONFIRMED';
+          }
+        } else {
+          const n = document.getElementById('journey-node-1');
+          if (n) n.classList.add('failed');
+          if (badge) {
+            badge.className = 'badge badge-down';
+            badge.innerText = 'FLOW FAILED';
+          }
+        }
+      }
+    }
+
+    function updateJourneyCustomDispatch(target, data) {
+      const serviceStepMap = {
+        'api-gateway': 1,
+        'order-service': 2,
+        'inventory-service': 3,
+        'payment-service': 4,
+        'notification-service': 5
+      };
+      const stepIdx = serviceStepMap[target] || 1;
+      const node = document.getElementById(`journey-node-${stepIdx}`);
+      const pill = document.getElementById(`j-status-${stepIdx}`);
+      const isSuccess = data.statusCode >= 200 && data.statusCode < 300;
+
+      if (node) {
+        node.classList.remove('running', 'completed', 'failed', 'compensated', 'skipped');
+        node.classList.add(isSuccess ? 'completed' : 'failed');
+      }
+      if (pill) {
+        pill.className = `journey-node-pill ${isSuccess ? 'pill-completed' : 'pill-failed'}`;
+        pill.innerText = `HTTP ${data.statusCode} (${data.durationMs}ms)`;
+      }
+      const badge = document.getElementById('journey-lifecycle-badge');
+      if (badge) {
+        badge.className = `badge ${isSuccess ? 'badge-up' : 'badge-down'}`;
+        badge.innerText = `CUSTOM DISPATCH: ${target.toUpperCase()} (HTTP ${data.statusCode})`;
       }
     }
 
@@ -4752,6 +5387,7 @@
 
     // Initial boot
     document.addEventListener('DOMContentLoaded', () => {
+      initFontScale();
       initEduTooltips();
       loadOverview();
       loadServices();

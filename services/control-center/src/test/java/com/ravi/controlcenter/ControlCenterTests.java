@@ -9,8 +9,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +53,9 @@ class ControlCenterTests {
 
     @Autowired
     private LocalEditorLauncherService editorLauncherService;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Test
     @DisplayName("Should successfully load ApplicationContext")
@@ -616,5 +622,108 @@ class ControlCenterTests {
         assertThat(status).containsKeys("vsCodeAvailable", "notepadAvailable", "detectedEditor", "repoRoot");
         assertThat(status.get("notepadAvailable")).isEqualTo(true);
         assertThat((String) status.get("detectedEditor")).isIn("VS_CODE", "NOTEPAD");
+    }
+
+    @Test
+    @DisplayName("Should verify that Control Center HTML provides font size scaling controls, persistence, and shortcuts")
+    void testControlCenterHtmlContainsFontSizeAdjustmentControls() throws Exception {
+        Resource resource = resourceLoader.getResource("classpath:static/index.html");
+        assertThat(resource.exists()).isTrue();
+
+        String html = resource.getContentAsString(StandardCharsets.UTF_8);
+
+        // Header controls and buttons
+        assertThat(html).contains("id=\"btn-font-dec\"");
+        assertThat(html).contains("id=\"font-scale-display\"");
+        assertThat(html).contains("id=\"btn-font-inc\"");
+        assertThat(html).contains("class=\"font-scale-group\"");
+
+        // JavaScript scaling engine functions & configuration
+        assertThat(html).contains("const MIN_FONT_SCALE = 80;");
+        assertThat(html).contains("const MAX_FONT_SCALE = 150;");
+        assertThat(html).contains("const FONT_SCALE_STEP = 10;");
+        assertThat(html).contains("const DEFAULT_FONT_SCALE = 100;");
+        assertThat(html).contains("const STORAGE_KEY_FONT_SCALE = 'cc_font_scale';");
+        assertThat(html).contains("function applyFontScale(");
+        assertThat(html).contains("function adjustFontScale(");
+        assertThat(html).contains("function resetFontScale(");
+        assertThat(html).contains("function initFontScale(");
+
+        // Persistence & shortcut hooks
+        assertThat(html).contains("localStorage.getItem(STORAGE_KEY_FONT_SCALE)");
+        assertThat(html).contains("localStorage.setItem(STORAGE_KEY_FONT_SCALE");
+        assertThat(html).contains("altKey");
+        assertThat(html).contains("initFontScale();");
+    }
+
+    @Test
+    @DisplayName("Should verify that Live Request Flow and Operations Console are merged with synchronized transaction journey")
+    void testMergedOperationsConsoleAndDistributedTransactionJourney() throws Exception {
+        Resource resource = resourceLoader.getResource("classpath:static/index.html");
+        assertThat(resource.exists()).isTrue();
+
+        String html = resource.getContentAsString(StandardCharsets.UTF_8);
+
+        // Sidebar should have consolidated Operations Console and no separate request-flow item
+        assertThat(html).doesNotContain("<li class=\"nav-item\" onclick=\"switchTab('request-flow')\">");
+        assertThat(html).contains("onclick=\"switchTab('operations')\"");
+
+        // Standalone view-request-flow is removed, unified inside view-operations
+        assertThat(html).doesNotContain("<div id=\"view-request-flow\"");
+        assertThat(html).contains("<div id=\"view-operations\"");
+
+        // Distributed Transaction Journey Pipeline embedded inside Operations Console
+        assertThat(html).contains("id=\"journey-pipeline-section\"");
+        assertThat(html).contains("Distributed Transaction Journey (Order Placement &amp; Saga Execution)");
+        assertThat(html).contains("id=\"journey-lifecycle-badge\"");
+        assertThat(html).contains("id=\"btn-toggle-journey\"");
+        assertThat(html).contains("resetJourneyPipeline()");
+
+        // 5 Connected Stepper Nodes
+        assertThat(html).contains("id=\"journey-node-1\"");
+        assertThat(html).contains("id=\"journey-node-2\"");
+        assertThat(html).contains("id=\"journey-node-3\"");
+        assertThat(html).contains("id=\"journey-node-4\"");
+        assertThat(html).contains("id=\"journey-node-5\"");
+
+        // Synchronization JavaScript functions
+        assertThat(html).contains("function toggleJourneyPipeline()");
+        assertThat(html).contains("function resetJourneyPipeline()");
+        assertThat(html).contains("function updateJourneyFlowState(");
+        assertThat(html).contains("function updateJourneyFlowResult(");
+        assertThat(html).contains("function updateJourneyCustomDispatch(");
+
+        // Backward compatibility alias in switchTab
+        assertThat(html).contains("if (tabName === 'request-flow')");
+    }
+
+    @Test
+    @DisplayName("Should verify that Architecture Learning Center prevents viewport clipping with min-height: 0, bottom clearance, and decoupled drawer")
+    void testLearningCenterScrollingAndViewportClearance() throws Exception {
+        Resource resource = resourceLoader.getResource("classpath:static/index.html");
+        assertThat(resource.exists()).isTrue();
+
+        String html = resource.getContentAsString(StandardCharsets.UTF_8);
+
+        // 1. Flexbox min-height: 0 rules on main-container and view-content to prevent content overflow clipping
+        assertThat(html).containsPattern("#main-container\\s*\\{[^}]*min-height:\\s*0;");
+        assertThat(html).containsPattern("\\.view-content\\s*\\{[^}]*min-height:\\s*0;");
+
+        // 2. Learning grid bottom margin / clearance
+        assertThat(html).containsPattern("\\.learning-grid\\s*\\{[^}]*margin-bottom:\\s*\\d+px;");
+
+        // 3. Learning footer with end-of-catalog status and Back to Top button
+        assertThat(html).contains("id=\"learning-footer\"");
+        assertThat(html).contains("id=\"learning-footer-count\"");
+        assertThat(html).contains("class=\"learning-back-to-top-btn\"");
+        assertThat(html).contains("scrollToTopLearning()");
+        assertThat(html).contains("function scrollToTopLearning()");
+
+        // 4. Modal inspection drawer is decoupled outside of the scrollable view-learning div
+        int viewLearningEnd = html.indexOf("</div>\n\n    <!-- Pattern Inspection Slide-out Drawer");
+        if (viewLearningEnd == -1) {
+            viewLearningEnd = html.indexOf("</div>\r\n\r\n    <!-- Pattern Inspection Slide-out Drawer");
+        }
+        assertThat(viewLearningEnd).isGreaterThan(0);
     }
 }
