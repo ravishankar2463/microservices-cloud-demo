@@ -47,16 +47,15 @@ springdoc:
       - name: API Gateway (Edge)
         url: /v3/api-docs
       - name: Order Service
-        url: /services/order-service/openapi.json
+        url: /services/order-service/v3/api-docs
       - name: Product Service
-        url: /services/product-service/openapi.json
+        url: /services/product-service/v3/api-docs
       - name: Inventory Service
-        url: /services/inventory-service/openapi.json
+        url: /services/inventory-service/v3/api-docs
       - name: Payment Service
-        url: /services/payment-service/openapi.json
+        url: /services/payment-service/v3/api-docs
       - name: Notification Service
-        url: /services/notification-service/openapi.json
-    urls-primary-name: API Gateway (Edge)
+        url: /services/notification-service/v3/api-docs
 
 management:
   endpoints:

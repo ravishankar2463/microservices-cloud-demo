@@ -104,4 +104,3 @@ The standardized HTTP error response envelope (`application/problem+json` and `a
 
 ### Non-Default Auth Toggle
 The deployment flag (`-EnableAuth` in `start.ps1` / `scripts/start-local.ps1`) controlling OAuth2 / Keycloak JWT resource server enforcement on API Gateway. It defaults to disabled (all routes open for rapid local iteration) while retaining Swagger UI `Authorize` dialog support via Bearer JWT SecurityScheme definitions.
-

@@ -46,6 +46,9 @@ aws:
 order:
   sqs:
     queue-name: order-events-queue
+  product-catalog:
+    validation:
+      enabled: true
 
 management:
   endpoints:
@@ -61,11 +64,6 @@ management:
   otlp:
     tracing:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
-
-order:
-  product-catalog:
-    validation:
-      enabled: true
 
 services:
   product-service:

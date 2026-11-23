@@ -276,7 +276,7 @@ public class LearningCenterService {
                 new CodeReference("Order Service Product Catalog Fallback", "services/order-service/src/main/java/com/ravi/order/infrastructure/client/ProductCatalogClient.java", 42, "Trips when product catalog fails, throwing ProductCatalogUnavailableException to yield RFC 7807 503"),
                 new CodeReference("Payment Service External Gateway Circuit Breaker", "services/payment-service/src/main/java/com/ravi/payment/infrastructure/external/SimulatedPaymentProviderAdapter.java", 20, "Guards external banking/payment processor integration with @CircuitBreaker and @Retry"),
                 new CodeReference("Payment Service Circuit Breaker Fallback", "services/payment-service/src/main/java/com/ravi/payment/infrastructure/external/SimulatedPaymentProviderAdapter.java", 45, "Returns failed PaymentResult on gateway timeout or open circuit to trigger deterministic Saga rollback"),
-                new CodeReference("Order Service Resilience4j Settings", "services/order-service/src/main/resources/application.yaml", 70, "Configures sliding-window-size, failure-rate-threshold (50%), and wait-duration-in-open-state")
+                new CodeReference("Order Service Resilience4j Settings", "services/order-service/src/main/resources/application.yaml", 72, "Configures sliding-window-size, failure-rate-threshold (50%), and wait-duration-in-open-state")
             ),
             "Pros: Localized fault containment at the exact network integration boundary, zero cascading failures, cleanly drives domain fallbacks and Saga compensations. Cons: Requires tuning failure rate thresholds and sliding window sizes per dependency.",
             "operations"
