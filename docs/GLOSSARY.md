@@ -51,7 +51,25 @@ The periodic health verification and status aggregation mechanism polling all 8 
 
 ---
 
-## 3. Control Center UI & Accessibility Domain
+## 4. Observability, Resilience & Cloud IaC Domain
+
+### RFC 7807 (ProblemDetail)
+The IETF standardized error format implemented via Spring Boot 4 `@RestControllerAdvice` (`org.springframework.http.ProblemDetail`), returning structured JSON error payloads containing `type`, `title`, `status`, `detail`, `instance`, `timestamp`, and `service` metadata.
+
+### OpenTelemetry (OTel) & W3C TraceContext
+Industry-standard vendor-neutral telemetry framework. Microservices embed in-process Micrometer Tracing (`micrometer-tracing-bridge-otel`), exporting spans to Grafana Tempo via OTLP (`/v1/traces`) and propagating `traceparent` headers across HTTP requests and Kafka event records.
+
+### Dual-Layer Circuit Breaker (Resilience4j)
+Fault tolerance pattern wrapping HTTP and downstream client calls. Automatically trips to `OPEN` state upon elevated error rates, shedding load and executing graceful fallback responses to prevent cascading service failure.
+
+### Dead Letter Queue (DLQ) & Redrive API
+An asynchronous failure isolation mechanism routing poisoned or repeatedly failed messages into a dedicated queue (`order-events-dlq`). The **Redrive API** (`/api/notifications/dlq/redrive/{id}`) enables operators to safely inspect, replay, or purge dead-lettered events without data loss.
+
+### Infrastructure-as-Code (Terraform LocalStack)
+Declarative infrastructure provisioning using HashiCorp Terraform modules (`terraform/`) with local AWS endpoint overrides, managing SQS queues, SNS topics, S3 buckets, and DynamoDB tables on LocalStack (`:4566`).
+
+### Umbrella Helm Chart
+A unified Kubernetes packaging chart (`helm/ecommerce-platform`) orchestrating deployments, services, configmaps, and ingress across all microservices, with environment-specific overrides (`values-dev.yaml`, `values-prod.yaml`).
 
 ### Font Scale
 The proportional zoom ratio applied across the dashboard interface, bounded between 80% (0.8x) and 150% (1.5x) to guarantee legible accessibility without breaking layout grids or panel boundaries.
@@ -64,3 +82,25 @@ The central button in the header toolbar showing the active scale percentage (e.
 
 ### Scale Persistence
 The automated caching of user display scale preferences across page refreshes and browser sessions using browser `localStorage` under the key `cc_font_scale`.
+
+---
+
+## 4. API Gateway, OpenAPI Specification (OAS) & Swagger Architecture
+
+### OpenAPI Specification (OAS 3.0 / 3.1)
+The standardized, machine-readable interface definition language (IDL) describing the REST endpoints, operations, request payloads, response structures, and HTTP status codes exposed by each microservice in the cluster.
+
+### Swagger UI Edge Aggregator
+The central Swagger UI dashboard running on API Gateway (`http://localhost:8080/swagger-ui.html`) configured with multi-service definition dropdowns. It unifies distributed API specifications into a single interactive console by proxying downstream service `/v3/api-docs`.
+
+### Spec Proxy Seam
+The dedicated reverse-proxy route (`/services/{serviceName}/v3/api-docs`) hosted on API Gateway that fetches raw OpenAPI JSON specifications from isolated downstream microservices (Order, Product, Inventory, Payment, Notification) and rewrites target server URLs to Gateway edge paths (`/api/**`).
+
+### Dual-Access Documentation Topology
+The dual-surfaced API exploration architecture enabling developers to browse and test APIs either directly on API Gateway (port `8080`) or through the embedded "API Docs / Swagger" explorer tab and service card actions within the Control Center (port `8090`).
+
+### RFC 7807 ProblemDetail Contract
+The standardized HTTP error response envelope (`application/problem+json` and `application/json`) conveying machine-parseable error fields (`type`, `title`, `status`, `detail`, `instance`, `timestamp`, `service`, `errors`) across all 4xx/5xx failure responses in the OpenAPI schema definitions.
+
+### Non-Default Auth Toggle
+The deployment flag (`-EnableAuth` in `start.ps1` / `scripts/start-local.ps1`) controlling OAuth2 / Keycloak JWT resource server enforcement on API Gateway. It defaults to disabled (all routes open for rapid local iteration) while retaining Swagger UI `Authorize` dialog support via Bearer JWT SecurityScheme definitions.

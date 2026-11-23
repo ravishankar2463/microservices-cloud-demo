@@ -200,14 +200,22 @@ public class GatewayHomeController {
 
                 <div class="banner">
                   <div class="banner-text">
-                    <h3>Looking for the Control Center & Operations Dashboard?</h3>
-                    <p>Open the comprehensive management visualizer with Architecture Explorer, Live Logs, Saga Tracing, and Service Registry.</p>
+                    <h3>Interactive OpenAPI Documentation & Cluster Control Center</h3>
+                    <p>Explore unified OpenAPI specifications across all microservices or launch the Operations Dashboard.</p>
                   </div>
-                  <a href="http://localhost:8090" class="btn">🚀 Open Dashboard (:8090)</a>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="/swagger-ui.html" class="btn" style="background: var(--accent-cyan); color: #0f172a;">📖 Swagger UI</a>
+                    <a href="http://localhost:8090" class="btn">🚀 Control Center (:8090)</a>
+                  </div>
                 </div>
 
                 <div class="section-title">Public Endpoints (No Authentication Required)</div>
                 <div class="grid">
+                  <div class="card">
+                    <h4>Interactive Swagger UI</h4>
+                    <p>Explore & execute live API requests with the multi-service OAS dropdown aggregator.</p>
+                    <a href="/swagger-ui.html" class="endpoint-tag" style="color: var(--accent-cyan);">GET /swagger-ui.html</a>
+                  </div>
                   <div class="card">
                     <h4>Downstream Routes Registry</h4>
                     <p>Returns JSON mappings for all downstream microservice target URLs.</p>
@@ -272,12 +280,13 @@ curl -X POST http://localhost:8088/realms/ecommerce/protocol/openid-connect/toke
             "service", "api-gateway",
             "port", 8080,
             "status", "UP",
+            "swaggerUrl", "http://localhost:8080/swagger-ui.html",
             "dashboardUrl", "http://localhost:8090",
             "routesUrl", "http://localhost:8080/api/routes",
             "productsUrl", "http://localhost:8080/api/products",
             "healthUrl", "http://localhost:8080/actuator/health",
             "keycloakUrl", "http://localhost:8088",
-            "message", "Welcome to API Gateway Edge. Visit http://localhost:8090 for the interactive Control Center Dashboard."
+            "message", "Welcome to API Gateway Edge. Visit /swagger-ui.html for interactive API documentation or http://localhost:8090 for the Control Center Dashboard."
         ));
     }
 
@@ -287,12 +296,13 @@ curl -X POST http://localhost:8088/realms/ecommerce/protocol/openid-connect/toke
               "service": "api-gateway",
               "port": 8080,
               "status": "UP",
+              "swaggerUrl": "http://localhost:8080/swagger-ui.html",
               "dashboardUrl": "http://localhost:8090",
               "routesUrl": "http://localhost:8080/api/routes",
               "productsUrl": "http://localhost:8080/api/products",
               "healthUrl": "http://localhost:8080/actuator/health",
               "keycloakUrl": "http://localhost:8088",
-              "message": "Welcome to API Gateway Edge. Visit http://localhost:8090 for the interactive Control Center Dashboard."
+              "message": "Welcome to API Gateway Edge. Visit /swagger-ui.html for interactive API documentation or http://localhost:8090 for the Control Center Dashboard."
             }
             """;
     }

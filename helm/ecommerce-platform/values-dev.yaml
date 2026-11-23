@@ -1,0 +1,38 @@
+global:
+  environment: dev
+  imagePullPolicy: Always
+
+apiGateway:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 300m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+orderService:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+inventoryService:
+  replicaCount: 1
+
+productService:
+  replicaCount: 1
+
+paymentService:
+  replicaCount: 1
+
+notificationService:
+  replicaCount: 1
+
+controlCenter:
+  replicaCount: 1

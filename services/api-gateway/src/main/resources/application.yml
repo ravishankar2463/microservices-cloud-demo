@@ -13,7 +13,7 @@ spring:
           jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://localhost:8088/realms/ecommerce/protocol/openid-connect/certs}
 
 security:
-  enabled: ${SECURITY_ENABLED:true}
+  enabled: ${SECURITY_ENABLED:false}
 
 order:
   service:
@@ -31,11 +31,45 @@ payment:
   service:
     url: ${PAYMENT_SERVICE_URL:http://localhost:8084}
 
+notification:
+  service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8083}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha
+    urls:
+      - name: API Gateway (Edge)
+        url: /v3/api-docs
+      - name: Order Service
+        url: /services/order-service/openapi.json
+      - name: Product Service
+        url: /services/product-service/openapi.json
+      - name: Inventory Service
+        url: /services/inventory-service/openapi.json
+      - name: Payment Service
+        url: /services/payment-service/openapi.json
+      - name: Notification Service
+        url: /services/notification-service/openapi.json
+    urls-primary-name: API Gateway (Edge)
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+

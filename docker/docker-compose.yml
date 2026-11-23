@@ -171,8 +171,9 @@ services:
       - INVENTORY_SERVICE_URL=http://inventory-service:8082
       - PRODUCT_SERVICE_URL=http://product-service:8085
       - PAYMENT_SERVICE_URL=http://payment-service:8084
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8083
       - KEYCLOAK_JWKS_URI=http://keycloak:8080/realms/ecommerce/protocol/openid-connect/certs
-      - SECURITY_ENABLED=true
+      - SECURITY_ENABLED=${SECURITY_ENABLED:-false}
     depends_on:
       - order-service
       - inventory-service
@@ -380,11 +381,64 @@ services:
     networks:
       - microservices-net
 
+  # ============================================================================
+  # Distributed Observability Stack (Prometheus, Tempo, Grafana)
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:v2.53.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    networks:
+      - microservices-net
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - "./observability/tempo/tempo.yml:/etc/tempo.yml:ro"
+      - tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"   # Tempo HTTP
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+    networks:
+      - microservices-net
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - "./observability/grafana/provisioning:/etc/grafana/provisioning:ro"
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - tempo
+    networks:
+      - microservices-net
+
 volumes:
   order-db-data:
   product-db-data:
   payment-db-data:
   redis-data:
+  prometheus-data:
+  tempo-data:
+  grafana-data:
 
 networks:
   microservices-net:

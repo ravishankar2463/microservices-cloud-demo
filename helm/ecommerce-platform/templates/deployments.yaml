@@ -1,0 +1,253 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+    app: api-gateway
+spec:
+  replicas: {{ .Values.apiGateway.replicaCount }}
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: "{{ .Values.apiGateway.image.repository }}:{{ .Values.apiGateway.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: {{ include "ecommerce-platform.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.apiGateway.resources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+    app: order-service
+spec:
+  replicas: {{ .Values.orderService.replicaCount }}
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: "{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: {{ .Values.orderService.databaseUrl | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ecommerce-platform.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.orderService.resources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+    app: inventory-service
+spec:
+  replicas: {{ .Values.inventoryService.replicaCount }}
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+        - name: inventory-service
+          image: "{{ .Values.inventoryService.image.repository }}:{{ .Values.inventoryService.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - configMapRef:
+                name: {{ include "ecommerce-platform.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.inventoryService.resources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+    app: product-service
+spec:
+  replicas: {{ .Values.productService.replicaCount }}
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - name: product-service
+          image: "{{ .Values.productService.image.repository }}:{{ .Values.productService.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: {{ .Values.productService.databaseUrl | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ecommerce-platform.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.productService.resources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+    app: payment-service
+spec:
+  replicas: {{ .Values.paymentService.replicaCount }}
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+        - name: payment-service
+          image: "{{ .Values.paymentService.image.repository }}:{{ .Values.paymentService.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: 8084
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: {{ .Values.paymentService.databaseUrl | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ecommerce-platform.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.paymentService.resources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+    app: notification-service
+spec:
+  replicas: {{ .Values.notificationService.replicaCount }}
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: "{{ .Values.notificationService.image.repository }}:{{ .Values.notificationService.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: {{ include "ecommerce-platform.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.notificationService.resources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: control-center
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+    app: control-center
+spec:
+  replicas: {{ .Values.controlCenter.replicaCount }}
+  selector:
+    matchLabels:
+      app: control-center
+  template:
+    metadata:
+      labels:
+        app: control-center
+    spec:
+      containers:
+        - name: control-center
+          image: "{{ .Values.controlCenter.image.repository }}:{{ .Values.controlCenter.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: 8090
+          envFrom:
+            - configMapRef:
+                name: {{ include "ecommerce-platform.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.controlCenter.resources | nindent 12 }}

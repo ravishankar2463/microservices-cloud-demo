@@ -31,6 +31,10 @@ spec:
               value: "http://product-service.microservices-demo.svc.cluster.local:8085"
             - name: PAYMENT_SERVICE_URL
               value: "http://payment-service.microservices-demo.svc.cluster.local:8084"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://notification-service.microservices-demo.svc.cluster.local:8083"
+            - name: SECURITY_ENABLED
+              value: "false"
             - name: KEYCLOAK_JWKS_URI
               value: "http://keycloak.microservices-demo.svc.cluster.local:8080/realms/ecommerce/protocol/openid-connect/certs"
           startupProbe:

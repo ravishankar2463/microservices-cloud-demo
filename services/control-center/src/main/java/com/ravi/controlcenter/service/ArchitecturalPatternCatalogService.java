@@ -399,6 +399,190 @@ public class ArchitecturalPatternCatalogService {
                 "Adopt Virtual Threads everywhere; route payment authorizations through asynchronous webhook callbacks rather than synchronous HTTP blocking"
             )
         ));
+
+        catalog.put("DISTRIBUTED_TRACING", new ArchitecturalDossier(
+            "Distributed Observability & Tracing (OpenTelemetry & Tempo)",
+            "Distributed Observability",
+            "Instrumented all microservices with OpenTelemetry, Micrometer Tracing, and W3C TraceContext propagation, streaming OTLP traces to Grafana Tempo and metrics to Prometheus.",
+            "Eliminates distributed visibility blind spots, providing microsecond trace waterfalls that correlate HTTP calls and Kafka events across services.",
+            "Solves distributed system diagnosability. Without distributed tracing, pin-pointing the root cause of an intermittent 2-second delay across 5 microservices requires manually grepping disparate log files.",
+            List.of(
+                "Unified trace-to-metrics correlation in Grafana dashboards",
+                "W3C TraceContext headers propagate transparently across HTTP and Kafka topics",
+                "Automated span capture for controller endpoints, RestClient dispatches, and Kafka listeners",
+                "Zero application code changes required for standard span propagation"
+            ),
+            List.of(
+                "Exporting 100% of spans adds minor network bandwidth and CPU overhead under extreme load",
+                "Requires storage retention policies and compaction for trace storage backends"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Direct OTLP HTTP/gRPC export to single-instance Grafana Tempo with 100% sampling",
+                "High-volume 100% trace sampling saturates Tempo ingestion queues and storage disks",
+                "50,000 – 100,000+ RPS",
+                "OpenTelemetry Collector daemonset with tail-based sampling (retaining 100% of errors and 1% of happy paths) with S3/GCS object storage backend",
+                "Deploy OpenTelemetry Collector cluster; configure tail-based sampling policies to discard boring healthy 200 OK spans while preserving all latency anomalies and errors"
+            )
+        ));
+
+        catalog.put("CIRCUIT_BREAKER", new ArchitecturalDossier(
+            "Microservice Egress Resilience & Circuit Breaker (Resilience4j)",
+            "Resilience Engineering",
+            "Decorated microservice outbound integration boundaries (order-service ProductCatalogClient REST lookups and payment-service ExternalPaymentGateway authorizations) with @CircuitBreaker and @Retry.",
+            "Protects calling microservices from thread starvation, socket timeout hangs, and cascading failures when external third-party APIs or internal dependency microservices degrade.",
+            "Implements the Fail-Fast and Fault Isolation principles at the exact network seam. Rather than letting edge proxies guess at service health, each microservice protects its own egress calls, tripping OPEN to fail fast or execute domain-specific fallbacks (such as triggering Saga compensation).",
+            List.of(
+                "Protects microservice worker threads from starvation during downstream or external dependency outages",
+                "Automatic sliding window monitoring (COUNT_BASED / TIME_BASED) with configurable failure thresholds",
+                "Self-healing automatic transition from OPEN to HALF_OPEN to CLOSED once dependencies recover",
+                "Enables clean domain-specific fallbacks (e.g. failing payment authorization to trigger deterministic Saga rollback)"
+            ),
+            List.of(
+                "Fallbacks must be carefully designed to prevent masking fatal business errors",
+                "Sliding window size and failure thresholds require tuning per service SLA"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "In-process Resilience4j circuit breaker state per microservice pod instance",
+                "State is fragmented across 50 microservice replicas; one replica might remain closed while others are open",
+                "50,000 – 100,000+ RPS",
+                "Service Mesh (Envoy / Istio) egress circuit breaking and outlier detection at the L7 transport layer with adaptive concurrency limits",
+                "Offload circuit breaking and retries to Envoy sidecars with outlier detection (ejection of unhealthy upstream hosts)"
+            )
+        ));
+
+        catalog.put("DEAD_LETTER_QUEUE", new ArchitecturalDossier(
+            "Dead Letter Queue (DLQ) Parking & Redrive Pattern",
+            "Reliability & Eventing",
+            "Isolated poison-pill messages from Kafka listener threads into DeadLetterQueueService with failure metadata, exposing an operator redrive and purge REST API.",
+            "Prevents corrupted or unparseable messages from halting Kafka consumer partitions and blocking valid transactions from processing.",
+            "Separates transient network errors (which should be retried with exponential backoff) from deterministic poison pills (which must be quarantined to a DLQ so the offset can commit).",
+            List.of(
+                "Guarantees consumer stream continuity without infinite crash-looping",
+                "Full forensic capture of failure reason, exception message, and original payload",
+                "Interactive operator API for selective message redrive after bug fix or database recovery",
+                "Auditable purge capabilities for permanently invalid messages"
+            ),
+            List.of(
+                "DLQ storage requires capacity limits and periodic cleanup of un-redrivable messages",
+                "Out-of-order processing when a redriven message is replayed after later messages"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "In-memory / local DLQ store with REST API redrive endpoints",
+                "Pod termination risks losing unpersisted parked DLQ messages if memory-only",
+                "50,000 – 100,000+ RPS",
+                "Durable Kafka dead-letter topics (e.g., 'notification-events-dlq') with automated backoff retry topics and AWS SQS DLQ redrive tasks",
+                "Implement Spring Kafka DeadLetterPublishingRecoverer routing failed messages to dedicated .DLQ topics with exponential backoff retry topics (.RETRY-1, .RETRY-2)"
+            )
+        ));
+        catalog.put("DLQ_PARKING", catalog.get("DEAD_LETTER_QUEUE"));
+
+        catalog.put("PROBLEM_DETAIL", new ArchitecturalDossier(
+            "RFC 7807 Standardized ProblemDetail API Errors",
+            "API Design & Error Governance",
+            "Implemented GlobalExceptionHandler extending ResponseEntityExceptionHandler across all services, producing uniform RFC 7807 ProblemDetail payloads.",
+            "Eliminates discordant error payloads across services, providing predictable machine-readable error structures with standard status, title, detail, and instance fields.",
+            "Establishes a single API error contract for all REST endpoints across the enterprise, preventing sensitive internal stack traces from leaking to external clients.",
+            List.of(
+                "IETF and Spring Boot standard format for HTTP API error representations",
+                "Consistent client-side error parsing across web, mobile, and third-party integrations",
+                "Encapsulates domain-specific metadata (timestamps, trace IDs, service origin) cleanly",
+                "Secure by default: masks raw database exceptions and internal stack traces"
+            ),
+            List.of(
+                "Requires comprehensive mapping of all custom business exceptions to standard HTTP statuses",
+                "Client developers must be educated to parse standard RFC 7807 JSON keys"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Spring Boot @RestControllerAdvice GlobalExceptionHandler in each microservice",
+                "Code duplication across microservice repositories if exception handlers diverge",
+                "50,000 – 100,000+ RPS",
+                "Shared corporate error-starter library or API Gateway error translation filter enforcing corporate error schema at the perimeter",
+                "Package common error handling into shared corporate Spring Boot starter; configure API Gateway to normalize legacy upstream 5xx responses into RFC 7807 envelopes"
+            )
+        ));
+        catalog.put("RFC7807_ERROR", catalog.get("PROBLEM_DETAIL"));
+
+        catalog.put("ARCHUNIT_GUARDRAILS", new ArchitecturalDossier(
+            "Architecture Fitness Functions (ArchUnit Guardrails)",
+            "Architecture Governance",
+            "Codified hexagonal architecture layer rules, package isolation invariants, and injection safety rules into automated ArchUnit unit tests.",
+            "Prevents architectural erosion and unauthorized layer couplings from being merged into the codebase, verifying compliance during every 'mvn test' run.",
+            "Treats architecture as executable code rather than static documentation. If a developer accidentally imports a web controller into a domain entity, the build fails immediately.",
+            List.of(
+                "Zero-cost automated enforcement in CI/CD pipeline",
+                "Objective, non-negotiable verification of hexagonal layer boundaries",
+                "Prevents cyclic dependencies and dangerous field injection (@Autowired on fields)",
+                "Living documentation of architectural rules that never gets out of date"
+            ),
+            List.of(
+                "Adds a few seconds of bytecode scanning time to the unit test execution phase",
+                "Requires team alignment on package structure conventions"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Standard ArchUnit test classes inside src/test/java per microservice",
+                "Rules duplicated across 50 repositories become difficult to update uniformly",
+                "50,000 – 100,000+ RPS",
+                "Shared ArchUnit rules artifact published to corporate Maven repo and enforced via Maven Enforcer plugin / SonarQube quality gates",
+                "Extract common ArchUnit fitness functions into a shared Maven test dependency; enforce as mandatory corporate CI gate"
+            )
+        ));
+
+        catalog.put("TERRAFORM_IAC", new ArchitecturalDossier(
+            "Cloud Infrastructure-as-Code (Terraform & LocalStack)",
+            "Cloud & Platform Engineering",
+            "Codified AWS cloud resources (S3 buckets, SQS queues, SNS topics, DynamoDB tables) into modular HashiCorp Terraform modules verified against LocalStack.",
+            "Eliminates manual cloud provisioning, configuration drift, and production deployment surprises by verifying 100% of cloud resources locally without AWS spend.",
+            "Enforces immutable, declarative infrastructure versioning. The exact same Terraform modules that provision LocalStack resources locally can be promoted to staging and production AWS accounts.",
+            List.of(
+                "Declarative, reproducible cloud infrastructure definition",
+                "Modular architecture separating messaging (SQS/SNS) from persistence (S3/DynamoDB)",
+                "Zero-cost local validation with LocalStack before executing against real AWS",
+                "Integrated state management and plan dry-run capabilities"
+            ),
+            List.of(
+                "Terraform state file locking and remote state storage management required in teams",
+                "LocalStack API parity nuances compared to advanced multi-region AWS features"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Local Terraform CLI execution against LocalStack endpoint overrides",
+                "Local state files and manual CLI applies risk state corruption and concurrency conflicts",
+                "50,000 – 100,000+ RPS",
+                "GitOps IaC pipeline with Terraform Cloud / Spacelift / Atlantis and AWS remote S3 state backend with DynamoDB state locking",
+                "Configure remote S3 state backend with DynamoDB locking; deploy Atlantis or Spacelift for automated plan/apply on pull requests"
+            )
+        ));
+
+        catalog.put("HELM_PACKAGING", new ArchitecturalDossier(
+            "Cloud-Native Kubernetes Packaging (Umbrella Helm Chart)",
+            "Cloud & Platform Engineering",
+            "Packaged all 7 microservices and configuration into an umbrella Helm chart with environment-specific values overlays (values-dev.yaml, values-prod.yaml).",
+            "Eliminates sprawling unmaintainable Kubernetes YAML manifests, enabling single-command deployment, rolling upgrades, and environment promotion.",
+            "Encapsulates Kubernetes best practices: parameterized replica counts, resource requests/limits, liveness/readiness probes, and ingress routing.",
+            List.of(
+                "Single-command ecosystem deployment ('helm upgrade --install')",
+                "Environment-specific overrides for CPU, memory, replicas, and ingress",
+                "Automated zero-downtime rolling upgrades and one-command rollbacks",
+                "Standalone sub-chart support for team-level service autonomy"
+            ),
+            List.of(
+                "Helm Go template syntax can become complex when nesting loops and conditionals",
+                "Values inheritance requires clear documentation to avoid unexpected overrides"
+            ),
+            new HyperscaleBlueprint(
+                "100 – 1,000 RPS",
+                "Umbrella Helm chart deployed via local Helm CLI to Minikube / Kind",
+                "Manual CLI deployments lack auditability, automated sync, and drift detection",
+                "50,000 – 100,000+ RPS",
+                "GitOps Continuous Delivery with ArgoCD or Flux managing Helm releases directly from Git commits with automated canary deployments (Argo Rollouts)",
+                "Connect ArgoCD to git repository; declare Application CRDs targeting the umbrella Helm chart; enable automated drift detection and self-healing"
+            )
+        ));
     }
 
     private ArchitecturalDossier getDefaultDossier(String stepName) {

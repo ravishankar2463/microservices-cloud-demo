@@ -1925,6 +1925,10 @@
       <li class="nav-item" onclick="switchTab('operations')">
         <span class="nav-icon">🚀</span> Operations Console
       </li>
+      <li id="nav-swagger" class="nav-item" onclick="switchTab('swagger')" style="background: rgba(16, 185, 129, 0.12); border-left: 3px solid var(--accent-green); font-weight: 600;">
+        <span class="nav-icon">📖</span> OpenAPI &amp; Swagger
+        <span class="badge" style="background: rgba(16, 185, 129, 0.25); color: var(--accent-green); font-size: 10px; margin-left: auto;">OAS 3.0</span>
+      </li>
     </ul>
 
     <div class="env-badge-container">
@@ -1950,6 +1954,9 @@
           <button id="font-scale-display" class="font-btn font-indicator" onclick="resetFontScale()" title="Click to reset font size to 100% (Alt + 0)" aria-label="Reset font size to 100%">100%</button>
           <button id="btn-font-inc" class="font-btn" onclick="adjustFontScale(10)" title="Increase text size (Alt + +)" aria-label="Increase font size">A+</button>
         </div>
+        <button id="btn-toolbar-swagger" class="btn" style="background: rgba(16, 185, 129, 0.2); border-color: var(--accent-green); color: #6ee7b7; font-weight: 600;" onclick="switchTab('swagger')" title="Open Interactive OpenAPI Specification & Swagger UI">
+          <span>📖</span> Swagger UI (:8080)
+        </button>
         <button class="btn" style="background: rgba(59, 130, 246, 0.2); border-color: var(--accent-blue); color: #93c5fd; font-weight: 600;" onclick="switchTab('infra-admin')">
           <span>🪵</span> Service &amp; Pod Logs
         </button>
@@ -2007,6 +2014,13 @@
                 <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); font-size: 10px;">VIEW ↗</span>
               </div>
               <div>LocalStack AWS Cloud Emulator on port 4566 emulating S3, SQS, SNS, DynamoDB &amp; Kinesis. Click to explore dashboard.</div>
+            </div>
+            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer;" onclick="switchTab('swagger')">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div style="font-weight: 600; color: var(--accent-green);">📖 OpenAPI &amp; Swagger Hub</div>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-green); font-size: 10px;">EXPLORE ↗</span>
+              </div>
+              <div>Unified OAS 3.0 specs across all services aggregated on API Gateway (:8080) with interactive test console.</div>
             </div>
             <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
               <div style="font-weight: 600; color: var(--accent-purple); margin-bottom: 4px;">🔐 Centralized Security</div>
@@ -2233,15 +2247,15 @@
           </p>
           <div class="learning-hero-stats">
             <div class="learning-stat-card">
-              <span class="learning-stat-val" id="stat-patterns-count">12</span>
+              <span class="learning-stat-val" id="stat-patterns-count">19</span>
               <span class="learning-stat-lbl">Architectural Patterns</span>
             </div>
             <div class="learning-stat-card">
-              <span class="learning-stat-val" id="stat-files-count">35+</span>
+              <span class="learning-stat-val" id="stat-files-count">55+</span>
               <span class="learning-stat-lbl">Linked Source Files</span>
             </div>
             <div class="learning-stat-card">
-              <span class="learning-stat-val">13</span>
+              <span class="learning-stat-val">16</span>
               <span class="learning-stat-lbl">Services &amp; Nodes</span>
             </div>
             <div class="learning-stat-card">
@@ -2260,7 +2274,10 @@
           <button class="learning-filter-btn" data-category="Data Architecture" onclick="filterLearningCategory('Data Architecture')">CQRS &amp; Data</button>
           <button class="learning-filter-btn" data-category="Edge & Security" onclick="filterLearningCategory('Edge & Security')">Edge &amp; Security</button>
           <button class="learning-filter-btn" data-category="Event-Driven Backbone" onclick="filterLearningCategory('Event-Driven Backbone')">Kafka Messaging</button>
+          <button class="learning-filter-btn" data-category="Distributed Observability" onclick="filterLearningCategory('Distributed Observability')">Observability &amp; OTel</button>
+          <button class="learning-filter-btn" data-category="Resilience & Governance" onclick="filterLearningCategory('Resilience & Governance')">Resilience &amp; Governance</button>
           <button class="learning-filter-btn" data-category="Concurrency & Cloud" onclick="filterLearningCategory('Concurrency & Cloud')">Concurrency &amp; Cloud</button>
+          <button class="learning-filter-btn" data-category="Cloud & Platform" onclick="filterLearningCategory('Cloud & Platform')">Cloud IaC &amp; Helm</button>
         </div>
         <div class="learning-search-box">
           <span style="color: var(--text-muted); font-size: 14px;">🔍</span>
@@ -2277,7 +2294,7 @@
       <div class="learning-footer" id="learning-footer">
         <div style="display: flex; align-items: center; gap: 8px;">
           <span>🏛️</span>
-          <span>Showing <strong id="learning-footer-count" style="color: var(--text-main);">12</strong> architectural patterns &bull; End of catalog</span>
+          <span>Showing <strong id="learning-footer-count" style="color: var(--text-main);">19</strong> architectural patterns &bull; End of catalog</span>
         </div>
         <button class="learning-back-to-top-btn" onclick="scrollToTopLearning()">
           <span>⬆</span> Back to Top
@@ -2942,6 +2959,59 @@
       </div>
     </div>
 
+    <!-- TAB 9: OpenAPI Specification & Swagger UI Aggregator -->
+    <div id="view-swagger" class="view-content">
+      <div class="panel" style="margin-bottom: 16px;">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+              <span>📖</span> OpenAPI 3.0 &amp; Swagger UI Aggregator
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.4);">
+              <span class="pulse-dot"></span> LIVE ON API GATEWAY (:8080)
+            </span>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
+              <span>Select Service Spec:</span>
+              <select id="swagger-service-select" onchange="switchSwaggerService(this.value)" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                <option value="http://localhost:8080/swagger-ui.html">API Gateway Edge (Aggregator Root)</option>
+                <option value="http://localhost:8080/swagger-ui.html?urls.primaryName=Order%20Service">Order Service (CQRS &amp; Sagas)</option>
+                <option value="http://localhost:8080/swagger-ui.html?urls.primaryName=Product%20Service">Product Service (Catalog &amp; Search)</option>
+                <option value="http://localhost:8080/swagger-ui.html?urls.primaryName=Inventory%20Service">Inventory Service (Redis Locks &amp; Loom)</option>
+                <option value="http://localhost:8080/swagger-ui.html?urls.primaryName=Payment%20Service">Payment Service (Idempotent Simulator)</option>
+                <option value="http://localhost:8080/swagger-ui.html?urls.primaryName=Notification%20Service">Notification Service (DLQ &amp; S3 Invoices)</option>
+              </select>
+            </div>
+            <button class="btn btn-sm" onclick="reloadSwaggerFrame()" title="Reload Swagger UI Frame">
+              <span>🔄</span> Reload Frame
+            </button>
+            <a id="swagger-external-link" href="http://localhost:8080/swagger-ui.html" target="_blank" class="btn btn-sm" style="background: var(--accent-blue); color: #fff; text-decoration: none;" title="Open Swagger UI in separate browser window">
+              <span>🚀</span> Open Standalone (:8080) ↗
+            </a>
+            <a id="swagger-raw-json-link" href="http://localhost:8080/v3/api-docs" target="_blank" class="btn btn-sm" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; text-decoration: none;" title="View raw JSON OpenAPI definition">
+              <span>📜</span> Raw OAS JSON ↗
+            </a>
+          </div>
+        </div>
+
+        <div style="padding: 12px 16px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-color); font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <strong style="color: var(--accent-cyan);">Architecture Seam:</strong> The API Gateway at <code>http://localhost:8080</code> dynamically reverse-proxies downstream <code>/services/{serviceName}/openapi.json</code> into a consolidated interactive Swagger UI. Error contracts conform to <strong>RFC 7807 ProblemDetail</strong>.
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #93c5fd;">OpenAPI 3.0</span>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">Bearer JWT Auth</span>
+            <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #d8b4fe;">RFC 7807 Errors</span>
+          </div>
+        </div>
+
+        <div style="height: calc(100vh - 225px); min-height: 600px; width: 100%; background: #1b1b1b; border-radius: 0 0 8px 8px; overflow: hidden; position: relative;">
+          <iframe id="swagger-frame" src="http://localhost:8080/swagger-ui.html" style="width: 100%; height: 100%; border: none;" title="Interactive Swagger UI Explorer"></iframe>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Toast Notification -->
@@ -3061,7 +3131,7 @@
 
       const navMap = {
         'overview': 0, 'architecture': 1, 'infra-admin': 2, 'aws-emulator': 3, 'services': 4,
-        'events': 5, 'sagas': 6, 'learning': 7, 'operations': 8
+        'events': 5, 'sagas': 6, 'learning': 7, 'operations': 8, 'swagger': 9
       };
       const items = document.querySelectorAll('.nav-item');
       if (items[navMap[tabName]]) items[navMap[tabName]].classList.add('active');
@@ -3078,7 +3148,8 @@
         'events': 'Kafka & Events',
         'sagas': 'Saga Explorer',
         'learning': 'Architecture Learning Center',
-        'operations': 'Live Operations & Transaction Workflow Console'
+        'operations': 'Live Operations & Transaction Workflow Console',
+        'swagger': 'OpenAPI Specification & Swagger UI Aggregator'
       };
       document.getElementById('view-title').innerText = titles[tabName] || 'Control Center';
 
@@ -3235,7 +3306,15 @@
             <td style="font-family: var(--font-mono);">${s.responseTimeMs >= 0 ? s.responseTimeMs + ' ms' : 'N/A'}</td>
             <td style="font-size: 12px; color: var(--text-muted);">${escapeHtml(s.database || 'None')}</td>
             <td>
-              <div style="display: flex; gap: 6px; align-items: center;">
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                ${s.swaggerUrl ? `
+                <button class="btn" style="padding: 3px 8px; font-size: 11px; background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #6ee7b7;" onclick="openSwaggerServiceDirect('${escapeHtml(s.swaggerUrl)}')" title="Explore API in Swagger UI">
+                  📖 Swagger
+                </button>` : ''}
+                ${s.openApiUrl ? `
+                <a class="btn" href="${escapeHtml(s.openApiUrl)}" target="_blank" style="padding: 3px 8px; font-size: 11px; text-decoration: none; background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;" title="View raw OpenAPI JSON specification">
+                  📜 OAS JSON ↗
+                </a>` : ''}
                 ${infraUi ? `
                 <a class="btn" href="${escapeHtml(infraUi.url)}" target="_blank" style="padding: 3px 8px; font-size: 11px; text-decoration: none; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); color: #d8b4fe;" title="Open ${escapeHtml(infraUi.label)} in new tab">
                   🌐 ${escapeHtml(infraUi.label)} ↗
@@ -3251,6 +3330,40 @@
       } catch (e) {
         console.error('Failed to load services', e);
       }
+    }
+
+    function switchSwaggerService(url) {
+      const frame = document.getElementById('swagger-frame');
+      if (frame) frame.src = url;
+      const extLink = document.getElementById('swagger-external-link');
+      if (extLink) extLink.href = url;
+
+      const rawLink = document.getElementById('swagger-raw-json-link');
+      if (rawLink) {
+        if (url.includes('Order%20Service')) rawLink.href = 'http://localhost:8080/services/order-service/openapi.json';
+        else if (url.includes('Product%20Service')) rawLink.href = 'http://localhost:8080/services/product-service/openapi.json';
+        else if (url.includes('Inventory%20Service')) rawLink.href = 'http://localhost:8080/services/inventory-service/openapi.json';
+        else if (url.includes('Payment%20Service')) rawLink.href = 'http://localhost:8080/services/payment-service/openapi.json';
+        else if (url.includes('Notification%20Service')) rawLink.href = 'http://localhost:8080/services/notification-service/openapi.json';
+        else rawLink.href = 'http://localhost:8080/v3/api-docs';
+      }
+    }
+
+    function reloadSwaggerFrame() {
+      const frame = document.getElementById('swagger-frame');
+      if (frame) {
+        const current = frame.src;
+        frame.src = 'about:blank';
+        setTimeout(() => { frame.src = current; }, 50);
+        showToast('Reloading Swagger UI frame...');
+      }
+    }
+
+    function openSwaggerServiceDirect(url) {
+      switchTab('swagger');
+      switchSwaggerService(url);
+      const sel = document.getElementById('swagger-service-select');
+      if (sel) sel.value = url;
     }
 
     async function loadArchitecture() {
@@ -4218,7 +4331,10 @@
           if (currentLearningCategory === 'Data Architecture' && p.category !== 'Data Architecture') return false;
           if (currentLearningCategory === 'Edge & Security' && !p.category.includes('Security') && !p.category.includes('Edge')) return false;
           if (currentLearningCategory === 'Event-Driven Backbone' && !p.category.includes('Event') && !p.category.includes('Reliability')) return false;
+          if (currentLearningCategory === 'Distributed Observability' && !p.category.includes('Observability')) return false;
+          if (currentLearningCategory === 'Resilience & Governance' && !p.category.includes('Resilience') && !p.category.includes('Governance') && !p.category.includes('Error')) return false;
           if (currentLearningCategory === 'Concurrency & Cloud' && !p.category.includes('Concurrency') && !p.category.includes('Cloud') && !p.category.includes('DevOps')) return false;
+          if (currentLearningCategory === 'Cloud & Platform' && !p.category.includes('Cloud') && !p.category.includes('Platform')) return false;
         }
 
         // Search filter
@@ -4247,7 +4363,7 @@
           <div style="grid-column: 1 / -1; padding: 40px; text-align: center; background: var(--bg-panel); border: 1px dashed var(--border-color); border-radius: 8px;">
             <div style="font-size: 24px; margin-bottom: 8px;">🔍</div>
             <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">No architectural patterns match your filter</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Try searching for "Saga", "Kafka", "Redis", "Gateway", or "Outbox"</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Try searching for "Saga", "Kafka", "Tracing", "Circuit Breaker", "ArchUnit", "Terraform", or "Helm"</div>
           </div>
         `;
         return;

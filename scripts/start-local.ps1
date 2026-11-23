@@ -24,7 +24,8 @@ param(
 
     [switch]$SkipBuild,
     [switch]$ForceBuild,
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$EnableAuth
 )
 
 $ErrorActionPreference = "Stop"
@@ -35,6 +36,12 @@ $ModeLower = $Mode.ToLower()
 $IsK8s = ($ModeLower -in @("k8s", "kubernetes"))
 $TargetModeDisplay = if ($IsK8s) { "KUBERNETES" } else { "DOCKER COMPOSE" }
 $StateFile = Join-Path $ProjectRoot ".build-state.json"
+
+if ($EnableAuth) {
+    $env:SECURITY_ENABLED = "true"
+} else {
+    $env:SECURITY_ENABLED = "false"
+}
 
 function Write-Step {
     param([string]$Message)
@@ -482,6 +489,12 @@ To use Docker Compose instead, run:
     if ($LASTEXITCODE -ne 0) {
         Write-Err "kubectl apply failed."
         exit 1
+    }
+
+    if ($EnableAuth) {
+        kubectl set env deployment/api-gateway SECURITY_ENABLED=true -n microservices-demo 2>$null | Out-Null
+    } else {
+        kubectl set env deployment/api-gateway SECURITY_ENABLED=false -n microservices-demo 2>$null | Out-Null
     }
 
     if (-not $SkipBuild -and $dirtyDockerServices.Count -gt 0) {

@@ -96,6 +96,36 @@ flowchart LR
 
 ---
 
-## Milestone 6: Distributed Observability & Golden Signals (Upcoming ⏳)
-- [ ] Integrate Prometheus metrics and Grafana dashboards for latency, traffic, errors, and saturation.
-- [ ] Add OpenTelemetry distributed tracing with Jaeger / Grafana Tempo.
+## Milestone 6: Distributed Observability & RFC 7807 Standard (Completed ✅)
+- [x] Provisioned **Prometheus** (`:9090`), **Grafana Tempo** (`:3200`, `:4318`), and **Grafana** (`:3000`) in `docker/docker-compose.yml`.
+- [x] Configured native in-process **Micrometer Tracing with OpenTelemetry bridge** (`micrometer-tracing-bridge-otel` + `opentelemetry-exporter-otlp`) across all microservices with zero binary agent overhead.
+- [x] Configured Prometheus metrics endpoint (`/actuator/prometheus`) and W3C trace context propagation (`traceparent`) across HTTP and Kafka headers.
+- [x] Standardized **RFC 7807 `ProblemDetail`** error responses across all microservices (`order-service`, `inventory-service`, `product-service`, `payment-service`, `api-gateway`, `control-center`).
+- [x] Provisioned Grafana datasources auto-linking Prometheus metrics to Tempo trace waterfalls.
+
+---
+
+## Milestone 7: Dual-Layer Resilience & Dead Letter Queue (DLQ) Replay (Completed ✅)
+- [x] Configured **Resilience4j Circuit Breakers**, exponential backoff retries, and time limiters on API Gateway and service client boundaries.
+- [x] Implemented graceful circuit-breaker fallbacks returning structured RFC 7807 `ProblemDetail` payloads on downstream service outages.
+- [x] Implemented **Dead Letter Queue (DLQ) Parking & Redrive Management API** (`/api/notifications/dlq`) in `notification-service` for poison-pill triage and replay.
+- [x] Integrated Observability nodes (`prometheus`, `tempo`, `grafana`) directly into the Control Center service registry and developer console (:8090).
+
+---
+
+## Milestone 8: Cloud Infrastructure-as-Code & Helm Packaging (Completed ✅)
+- [x] Authored modular **Terraform** root module and submodules (`terraform/modules/messaging`, `terraform/modules/storage`) targeting LocalStack AWS emulator.
+- [x] Provisioned SQS queues (`order-events-queue`, `inventory-events-queue`, `order-events-dlq`), SNS topic (`order-events-topic`), S3 bucket (`order-invoices-bucket`), and DynamoDB table (`inventory-items`).
+- [x] Authored comprehensive **Umbrella Helm Chart** (`helm/ecommerce-platform`) with environment profiles (`values-dev.yaml`, `values-prod.yaml`).
+- [x] Authored standalone Helm charts for each decoupled microservice (`services/*/helm/Chart.yaml`) preserving polyrepo autonomy.
+
+---
+
+## Milestone 9: OpenAPI Specification (OAS 3.0) & Central Swagger Aggregator (Completed ✅)
+- [x] Embedded Springdoc OpenAPI 3.0 (`springdoc-openapi-starter-webmvc-ui:2.8.5`) across all 5 core business microservices (`order-service`, `product-service`, `inventory-service`, `payment-service`, `notification-service`) and `api-gateway`.
+- [x] Enriched all commands, queries, DTOs, and REST endpoints with deep `@Schema`, `@Tag`, `@Operation`, and standardized RFC 7807 `ProblemDetail` `@ApiResponse` definitions.
+- [x] Configured central Swagger UI on API Gateway (`http://localhost:8080/swagger-ui.html`) with an interactive service switcher dropdown aggregating all microservices.
+- [x] Implemented edge reverse-proxying seam (`/services/{serviceName}/openapi.json`) in API Gateway routing OpenAPI specs to downstream instances with resilience fallbacks.
+- [x] Configured zero-friction local auth (`SECURITY_ENABLED=false` default) with optional `-EnableAuth` switch in `start.ps1` and `scripts/start-local.ps1`, alongside Bearer JWT `SecurityScheme` (`bearerAuth`) for manual in-browser token validation.
+- [x] Integrated dedicated "OpenAPI & Swagger" navigation hub, toolbar launch button, and embedded iframe into Control Center (`http://localhost:8090`).
+

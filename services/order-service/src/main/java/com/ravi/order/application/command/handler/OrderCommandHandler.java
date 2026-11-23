@@ -42,20 +42,32 @@ public class OrderCommandHandler {
     private final OutboxJpaRepository outboxRepository;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
+    private final com.ravi.order.infrastructure.client.ProductCatalogClient productCatalogClient;
+
+    @org.springframework.beans.factory.annotation.Value("${order.product-catalog.validation.enabled:true}")
+    private boolean productCatalogValidationEnabled = true;
 
     public OrderCommandHandler(OrderJpaRepository orderRepository,
                                OutboxJpaRepository outboxRepository,
                                ObjectMapper objectMapper,
-                               @Autowired(required = false) RedisTemplate<String, String> redisTemplate) {
+                               @Autowired(required = false) RedisTemplate<String, String> redisTemplate,
+                               @Autowired(required = false) com.ravi.order.infrastructure.client.ProductCatalogClient productCatalogClient) {
         this.orderRepository = orderRepository;
         this.outboxRepository = outboxRepository;
         this.objectMapper = objectMapper;
         this.redisTemplate = redisTemplate;
+        this.productCatalogClient = productCatalogClient;
     }
 
     @Transactional
     public UUID handle(CreateOrderCommand command) {
         log.info("Handling CreateOrderCommand for customer: {}", command.customerId());
+
+        if (productCatalogValidationEnabled && productCatalogClient != null) {
+            for (var item : command.items()) {
+                productCatalogClient.verifyProduct(item.productId());
+            }
+        }
 
         UUID orderId = UUID.randomUUID();
         List<OrderItem> items = command.items().stream()

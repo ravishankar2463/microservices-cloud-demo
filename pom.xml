@@ -21,6 +21,9 @@
 		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<aws.sdk.version>2.29.30</aws.sdk.version>
+		<resilience4j.version>2.2.0</resilience4j.version>
+		<archunit.version>1.5.1</archunit.version>
+		<springdoc.version>2.8.5</springdoc.version>
 	</properties>
 
 	<modules>
@@ -38,6 +41,17 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>io.github.resilience4j</groupId>
+				<artifactId>resilience4j-spring-boot3</artifactId>
+				<version>${resilience4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.tngtech.archunit</groupId>
+				<artifactId>archunit-junit5</artifactId>
+				<version>${archunit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.ravi</groupId>
 				<artifactId>common-domain</artifactId>
 				<version>${project.version}</version>
@@ -46,6 +60,11 @@
 				<groupId>com.ravi</groupId>
 				<artifactId>common-aws</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+				<version>${springdoc.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

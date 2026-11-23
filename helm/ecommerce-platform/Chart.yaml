@@ -1,0 +1,15 @@
+apiVersion: v2
+name: ecommerce-platform
+description: Umbrella Helm Chart for the Cloud-Native Decoupled Java Microservices Platform
+type: application
+version: 1.0.0
+appVersion: "0.0.1-SNAPSHOT"
+keywords:
+  - java25
+  - microservices
+  - hexagonal-architecture
+  - eda
+  - saga
+  - opentelemetry
+maintainers:
+  - name: Engineering Architecture Team

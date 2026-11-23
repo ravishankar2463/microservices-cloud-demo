@@ -1,0 +1,114 @@
+global:
+  environment: local
+  imagePullPolicy: IfNotPresent
+  awsEndpointUrl: "http://aws-emulator:4566"
+  kafkaBootstrapServers: "kafka:9092"
+  redisHost: "inventory-redis"
+  redisPort: 6379
+  otelExporterEndpoint: "http://tempo:4318/v1/traces"
+
+apiGateway:
+  replicaCount: 1
+  image:
+    repository: ecommerce/api-gateway
+    tag: latest
+  port: 8080
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+orderService:
+  replicaCount: 1
+  image:
+    repository: ecommerce/order-service
+    tag: latest
+  port: 8081
+  databaseUrl: "jdbc:postgresql://order-db:5432/order_db"
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+inventoryService:
+  replicaCount: 1
+  image:
+    repository: ecommerce/inventory-service
+    tag: latest
+  port: 8082
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+productService:
+  replicaCount: 1
+  image:
+    repository: ecommerce/product-service
+    tag: latest
+  port: 8085
+  databaseUrl: "jdbc:postgresql://product-db:5432/product_db"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+paymentService:
+  replicaCount: 1
+  image:
+    repository: ecommerce/payment-service
+    tag: latest
+  port: 8084
+  databaseUrl: "jdbc:postgresql://payment-db:5432/payment_db"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+notificationService:
+  replicaCount: 1
+  image:
+    repository: ecommerce/notification-service
+    tag: latest
+  port: 8083
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+controlCenter:
+  replicaCount: 1
+  image:
+    repository: ecommerce/control-center
+    tag: latest
+  port: 8090
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "ecommerce.local"

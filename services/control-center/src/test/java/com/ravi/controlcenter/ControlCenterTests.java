@@ -73,19 +73,19 @@ class ControlCenterTests {
 
         SystemOverview overview = response.getBody();
         assertThat(overview).isNotNull();
-        assertThat(overview.totalServices()).isEqualTo(13);
+        assertThat(overview.totalServices()).isEqualTo(16);
         assertThat(overview.kafkaTopicsCount()).isGreaterThanOrEqualTo(4);
         assertThat(overview.environment()).isEqualTo("LOCAL_DEVELOPMENT");
     }
 
     @Test
-    @DisplayName("Should discover all 8 services and 5 INFRA nodes in service registry")
+    @DisplayName("Should discover all 8 services, 3 observability nodes, and 5 INFRA nodes in service registry")
     void shouldDiscoverAllServices() {
         ResponseEntity<List<ServiceNode>> response = controller.getAllServices();
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
 
         List<ServiceNode> nodes = response.getBody();
-        assertThat(nodes).isNotNull().hasSize(13);
+        assertThat(nodes).isNotNull().hasSize(16);
 
         List<String> serviceIds = nodes.stream().map(ServiceNode::id).toList();
         assertThat(serviceIds).contains(
@@ -118,7 +118,7 @@ class ControlCenterTests {
 
         ArchitectureTopology topology = response.getBody();
         assertThat(topology).isNotNull();
-        assertThat(topology.nodes()).hasSize(13); // 8 services + 5 infra (kafka, redis, 3 dbs)
+        assertThat(topology.nodes()).hasSize(16); // 8 services + 3 observability + 5 infra (kafka, redis, 3 dbs)
         assertThat(topology.edges()).hasSize(17);
 
         // Check specific communication types
@@ -512,7 +512,7 @@ class ControlCenterTests {
         ResponseEntity<List<LearningPattern>> response = controller.getAllLearningPatterns();
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         List<LearningPattern> patterns = response.getBody();
-        assertThat(patterns).isNotNull().hasSizeGreaterThanOrEqualTo(10);
+        assertThat(patterns).isNotNull().hasSizeGreaterThanOrEqualTo(19);
 
         List<String> patternIds = patterns.stream().map(LearningPattern::id).toList();
         assertThat(patternIds).contains(
@@ -527,7 +527,14 @@ class ControlCenterTests {
             "pattern-idempotent-consumer",
             "pattern-flyway-migrations",
             "pattern-cloud-emulator",
-            "pattern-keycloak-oauth2"
+            "pattern-keycloak-oauth2",
+            "pattern-distributed-observability",
+            "pattern-rfc7807-problem-detail",
+            "pattern-circuit-breaker-resilience",
+            "pattern-dlq-redrive",
+            "pattern-archunit-guardrails",
+            "pattern-terraform-localstack-iac",
+            "pattern-umbrella-helm"
         );
 
         java.nio.file.Path repoRoot = editorLauncherService.getRepoRoot();
@@ -725,5 +732,61 @@ class ControlCenterTests {
             viewLearningEnd = html.indexOf("</div>\r\n\r\n    <!-- Pattern Inspection Slide-out Drawer");
         }
         assertThat(viewLearningEnd).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("Should expose Swagger and OpenAPI documentation URLs for microservices in Service Registry")
+    void shouldExposeSwaggerAndOpenApiUrlsInServiceRegistry() {
+        ResponseEntity<List<ServiceNode>> response = controller.getAllServices();
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+
+        List<ServiceNode> nodes = response.getBody();
+        assertThat(nodes).isNotNull();
+
+        List<String> coreServiceIds = List.of(
+            "api-gateway", "order-service", "product-service",
+            "inventory-service", "payment-service", "notification-service"
+        );
+
+        for (String serviceId : coreServiceIds) {
+            ServiceNode node = nodes.stream()
+                .filter(n -> serviceId.equals(n.id()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Service not found in registry: " + serviceId));
+
+            assertThat(node.swaggerUrl())
+                .as("Swagger URL for %s must not be null", serviceId)
+                .isNotBlank()
+                .contains("swagger-ui");
+
+            assertThat(node.openApiUrl())
+                .as("OpenAPI URL for %s must not be null", serviceId)
+                .isNotBlank()
+                .matches(".*(v3/api-docs|openapi\\.json).*");
+        }
+    }
+
+    @Test
+    @DisplayName("Should verify that Control Center HTML provides OpenAPI & Swagger Hub navigation, iframe, and quick-links")
+    void testControlCenterHtmlContainsSwaggerIntegration() throws Exception {
+        Resource resource = resourceLoader.getResource("classpath:static/index.html");
+        assertThat(resource.exists()).isTrue();
+
+        String html = resource.getContentAsString(StandardCharsets.UTF_8);
+
+        // Sidebar and toolbar Swagger triggers
+        assertThat(html).contains("onclick=\"switchTab('swagger')\"");
+        assertThat(html).contains("id=\"nav-swagger\"");
+        assertThat(html).contains("id=\"btn-toolbar-swagger\"");
+
+        // OpenAPI & Swagger dedicated view container and iframe
+        assertThat(html).contains("id=\"view-swagger\"");
+        assertThat(html).contains("id=\"swagger-frame\"");
+        assertThat(html).contains("id=\"swagger-service-select\"");
+
+        // JavaScript functions for service switcher and reloading
+        assertThat(html).contains("function switchSwaggerService(");
+        assertThat(html).contains("function reloadSwaggerFrame(");
+        assertThat(html).contains("function openSwaggerServiceDirect(");
     }
 }

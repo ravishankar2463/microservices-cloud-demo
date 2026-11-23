@@ -20,6 +20,9 @@
 
 .PARAMETER NoBrowser
     Prevents automatically opening the dashboard in the default browser.
+
+.PARAMETER EnableAuth
+    Enables Keycloak OAuth2 JWT resource server authentication on the API Gateway (default is disabled for friction-free local development).
 #>
 
 param(
@@ -30,7 +33,8 @@ param(
 
     [switch]$SkipBuild,
     [switch]$ForceBuild,
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$EnableAuth
 )
 
-& "$PSScriptRoot\scripts\start-local.ps1" -Mode $Mode -SkipBuild:$SkipBuild -ForceBuild:$ForceBuild -NoBrowser:$NoBrowser
+& "$PSScriptRoot\scripts\start-local.ps1" -Mode $Mode -SkipBuild:$SkipBuild -ForceBuild:$ForceBuild -NoBrowser:$NoBrowser -EnableAuth:$EnableAuth

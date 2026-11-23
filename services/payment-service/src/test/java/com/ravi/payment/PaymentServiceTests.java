@@ -150,4 +150,21 @@ class PaymentServiceTests {
         ResponseEntity<PaymentResponseDto> failRes = paymentController.processPayment(failCommand);
         assertThat(failRes.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
     }
+
+    @Test
+    @DisplayName("Circuit Breaker: External payment provider falls back gracefully when gateway encounters timeouts")
+    void shouldHandleCircuitBreakerFallbackOnRepeatedTimeouts() {
+        ProcessPaymentCommand cmd = new ProcessPaymentCommand(
+            "ORD-CB-" + UUID.randomUUID(),
+            "CUST-009",
+            new BigDecimal("99.50"), // .50 timeout trigger
+            "USD",
+            "IDEM-CB-" + UUID.randomUUID(),
+            "CREDIT_CARD"
+        );
+
+        Payment response = paymentService.processPayment(cmd);
+        assertThat(response.getStatus()).isEqualTo(PaymentStatus.FAILED);
+        assertThat(response.getFailureReason()).contains("Payment gateway communication error");
+    }
 }

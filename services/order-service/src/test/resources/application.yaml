@@ -24,3 +24,9 @@ aws:
   endpoint: http://localhost:4566
   region: us-east-1
   emulator-mode: true
+
+order:
+  product-catalog:
+    validation:
+      enabled: false
+

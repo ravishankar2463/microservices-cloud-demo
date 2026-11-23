@@ -1,5 +1,6 @@
 package com.ravi.notification.infrastructure.messaging.consumer;
 
+import com.ravi.notification.application.service.DeadLetterQueueService;
 import com.ravi.notification.application.service.InvoiceArchivalService;
 import com.ravi.notification.infrastructure.messaging.inbox.IdempotentMessageStore;
 import org.slf4j.Logger;
@@ -16,13 +17,16 @@ public class OrderNotificationKafkaListener {
 
     private final IdempotentMessageStore idempotencyStore;
     private final InvoiceArchivalService invoiceService;
+    private final DeadLetterQueueService dlqService;
     private final ObjectMapper objectMapper;
 
     public OrderNotificationKafkaListener(IdempotentMessageStore idempotencyStore,
                                           InvoiceArchivalService invoiceService,
+                                          DeadLetterQueueService dlqService,
                                           ObjectMapper objectMapper) {
         this.idempotencyStore = idempotencyStore;
         this.invoiceService = invoiceService;
+        this.dlqService = dlqService;
         this.objectMapper = objectMapper;
     }
 
@@ -32,9 +36,10 @@ public class OrderNotificationKafkaListener {
             autoStartup = "${notification.kafka.listener.auto-startup:true}"
     )
     public void onOrderEvent(String messagePayload) {
+        String eventId = "UNKNOWN";
         try {
             JsonNode root = objectMapper.readTree(messagePayload);
-            String eventId = root.path("eventId").asText();
+            eventId = root.path("eventId").asText("EVT-" + System.currentTimeMillis());
             String orderId = root.path("orderId").asText();
             String customerId = root.path("customerId").asText();
             String eventType = root.path("eventType").asText("");
@@ -73,6 +78,7 @@ public class OrderNotificationKafkaListener {
 
         } catch (Exception e) {
             log.error("Failed to process order event in notification-service: {}", e.getMessage());
+            dlqService.parkMessage(eventId, "order-events", messagePayload, e.getMessage());
         }
     }
 }
