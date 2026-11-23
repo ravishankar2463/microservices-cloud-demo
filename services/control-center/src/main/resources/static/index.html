@@ -5060,13 +5060,15 @@
       document.getElementById('infra-table-title').innerText = p === 'k8s' ? '⎈ Kubernetes Pod Status & Health' : '🐳 Docker Container Status & Health';
       document.getElementById('kpi-infra-platform-label').innerText = p === 'k8s' ? 'Kubernetes Pods' : 'Docker Containers';
       closeTerminal();
-      loadInfraNodes();
+      loadInfraNodes(true);
     }
 
-    async function loadInfraNodes() {
+    async function loadInfraNodes(isManual = false) {
       try {
         const tbody = document.getElementById('infra-nodes-tbody');
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--text-muted);">Fetching live node status...</td></tr>';
+        if (isManual || !cachedInfraNodes || cachedInfraNodes.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--text-muted);">Fetching live node status...</td></tr>';
+        }
 
         const res = await fetch(`${API_BASE}/infra/nodes?platform=${encodeURIComponent(currentInfraPlatform)}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -5109,9 +5111,16 @@
           alertBanner.style.display = 'none';
         }
 
-        renderInfraNodes(nodes);
+        const searchInput = document.getElementById('infra-node-search');
+        if (searchInput && searchInput.value.trim()) {
+          filterInfraNodes();
+        } else {
+          renderInfraNodes(nodes);
+        }
       } catch (err) {
-        document.getElementById('infra-nodes-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--accent-red);">Failed to load infrastructure nodes: ${escapeHtml(err.message)}</td></tr>`;
+        if (!cachedInfraNodes || cachedInfraNodes.length === 0) {
+          document.getElementById('infra-nodes-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px; color: var(--accent-red);">Failed to load infrastructure nodes: ${escapeHtml(err.message)}</td></tr>`;
+        }
       }
     }
 

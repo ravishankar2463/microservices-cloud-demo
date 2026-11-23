@@ -38,6 +38,8 @@ public class InfrastructureAdminService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = createInClusterHttpClient();
+    private final List<InfraNodeInfo> lastKnownK8sPods = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private final List<InfraNodeInfo> lastKnownDockerContainers = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     public List<InfraNodeInfo> getNodes(String platform) {
         String targetPlatform = (platform == null || platform.isBlank()) ? autoDetectPlatform() : platform.toLowerCase();
@@ -102,7 +104,12 @@ public class InfrastructureAdminService {
                     .build();
                 HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
                 if (resp.statusCode() == 200 && resp.body() != null) {
-                    return parseKubernetesJson(resp.body());
+                    List<InfraNodeInfo> parsed = parseKubernetesJson(resp.body());
+                    if (!parsed.isEmpty()) {
+                        lastKnownK8sPods.clear();
+                        lastKnownK8sPods.addAll(parsed);
+                        return parsed;
+                    }
                 }
                 log.warn("In-cluster k8s API returned status {}", resp.statusCode());
             } catch (Exception e) {
@@ -117,11 +124,21 @@ public class InfrastructureAdminService {
                 .start();
 
             String jsonOutput = readProcessOutput(process, 6);
-            if (jsonOutput != null && !jsonOutput.isBlank()) {
-                return parseKubernetesJson(jsonOutput);
+            if (jsonOutput != null && !jsonOutput.isBlank() && !jsonOutput.startsWith("Execution timed out")) {
+                List<InfraNodeInfo> parsed = parseKubernetesJson(jsonOutput);
+                if (!parsed.isEmpty()) {
+                    lastKnownK8sPods.clear();
+                    lastKnownK8sPods.addAll(parsed);
+                    return parsed;
+                }
             }
         } catch (Exception e) {
             log.error("Failed to query Kubernetes pods via CLI: {}", e.getMessage());
+        }
+
+        if (!lastKnownK8sPods.isEmpty()) {
+            log.debug("Returning last known {} pods to prevent UI flicker", lastKnownK8sPods.size());
+            return new ArrayList<>(lastKnownK8sPods);
         }
         return Collections.emptyList();
     }
