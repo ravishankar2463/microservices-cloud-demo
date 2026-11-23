@@ -59,8 +59,8 @@ The IETF standardized error format implemented via Spring Boot 4 `@RestControlle
 ### OpenTelemetry (OTel) & W3C TraceContext
 Industry-standard vendor-neutral telemetry framework. Microservices embed in-process Micrometer Tracing (`micrometer-tracing-bridge-otel`), exporting spans to Grafana Tempo via OTLP (`/v1/traces`) and propagating `traceparent` headers across HTTP requests and Kafka event records.
 
-### Dual-Layer Circuit Breaker (Resilience4j)
-Fault tolerance pattern wrapping HTTP and downstream client calls. Automatically trips to `OPEN` state upon elevated error rates, shedding load and executing graceful fallback responses to prevent cascading service failure.
+### Microservice Egress Circuit Breaker (Resilience4j)
+Fault tolerance pattern wrapping outbound network integration seams inside microservices. In `order-service`, `@CircuitBreaker` guards synchronous REST pre-flight lookups against `product-service` (failing fast with RFC 7807 503). In `payment-service`, `@CircuitBreaker` wraps the external payment processor gateway to cleanly trigger Saga compensating transactions during gateway outages. Automatically trips to `OPEN` state upon elevated error rates (50%), shedding load without exhausting worker threads.
 
 ### Dead Letter Queue (DLQ) & Redrive API
 An asynchronous failure isolation mechanism routing poisoned or repeatedly failed messages into a dedicated queue (`order-events-dlq`). The **Redrive API** (`/api/notifications/dlq/redrive/{id}`) enables operators to safely inspect, replay, or purge dead-lettered events without data loss.
@@ -104,3 +104,4 @@ The standardized HTTP error response envelope (`application/problem+json` and `a
 
 ### Non-Default Auth Toggle
 The deployment flag (`-EnableAuth` in `start.ps1` / `scripts/start-local.ps1`) controlling OAuth2 / Keycloak JWT resource server enforcement on API Gateway. It defaults to disabled (all routes open for rapid local iteration) while retaining Swagger UI `Authorize` dialog support via Bearer JWT SecurityScheme definitions.
+
