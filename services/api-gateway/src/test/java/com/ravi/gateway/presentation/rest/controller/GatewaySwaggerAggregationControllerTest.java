@@ -50,7 +50,7 @@ class GatewaySwaggerAggregationControllerTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(mockSpec, MediaType.APPLICATION_JSON));
 
-        mockMvc.perform(get("/services/order-service/v3/api-docs"))
+        mockMvc.perform(get("/services/order-service/openapi.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.info.title").value("Order Service API"));

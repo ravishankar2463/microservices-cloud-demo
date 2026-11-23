@@ -51,7 +51,6 @@ public class GatewaySwaggerAggregationController {
     }
 
     @GetMapping(value = {
-            "/services/{serviceName}/v3/api-docs",
             "/services/{serviceName}/openapi.json",
             "/services/{serviceName}/openapi"
     }, produces = MediaType.APPLICATION_JSON_VALUE)
